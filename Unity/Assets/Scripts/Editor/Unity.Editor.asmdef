@@ -5,7 +5,9 @@
         "Unity.Mono",
         "Unity.ThirdParty",
         "Unity.Core",
-        "Unity.Codes"
+        "Unity.Codes",
+        "Unity.ScriptableBuildPipeline",
+        "Unity.ScriptableBuildPipeline.Editor"
     ],
     "includePlatforms": [
         "Editor"
