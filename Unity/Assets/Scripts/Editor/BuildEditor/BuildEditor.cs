@@ -145,15 +145,22 @@ namespace ET
 			
 			if (GUILayout.Button("ExcelExporter"))
 			{
-				//Directory.Delete("Assets/Bundles/Config", true);
 				ToolsEditor.ExcelExporter();
 				// 如果是ClientServer，那么客户端要使用服务端配置
 				if (this.globalConfig.CodeMode == CodeMode.ClientServer)
 				{
 					FileHelper.CopyDirectory("../Config/StartConfig/Localhost", "Assets/Bundles/Config/StartConfig/Localhost");
-					foreach (string file in Directory.GetFiles("../Config/", "*.bytes"))
+					foreach (string file in Directory.GetFiles("../Config/GameConfig", "*.bytes"))
 					{
-						File.Copy(file, $"Assets/Bundles/Config/{Path.GetFileName(file)}", true);
+						File.Copy(file, $"Assets/Bundles/Config/GameConfig/{Path.GetFileName(file)}", true);
+					}
+				} // 如果是Client，那么客户端要删掉服务端配置
+				else if (this.globalConfig.CodeMode == CodeMode.Client)
+				{
+					string configPath = "Assets/Bundles/Config/StartConfig";
+					if (Directory.Exists(configPath))
+					{
+						Directory.Delete(configPath, true);
 					}
 				}
 				Debug.Log("copy config to Assets/Bundles/Config");

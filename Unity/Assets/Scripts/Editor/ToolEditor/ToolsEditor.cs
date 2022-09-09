@@ -7,11 +7,11 @@ namespace ET
         public static void ExcelExporter()
         {
 #if UNITY_EDITOR_OSX
-            const string tools = "./Tool";
+            const string genCode = "sh gen_code.sh";
 #else
-            const string tools = ".\\Tool.exe";
+            const string genCode = "gen_code.bat";
 #endif
-            ShellHelper.Run($"{tools} --AppType=ExcelExporter --Console=1", "../Bin/");
+            ShellHelper.Run($"{genCode}", "../Tools/Luban/");
         }
         
         public static void Proto2CS()

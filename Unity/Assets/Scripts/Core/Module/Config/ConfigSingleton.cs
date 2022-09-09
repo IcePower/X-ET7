@@ -1,8 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ET
 {
-    public abstract class ConfigSingleton<T>: ProtoObject, ISingleton where T: ConfigSingleton<T>, new()
+    public interface IConfigCategory
+    {
+        void Resolve(Dictionary<string, IConfigSingleton> _tables);
+        
+        void TranslateText(System.Func<string, string, string> translator);
+    }
+
+    public interface IConfigSingleton: IConfigCategory, ISingleton
+    {
+        
+    }
+    
+    public abstract class ConfigSingleton<T>: IConfigSingleton where T: ConfigSingleton<T>, new()
     {
         [StaticField]
         private static T instance;
@@ -36,12 +49,12 @@ namespace ET
             throw new NotImplementedException();
         }
 
-        public override void AfterEndInit()
-        {
-        }
-
         public virtual void Dispose()
         {
         }
+
+        public abstract void Resolve(Dictionary<string, IConfigSingleton> _tables);
+
+        public abstract void TranslateText(Func<string, string, string> translator);
     }
 }

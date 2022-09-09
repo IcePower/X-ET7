@@ -11,7 +11,7 @@ namespace ET
 		
 		public GlobalConfig GlobalConfig;
 		
-		private void Awake()
+		private async ETTask Awake()
 		{
 			Instance = this;
 			
@@ -43,6 +43,7 @@ namespace ET
 			
 			ETTask.ExceptionHandler += Log.Error;
 
+			await Game.AddSingleton<MonoResComponent>().InitAsync();
 			Game.AddSingleton<CodeLoader>().Start();
 		}
 

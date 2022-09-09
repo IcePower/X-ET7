@@ -40,6 +40,10 @@
     <Compile Include="..\..\Unity\Assets\Scripts\ThirdParty\ShareLib\Recast\Recast.cs">
       <Link>Recast\Recast.cs</Link>
     </Compile>
+
+    <Compile Include="..\..\Unity\Assets\Scripts\ThirdParty\LubanLib\**\*.cs">
+        <Link>LubanLib/%(RecursiveDir)%(FileName)%(Extension)</Link>
+    </Compile>
     </ItemGroup>
 
     <ItemGroup>

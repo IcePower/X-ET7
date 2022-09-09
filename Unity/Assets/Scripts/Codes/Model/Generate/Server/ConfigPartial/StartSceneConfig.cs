@@ -30,7 +30,7 @@ namespace ET
             return this.ClientScenesByName[zone][name];
         }
 
-        public override void AfterEndInit()
+        partial void PostResolve()
         {
             foreach (StartSceneConfig startSceneConfig in this.GetAll().Values)
             {
@@ -64,7 +64,7 @@ namespace ET
         }
     }
     
-    public partial class StartSceneConfig: ISupportInitialize
+    public partial class StartSceneConfig
     {
         public long InstanceId;
         
@@ -118,7 +118,7 @@ namespace ET
             }
         }
 
-        public override void AfterEndInit()
+        partial void PostResolve()
         {
             this.Type = EnumHelper.FromString<SceneType>(this.SceneType);
             InstanceIdStruct instanceIdStruct = new InstanceIdStruct(this.Process, (uint) this.Id);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Bright.Serialization;
 
 namespace ET
 {
@@ -20,7 +21,7 @@ namespace ET
             public string ConfigName;
         }
 		
-        private readonly Dictionary<Type, ISingleton> allConfig = new Dictionary<Type, ISingleton>();
+        private readonly Dictionary<string, IConfigSingleton> allConfig = new Dictionary<string, IConfigSingleton>(20);
 
 		public override void Dispose()
 		{
@@ -32,19 +33,19 @@ namespace ET
 
 		public object LoadOneConfig(Type configType)
 		{
-			this.allConfig.TryGetValue(configType, out ISingleton oneConfig);
+			this.allConfig.TryGetValue(configType.Name, out IConfigSingleton oneConfig);
 			if (oneConfig != null)
 			{
 				oneConfig.Destroy();
 			}
 			
-			byte[] oneConfigBytes = EventSystem.Instance.Callback<GetOneConfigBytes, byte[]>(new GetOneConfigBytes() {ConfigName = configType.FullName});
+			ByteBuf oneConfigBytes = EventSystem.Instance.Callback<GetOneConfigBytes, ByteBuf>(new GetOneConfigBytes() {ConfigName = configType.FullName});
 
-			object category = ProtobufHelper.FromBytes(configType, oneConfigBytes, 0, oneConfigBytes.Length);
-			ISingleton singleton = category as ISingleton;
+			object category = Activator.CreateInstance(configType, oneConfigBytes);
+			IConfigSingleton singleton = category as IConfigSingleton;
 			singleton.Register();
 			
-			this.allConfig[configType] = singleton;
+			this.allConfig[configType.Name] = singleton;
 			return category;
 		}
 		
@@ -53,13 +54,17 @@ namespace ET
 			this.allConfig.Clear();
 			HashSet<Type> types = EventSystem.Instance.GetTypes(typeof (ConfigAttribute));
 			
-			Dictionary<string, byte[]> configBytes = 
-			EventSystem.Instance.Callback<GetAllConfigBytes, Dictionary<string, byte[]>>(
-				new GetAllConfigBytes());
+			Dictionary<string, ByteBuf> configBytes = EventSystem.Instance.Callback<GetAllConfigBytes, Dictionary<string, ByteBuf>>(new GetAllConfigBytes());
 
 			foreach (Type type in types)
 			{
 				this.LoadOneInThread(type, configBytes);
+			}
+			
+			foreach (IConfigSingleton category in this.allConfig.Values)
+			{
+				category.Register();
+				category.Resolve(allConfig);
 			}
 		}
 		
@@ -68,9 +73,7 @@ namespace ET
 			this.allConfig.Clear();
 			HashSet<Type> types = EventSystem.Instance.GetTypes(typeof (ConfigAttribute));
 			
-			Dictionary<string, byte[]> configBytes = 
-					EventSystem.Instance.Callback<GetAllConfigBytes, Dictionary<string, byte[]>>(
-						new GetAllConfigBytes());
+			Dictionary<string, ByteBuf> configBytes = EventSystem.Instance.Callback<GetAllConfigBytes, Dictionary<string, ByteBuf>>(new GetAllConfigBytes());
 
 			using ListComponent<Task> listTasks = ListComponent<Task>.Create();
 			
@@ -82,21 +85,30 @@ namespace ET
 
 			await Task.WhenAll(listTasks.ToArray());
 
-			foreach (ISingleton category in this.allConfig.Values)
+			foreach (IConfigSingleton category in this.allConfig.Values)
 			{
 				category.Register();
+				category.Resolve(allConfig);
 			}
 		}
 		
-		private void LoadOneInThread(Type configType, Dictionary<string, byte[]> configBytes)
+		private void LoadOneInThread(Type configType, Dictionary<string, ByteBuf> configBytes)
 		{
-			byte[] oneConfigBytes = configBytes[configType.Name];
+			ByteBuf oneConfigBytes = configBytes[configType.Name];
 
-			object category = ProtobufHelper.FromBytes(configType, oneConfigBytes, 0, oneConfigBytes.Length);
+			object category = Activator.CreateInstance(configType, oneConfigBytes);
 			
 			lock (this)
 			{
-				this.allConfig[configType] = category as ISingleton;	
+				this.allConfig[configType.Name] = category as IConfigSingleton;	
+			}
+		}
+		
+		public void TranslateText(Func<string, string, string> translator)
+		{
+			foreach (IConfigSingleton category in this.allConfig.Values)
+			{
+				category.TranslateText(translator);
 			}
 		}
 	}

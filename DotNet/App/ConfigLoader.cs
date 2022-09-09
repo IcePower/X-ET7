@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Bright.Serialization;
 
 namespace ET
 {
     [Callback]
-    public class GetAllConfigBytes: ACallbackHandler<ConfigComponent.GetAllConfigBytes, Dictionary<string, byte[]>>
+    public class GetAllConfigBytes: ACallbackHandler<ConfigComponent.GetAllConfigBytes, Dictionary<string, ByteBuf>>
     {
-        public override Dictionary<string, byte[]> Handle(ConfigComponent.GetAllConfigBytes args)
+        public override Dictionary<string, ByteBuf> Handle(ConfigComponent.GetAllConfigBytes args)
         {
-            Dictionary<string, byte[]> output = new Dictionary<string, byte[]>();
+            Dictionary<string, ByteBuf> output = new Dictionary<string, ByteBuf>();
             List<string> startConfigs = new List<string>()
             {
                 "StartMachineConfigCategory", 
@@ -27,9 +28,9 @@ namespace ET
                 }
                 else
                 {
-                    configFilePath = $"../Config/{configType.Name}.bytes";
+                    configFilePath = $"../Config/GameConfig/{configType.Name}.bytes";
                 }
-                output[configType.Name] = File.ReadAllBytes(configFilePath);
+                output[configType.Name] = new ByteBuf(File.ReadAllBytes(configFilePath));
             }
 
             return output;
@@ -37,11 +38,11 @@ namespace ET
     }
     
     [Callback]
-    public class GetOneConfigBytes: ACallbackHandler<ConfigComponent.GetOneConfigBytes, byte[]>
+    public class GetOneConfigBytes: ACallbackHandler<ConfigComponent.GetOneConfigBytes, ByteBuf>
     {
-        public override byte[] Handle(ConfigComponent.GetOneConfigBytes args)
+        public override ByteBuf Handle(ConfigComponent.GetOneConfigBytes args)
         {
-            byte[] configBytes = File.ReadAllBytes($"../Config/{args.ConfigName}.bytes");
+            ByteBuf configBytes = new ByteBuf(File.ReadAllBytes($"../Config/{args.ConfigName}.bytes"));
             return configBytes;
         }
     }

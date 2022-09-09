@@ -85,3 +85,5 @@ YooAsset.Editor.csproj
 /Unity/Unity.HotfixView.Codes.csproj
 /Unity/Unity.Model.Codes.csproj
 /Unity/Unity.ModelView.Codes.csproj
+Unity/Bundles
+Unity/Sandbox
