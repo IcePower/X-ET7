@@ -154,14 +154,6 @@ namespace ET
 					{
 						File.Copy(file, $"Assets/Bundles/Config/GameConfig/{Path.GetFileName(file)}", true);
 					}
-				} // 如果是Client，那么客户端要删掉服务端配置
-				else if (this.globalConfig.CodeMode == CodeMode.Client)
-				{
-					string configPath = "Assets/Bundles/Config/StartConfig";
-					if (Directory.Exists(configPath))
-					{
-						Directory.Delete(configPath, true);
-					}
 				}
 				Debug.Log("copy config to Assets/Bundles/Config");
 			}
@@ -170,8 +162,6 @@ namespace ET
 			{
 				ToolsEditor.Proto2CS();
 			}
-			
-
 
 			GUILayout.Space(5);
 		}
