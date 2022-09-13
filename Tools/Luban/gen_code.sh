@@ -28,8 +28,16 @@ echo ======================= StartConfig RouterTest ==========================
   --output_data_dir ${WORKSPACE}/Config/StartConfig/RouterTest \
   --gen_types data_bin \
   -s server
+  
+echo ======================= StartConfig Benchmark ==========================
+ /usr/local/share/dotnet/dotnet ${GEN_CLIENT} --template_search_path Template_Server -j cfg --\
+  -d ${CONF_ROOT}/Defines/__root__.xml \
+  --input_data_dir ${CONF_ROOT}/Datas/StartConfig/Benchmark \
+  --output_data_dir ${WORKSPACE}/Config/StartConfig/Benchmark \
+  --gen_types data_bin \
+  -s server
 
-echo ======================= Server Config ==========================
+echo ======================= Server GameConfig ==========================
 /usr/local/share/dotnet/dotnet ${GEN_CLIENT} --template_search_path Template_Server -j cfg --\
  -d ${CONF_ROOT}/Defines/__root__.xml \
  --input_data_dir ${CONF_ROOT}/Datas \
