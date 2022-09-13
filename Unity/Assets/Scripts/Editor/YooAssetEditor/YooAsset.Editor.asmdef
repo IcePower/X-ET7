@@ -2,9 +2,9 @@
     "name": "YooAsset.Editor",
     "rootNamespace": "",
     "references": [
+        "Unity.ThirdParty",
         "Unity.ScriptableBuildPipeline",
-        "Unity.ScriptableBuildPipeline.Editor",
-        "Unity.ThirdParty"
+        "Unity.ScriptableBuildPipeline.Editor"
     ],
     "includePlatforms": [
         "Editor"

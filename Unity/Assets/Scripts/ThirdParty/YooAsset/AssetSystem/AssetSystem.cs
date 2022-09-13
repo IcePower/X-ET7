@@ -141,7 +141,7 @@ namespace YooAsset
 			if (assetInfo.IsInvalid)
 			{
 				CompletedProvider completedProvider = new CompletedProvider(assetInfo);
-				completedProvider.SetCompleted();
+				completedProvider.SetCompleted(assetInfo.Error);
 				return completedProvider.CreateHandle<SceneOperationHandle>();
 			}
 
@@ -176,7 +176,7 @@ namespace YooAsset
 			if (assetInfo.IsInvalid)
 			{
 				CompletedProvider completedProvider = new CompletedProvider(assetInfo);
-				completedProvider.SetCompleted();
+				completedProvider.SetCompleted(assetInfo.Error);
 				return completedProvider.CreateHandle<AssetOperationHandle>();
 			}
 
@@ -202,7 +202,7 @@ namespace YooAsset
 			if (assetInfo.IsInvalid)
 			{
 				CompletedProvider completedProvider = new CompletedProvider(assetInfo);
-				completedProvider.SetCompleted();
+				completedProvider.SetCompleted(assetInfo.Error);
 				return completedProvider.CreateHandle<SubAssetsOperationHandle>();
 			}
 
@@ -345,6 +345,15 @@ namespace YooAsset
 			// 重新排序
 			report.ProviderInfos.Sort();
 			return report;
+		}
+		internal static List<BundleInfo> GetLoadedBundleInfos()
+		{
+			List<BundleInfo> result = new List<BundleInfo>(100);
+			foreach (var bundleLoader in _loaders)
+			{
+				result.Add(bundleLoader.MainBundleInfo);
+			}
+			return result;
 		}
 		#endregion
 	}
