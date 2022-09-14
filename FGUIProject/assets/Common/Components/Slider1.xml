@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="50,10" extention="Slider">
+  <displayList>
+    <graph id="n0_ab9e" name="n0" xy="0,0" size="50,10" type="rect" lineColor="#ffa0a0a0" fillColor="#fff0f0f0">
+      <relation target="" sidePair="width-width,height-height"/>
+    </graph>
+    <graph id="n1_ab9e" name="bar" xy="5,3" size="40,4" type="rect" lineSize="0" fillColor="#ff3399ff"/>
+    <component id="n2_ab9e" name="grip" src="ab9e9" fileName="Components/Slider1_grip.xml" xy="40,-5">
+      <relation target="n1_ab9e" sidePair="right-right"/>
+    </component>
+  </displayList>
+  <Slider/>
+</component>

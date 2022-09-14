@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using YooAsset;
 
-namespace ET
+namespace ET.Client
 {
     [ComponentOf(typeof(Scene))]
     public class ResComponent: Entity, IAwake, IDestroy, IUpdate

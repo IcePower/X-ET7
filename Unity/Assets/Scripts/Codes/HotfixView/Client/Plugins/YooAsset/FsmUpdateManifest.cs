@@ -1,4 +1,4 @@
-namespace ET
+namespace ET.Client
 {
     [FsmNode]
     public class FsmUpdateManifest: AFsmNodeHandler

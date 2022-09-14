@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="1080,1920">
+  <controller name="c1" alias="TestC1" pages="0,State1,1,State2" selected="1"/>
+  <controller name="c2" pages="0,,1," selected="0"/>
+  <displayList>
+    <image id="n25_t52l" name="n25" src="t52l2" fileName="Images/main_poster.jpeg" xy="0,0" size="1080,1919" aspect="true"/>
+    <component id="n0_ab9e" name="LoginBtn" src="ab9e1" fileName="Components/Button1.xml" pkg="f2boiu4i" xy="299,1148" size="511,119">
+      <Button title="登录" titleColor="#cccccc" titleFontSize="40" icon="ui://f2boiu4iab9e4"/>
+    </component>
+    <component id="n2_ab9e" name="AccountInput" src="ab9e2" fileName="Components/InputField1.xml" pkg="f2boiu4i" xy="375,860"/>
+    <component id="n3_ab9e" name="PasswordInput" src="ab9e2" fileName="Components/InputField1.xml" pkg="f2boiu4i" xy="375,988"/>
+  </displayList>
+</component>

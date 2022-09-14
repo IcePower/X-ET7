@@ -25,3 +25,36 @@ MonoBehaviour:
       PackRuleName: PackGroup
       FilterRuleName: CollectAll
       AssetTags: 
+  - GroupName: UI
+    GroupDesc: UI
+    AssetTags: UI
+    ActiveRuleName: EnableGroup
+    Collectors:
+    - CollectPath: Assets/Bundles/FUI
+      CollectorType: 0
+      AddressRuleName: AddressByFileName
+      PackRuleName: PackDirectory
+      FilterRuleName: CollectAtlas
+      AssetTags: 
+    - CollectPath: Assets/Bundles/FUI
+      CollectorType: 0
+      AddressRuleName: AddressByFileName
+      PackRuleName: PackRawFile
+      FilterRuleName: CollectBytes
+      AssetTags: 
+  - GroupName: Unit
+    GroupDesc: Unit
+    AssetTags: Unit
+    ActiveRuleName: EnableGroup
+    Collectors:
+    - CollectPath: Assets/Bundles/Unit
+      CollectorType: 0
+      AddressRuleName: AddressByFileName
+      PackRuleName: PackDirectory
+      FilterRuleName: CollectPrefab
+      AssetTags: 
+  - GroupName: Scene
+    GroupDesc: Scene
+    AssetTags: Scene
+    ActiveRuleName: EnableGroup
+    Collectors: []

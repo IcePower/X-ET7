@@ -5,9 +5,9 @@
         "Unity.Mono",
         "Unity.ThirdParty",
         "Unity.Core",
-        "Unity.Codes",
         "Unity.ScriptableBuildPipeline",
-        "Unity.ScriptableBuildPipeline.Editor"
+        "Unity.ScriptableBuildPipeline.Editor",
+        "YooAsset.Editor"
     ],
     "includePlatforms": [
         "Editor"

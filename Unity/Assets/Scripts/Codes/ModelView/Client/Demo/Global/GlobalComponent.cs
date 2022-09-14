@@ -1,3 +1,4 @@
+using FairyGUI;
 using UnityEngine;
 
 namespace ET.Client
@@ -10,6 +11,11 @@ namespace ET.Client
         
         public Transform Global;
         public Transform Unit { get; set; }
-        public Transform UI;
+        
+        public GComponent GRoot{ get; set; }
+        public GComponent NormalGRoot{ get; set; }
+        public GComponent PopUpGRoot{ get; set; }
+        public GComponent FixedGRoot{ get; set; }
+        public GComponent OtherGRoot{ get; set; }
     }
 }

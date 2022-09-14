@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="360,71">
+  <displayList>
+    <image id="n0_ab9e" name="n0" src="ab9e3" fileName="Images/InputBg.png" xy="0,0" size="360,71" aspect="true"/>
+    <text id="n1_ab9e" name="Input" xy="0,0" size="360,71" fontSize="40" align="center" vAlign="middle" autoSize="none" text="" input="true"/>
+    <text id="n2_ab9e" name="simpleText" xy="-11,-606" size="459,172" fontSize="40" align="center" autoSize="none" text=""/>
+    <richtext id="n3_ab9e" name="richText" xy="-15,-351" size="468,174" fontSize="40" align="center" autoSize="none" text=""/>
+  </displayList>
+</component>

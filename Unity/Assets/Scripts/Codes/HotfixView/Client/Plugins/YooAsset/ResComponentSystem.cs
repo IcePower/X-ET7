@@ -2,7 +2,7 @@ using System;
 using UnityEngine.SceneManagement;
 using YooAsset;
 
-namespace ET
+namespace ET.Client
 {
    public class ResComponentAwakeSystem: AwakeSystem<ResComponent>
     {
@@ -37,10 +37,10 @@ namespace ET
             ResComponent.Instance = self;
         }
         
-        public static ETTask InitResourceAsync(this ResComponent self, Scene zoneScene)
+        public static ETTask InitResourceAsync(this ResComponent self, Scene clientScene)
         {
             ETTask task = ETTask.Create(true); 
-            FsmComponent fsmComponent = zoneScene.AddComponent<FsmComponent, ETTask>(task);
+            FsmComponent fsmComponent = clientScene.AddComponent<FsmComponent, ETTask>(task);
             
             fsmComponent.AddNodeHandler(nameof(FsmResourceInit));
             fsmComponent.AddNodeHandler(nameof(FsmUpdateStaticVersion));
@@ -72,7 +72,7 @@ namespace ET
 
             foreach (var handle in self.SceneOperationHandles.Values)
             {
-                handle.UnloadAsync();
+                
             }
         }
 
@@ -264,7 +264,7 @@ namespace ET
 
         #region 同步加载
 
-        public static UnityEngine.Object LoadAsset<T>(this ResComponent self, string location)where T: UnityEngine.Object
+        public static T LoadAsset<T>(this ResComponent self, string location)where T: UnityEngine.Object
         {
             self.AssetsOperationHandles.TryGetValue(location, out AssetOperationHandle handle);
 
@@ -274,7 +274,7 @@ namespace ET
                 self.AssetsOperationHandles[location] = handle;
             }
 
-            return handle.AssetObject;
+            return handle.AssetObject as T;
         }
         
         public static UnityEngine.Object LoadAsset(this ResComponent self, string location, Type type)
