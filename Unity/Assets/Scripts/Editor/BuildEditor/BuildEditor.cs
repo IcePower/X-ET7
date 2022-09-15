@@ -149,7 +149,14 @@ namespace ET
 				// 如果是ClientServer，那么客户端要使用服务端配置
 				if (this.globalConfig.CodeMode == CodeMode.ClientServer)
 				{
-					FileHelper.CopyDirectory("../Config/StartConfig/Localhost", "Assets/Bundles/Config/StartConfig/Localhost");
+					string fromDir = "../Config/StartConfig/Localhost";
+					string toDir = "Assets/Bundles/Config/StartConfig/Localhost";
+					if (Directory.Exists(toDir))
+					{
+						Directory.Delete(toDir, true);
+					}
+					FileHelper.CopyDirectory(fromDir, toDir);
+					
 					foreach (string file in Directory.GetFiles("../Config/GameConfig", "*.bytes"))
 					{
 						File.Copy(file, $"Assets/Bundles/Config/GameConfig/{Path.GetFileName(file)}", true);
