@@ -47,7 +47,7 @@ MonoBehaviour:
     AssetTags: Unit
     ActiveRuleName: EnableGroup
     Collectors:
-    - CollectPath: Assets/Bundles/Unit
+    - CollectPath: Assets/Res/Unit
       CollectorType: 0
       AddressRuleName: AddressByFileName
       PackRuleName: PackDirectory
@@ -57,4 +57,10 @@ MonoBehaviour:
     GroupDesc: Scene
     AssetTags: Scene
     ActiveRuleName: EnableGroup
-    Collectors: []
+    Collectors:
+    - CollectPath: Assets/Scenes
+      CollectorType: 0
+      AddressRuleName: AddressByFileName
+      PackRuleName: PackSeparately
+      FilterRuleName: CollectScene
+      AssetTags: 
