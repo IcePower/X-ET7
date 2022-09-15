@@ -23,7 +23,6 @@ namespace ET
         OnError = 5,
         CreateChannel = 6,
         RemoveChannel = 7,
-        SendStream = 8,
         SendMessage = 9,
         GetKChannelConn = 10,
         ChangeAddress = 11,
@@ -104,12 +103,6 @@ namespace ET
             NetOperator netOperator = new NetOperator() { Op = NetOp.ChangeAddress, ServiceId = serviceId, ChannelId = channelId, Object = ipEndPoint};
             this.netThreadOperators.Enqueue(netOperator);
         }
-
-        public void SendStream(int serviceId, long channelId, long actorId, MemoryStream memoryStream)
-        {
-            NetOperator netOperator = new NetOperator() { Op = NetOp.SendStream, ServiceId = serviceId, ChannelId = channelId, ActorId = actorId, Object = memoryStream };
-            this.netThreadOperators.Enqueue(netOperator);
-        }
         
         public void SendMessage(int serviceId, long channelId, long actorId, object message)
         {
@@ -131,9 +124,9 @@ namespace ET
             this.netThreadOperators.Enqueue(netOperator);
         }
         
-        public void RemoveChannel(int serviceId, long channelId)
+        public void RemoveChannel(int serviceId, long channelId, int error)
         {
-            NetOperator netOperator = new NetOperator() { Op = NetOp.RemoveChannel, ServiceId = serviceId, ChannelId = channelId};
+            NetOperator netOperator = new NetOperator() { Op = NetOp.RemoveChannel, ServiceId = serviceId, ChannelId = channelId, ActorId = error};
             this.netThreadOperators.Enqueue(netOperator);
         }
 
@@ -216,7 +209,6 @@ namespace ET
         
         private readonly Dictionary<int, AService> services = new Dictionary<int, AService>();
         private readonly Queue<int> queue = new Queue<int>();
-        public readonly TimerComponent TimerComponent = new TimerComponent();
         
         private void Add(AService aService)
         {
@@ -269,20 +261,13 @@ namespace ET
                         case NetOp.RemoveChannel:
                         {
                             AService service = this.Get(op.ServiceId);
-                            service.Remove(op.ChannelId);
-                            break;
-                        }
-                        case NetOp.SendStream:
-                        {
-                            AService service = this.Get(op.ServiceId);
-                            service.Send(op.ChannelId, op.ActorId, op.Object as MemoryStream);
+                            service.Remove(op.ChannelId, (int)op.ActorId);
                             break;
                         }
                         case NetOp.SendMessage:
                         {
                             AService service = this.Get(op.ServiceId);
-                            (ushort opcode, MemoryStream stream) = MessageSerializeHelper.MessageToStream(op.Object);
-                            service.Send(op.ChannelId, op.ActorId, stream);
+                            service.Send(op.ChannelId, op.ActorId, op.Object);
                             break;
                         }
                         case NetOp.GetKChannelConn:
@@ -334,8 +319,6 @@ namespace ET
             }
             
             this.RunNetThreadOperator();
-            
-            TimerComponent.Update();
         }
 
         public void OnAccept(int serviceId, long channelId, IPEndPoint ipEndPoint)
