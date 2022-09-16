@@ -13,16 +13,19 @@ namespace FUIEditor
 {
     public static class FUICodeSpawner
     {
+        // 名字空间
         private const string NameSpace = "ET.Client";
         
+        // 类名前缀
         private const string ClassNamePrefix = "FUI_";
         
+        // 代码生成路径
         private const string FUIAutoGenDir = "../Unity/Assets/Scripts/Codes/ModelView/Client/Demo/FUIAutoGen";
         private const string ModelViewCodeDir = "../Unity/Assets/Scripts/Codes/ModelView/Client/Demo/FUI";
         private const string HotfixViewCodeDir = "../Unity/Assets/Scripts/Codes/HotfixView/Client/Demo/FUI";
 
         // 不生成使用默认名称的成员
-        private static bool IgnoreDefaultVariableName = true;
+        private static readonly bool IgnoreDefaultVariableName = true;
         
         private static readonly Dictionary<string, PackageInfo> PackageInfos = new Dictionary<string, PackageInfo>();
 
@@ -219,6 +222,8 @@ namespace FUIEditor
                 SpawnCodeForBinder(PackageInfos[kv.Key], kv.Value);
             }
 
+            SpawnCodeForInit();
+
             foreach (PackageInfo packageInfo in PackageInfos.Values)
             {
                 string panelName = "{0}Panel.xml".Fmt(packageInfo.Name);
@@ -229,6 +234,42 @@ namespace FUIEditor
                     SpawnEventHandler(packageInfo.Name);
                 }
             }
+        }
+        
+        private static void SpawnCodeForInit()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("/** This is an automatically generated class by FUICodeSpawner. Please do not modify it. **/\n");
+            sb.AppendFormat("namespace {0}\n", NameSpace);
+            sb.AppendLine("{");
+            sb.AppendLine("\tpublic static class FUIPackageLoader");
+            sb.AppendLine("\t{");
+            sb.AppendLine("\t\tpublic static async ETTask LoadPackagesAsync(FUIComponent fuiComponent)");
+            sb.AppendLine("\t\t{");
+            sb.AppendLine("\t\t\tusing (ListComponent<ETTask> tasks = ListComponent<ETTask>.Create())");
+            sb.AppendLine("\t\t\t{");
+            foreach (var kv in ExportedComponentInfos)
+            {
+                sb.AppendLine("\t\t\t\ttasks.Add(fuiComponent.AddPackageAsync(\"{0}\"));".Fmt(PackageInfos[kv.Key].Name));
+            }
+            sb.AppendLine();
+            sb.AppendLine("\t\t\t\tawait ETTaskHelper.WaitAll(tasks);");
+            sb.AppendLine("\t\t\t}");
+            sb.AppendLine();
+
+            foreach (var kv in ExportedComponentInfos)
+            {
+                sb.AppendLine("\t\t\t{0}Binder.BindAll();".Fmt(PackageInfos[kv.Key].Name));
+            }
+            
+            sb.AppendLine("\t\t}");
+            sb.AppendLine("\t}");
+            sb.AppendLine("}");
+            
+            string filePath = "{0}/FUIPackageLoader.cs".Fmt(HotfixViewCodeDir);
+            using FileStream fs = new FileStream(filePath, FileMode.Create);
+            using StreamWriter sw = new StreamWriter(fs);
+            sw.Write(sb.ToString());
         }
 
         private static void SpawnCodeForPanel(string packageName)
