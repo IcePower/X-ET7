@@ -58,8 +58,7 @@ namespace FUIEditor
             {ComponentType.Tree, "GTree"}
         };
 
-        [MenuItem("Tools/FUI代码生成")]
-        public static void FuiCodeSpawn()
+        public static void FUICodeSpawn()
         {
             ParseAndSpawnCode();
 

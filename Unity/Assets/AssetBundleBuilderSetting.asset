@@ -15,7 +15,7 @@ MonoBehaviour:
   BuildVersion: 1
   BuildPipeline: 0
   BuildMode: 0
-  BuildTags: 
+  BuildTags: Buildin
   CompressOption: 2
   OutputNameStyle: 1
   EncyptionClassName: 

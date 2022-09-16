@@ -16,7 +16,7 @@ MonoBehaviour:
   Groups:
   - GroupName: Config
     GroupDesc: Config
-    AssetTags: Config
+    AssetTags: Buildin
     ActiveRuleName: EnableGroup
     Collectors:
     - CollectPath: Assets/Bundles/Config

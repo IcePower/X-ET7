@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using FUIEditor;
 using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
@@ -168,6 +169,11 @@ namespace ET
 			if (GUILayout.Button("Proto2CS"))
 			{
 				ToolsEditor.Proto2CS();
+			}
+			
+			if (GUILayout.Button("FUI代码生成"))
+			{
+				FUICodeSpawner.FUICodeSpawn();
 			}
 
 			GUILayout.Space(5);
