@@ -223,6 +223,8 @@ namespace FUIEditor
             }
 
             SpawnCodeForInit();
+            
+            SpawnCodeForPanelId();
 
             foreach (PackageInfo packageInfo in PackageInfos.Values)
             {
@@ -234,6 +236,35 @@ namespace FUIEditor
                     SpawnEventHandler(packageInfo.Name);
                 }
             }
+        }
+
+        private static void SpawnCodeForPanelId()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("/** This is an automatically generated class by FUICodeSpawner. Please do not modify it. **/\n");
+            sb.AppendFormat("namespace {0}\n", NameSpace);
+            sb.AppendLine("{");
+            sb.AppendLine("\tpublic enum PanelId");
+            sb.AppendLine("\t{");
+
+            sb.AppendLine("\t\tInvalid = 0,");
+            
+            foreach (PackageInfo packageInfo in PackageInfos.Values)
+            {
+                string panelName = "{0}Panel.xml".Fmt(packageInfo.Name);
+                if (packageInfo.PackageComponentInfos.ContainsKey(panelName))
+                {
+                    sb.AppendLine("\t\t{0}Panel,".Fmt(packageInfo.Name));
+                }
+            }
+            
+            sb.AppendLine("\t}"); 
+            sb.AppendLine("}");
+            
+            string filePath = "{0}/PanelId.cs".Fmt(ModelViewCodeDir);
+            using FileStream fs = new FileStream(filePath, FileMode.Create);
+            using StreamWriter sw = new StreamWriter(fs);
+            sw.Write(sb.ToString());
         }
         
         private static void SpawnCodeForInit()

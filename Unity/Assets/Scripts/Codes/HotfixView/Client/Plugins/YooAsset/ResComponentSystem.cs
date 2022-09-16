@@ -69,11 +69,6 @@ namespace ET.Client
             {
                 handle.Release();
             }
-
-            foreach (var handle in self.SceneOperationHandles.Values)
-            {
-                
-            }
         }
 
         public static void Update(this ResComponent self)

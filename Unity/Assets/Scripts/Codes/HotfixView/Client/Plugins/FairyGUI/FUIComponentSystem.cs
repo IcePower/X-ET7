@@ -407,7 +407,7 @@ namespace ET.Client
 
         private static void RealShowPanel(this FUIComponent self, FUIEntity fuiEntity, PanelId id, PanelId prePanelId = PanelId.Invalid)
         {
-            if (fuiEntity.PanelCoreData.panelType == UIPanelType.PopUp && fuiEntity.PanelId != PanelId.MessageBoxPanel)
+            if (fuiEntity.PanelCoreData.panelType == UIPanelType.PopUp)
             {
                 self.VisiblePanelsQueue.Add(id);
             }
