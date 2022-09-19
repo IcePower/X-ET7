@@ -20,9 +20,9 @@ namespace FUIEditor
         private const string ClassNamePrefix = "FUI_";
         
         // 代码生成路径
-        private const string FUIAutoGenDir = "../Unity/Assets/Scripts/Codes/ModelView/Client/Demo/FUIAutoGen";
-        private const string ModelViewCodeDir = "../Unity/Assets/Scripts/Codes/ModelView/Client/Demo/FUI";
-        private const string HotfixViewCodeDir = "../Unity/Assets/Scripts/Codes/HotfixView/Client/Demo/FUI";
+        private const string FUIAutoGenDir = "../Unity/Assets/Scripts/Codes/ModelView/Client/Game/FUIAutoGen";
+        private const string ModelViewCodeDir = "../Unity/Assets/Scripts/Codes/ModelView/Client/Game/FUI";
+        private const string HotfixViewCodeDir = "../Unity/Assets/Scripts/Codes/HotfixView/Client/Game/FUI";
 
         // 不生成使用默认名称的成员
         private static readonly bool IgnoreDefaultVariableName = true;
