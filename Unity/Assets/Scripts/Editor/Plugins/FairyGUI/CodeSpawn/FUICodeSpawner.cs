@@ -121,7 +121,8 @@ namespace FUIEditor
                 packageInfo.PackageComponentInfos.Add(packageComponentInfo.Name, packageComponentInfo);
 
                 ComponentInfo componentInfo = ParseComponent(packageInfo, packageComponentInfo);
-                ComponentInfos.Add(componentInfo.Id, componentInfo);
+                string key = "{0}/{1}".Fmt(componentInfo.PackageId, componentInfo.Id);
+                ComponentInfos.Add(key, componentInfo);
             }
 
             return packageInfo;
@@ -367,6 +368,11 @@ namespace FUIEditor
             sb.AppendFormat("\tpublic static class {0}System\n", panelName);
             sb.AppendLine("\t{");
             
+            sb.AppendFormat("\t\tpublic static void Awake(this {0} self)\n", panelName);
+            sb.AppendLine("\t\t{");
+            sb.AppendLine();
+            sb.AppendLine("\t\t}\n");
+
             sb.AppendFormat("\t\tpublic static void RegisterUIEvent(this {0} self)\n", panelName);
             sb.AppendLine("\t\t{");
             sb.AppendLine();
@@ -434,7 +440,8 @@ namespace FUIEditor
             sb.AppendLine();
             sb.AppendFormat("\t\tpublic void OnInitComponent(FUIEntity fuiEntity)\n");
             sb.AppendLine("\t\t{");
-            sb.AppendFormat("\t\t\tfuiEntity.AddComponent<{0}>();\n", panelName);
+            sb.AppendFormat("\t\t\t{0} panel = fuiEntity.AddComponent<{0}>();\n", panelName);
+            sb.AppendLine("\t\t\tpanel.Awake();");
             sb.AppendLine("\t\t}");
 
             sb.AppendLine();
@@ -738,7 +745,8 @@ namespace FUIEditor
 
             if (displayXML.name == "component")
             {
-                ComponentInfo displayComponentInfo = ComponentInfos[displayXML.GetAttribute("src")];
+                string key = "{0}/{1}".Fmt(displayXML.GetAttribute("pkg"), displayXML.GetAttribute("src"));
+                ComponentInfo displayComponentInfo = ComponentInfos[key];
                 if (displayComponentInfo == null)
                 {
                     throw new Exception("没找到对应类型：{0}".Fmt(displayXML.GetAttribute("src")));
