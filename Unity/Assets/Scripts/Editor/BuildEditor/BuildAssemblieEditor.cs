@@ -45,7 +45,7 @@ namespace ET
                 case CodeMode.ClientServer:
                     codes = new List<string>()
                     {
-                        "Assets/Scripts/Codes/Model/Generate/Server",
+                        "Assets/Scripts/Codes/Model/Generate/ClientServer",
                         "Assets/Scripts/Codes/Model/Share",
                         "Assets/Scripts/Codes/Hotfix/Share",
                         "Assets/Scripts/Codes/Model/Client",
@@ -100,7 +100,7 @@ namespace ET
                         "Assets/Scripts/Codes/Model/Share/",
                         "Assets/Scripts/Codes/Model/Client/",
                         "Assets/Scripts/Codes/ModelView/Client/",
-                        "Assets/Scripts/Codes/Model/Generate/Server/",
+                        "Assets/Scripts/Codes/Model/Generate/ClientServer/",
                         "Assets/Scripts/Codes/Model/Server/",
                     };
                     break;
@@ -277,14 +277,12 @@ namespace ET
             Directory.CreateDirectory(CodeDir);
             File.Copy(Path.Combine(Define.BuildOutputDir, "Code.dll"), Path.Combine(CodeDir, "Code.dll.bytes"), true);
             File.Copy(Path.Combine(Define.BuildOutputDir, "Code.pdb"), Path.Combine(CodeDir, "Code.pdb.bytes"), true);
-            AssetDatabase.Refresh();
             Debug.Log("copy Code.dll to Bundles/Code success!");
             
             // 设置ab包
-            AssetImporter assetImporter1 = AssetImporter.GetAtPath("Assets/Bundles/Code/Code.dll.bytes");
-            assetImporter1.assetBundleName = "Code.unity3d";
-            AssetImporter assetImporter2 = AssetImporter.GetAtPath("Assets/Bundles/Code/Code.pdb.bytes");
-            assetImporter2.assetBundleName = "Code.unity3d";
+            AssetImporter assetImporter = AssetImporter.GetAtPath("Assets/Bundles/Code");
+            assetImporter.assetBundleName = "Code.unity3d";
+            AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Debug.Log("set assetbundle success!");
             

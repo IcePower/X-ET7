@@ -147,23 +147,15 @@ namespace ET
 			if (GUILayout.Button("ExcelExporter"))
 			{
 				ToolsEditor.ExcelExporter();
-				// 如果是ClientServer，那么客户端要使用服务端配置
-				if (this.globalConfig.CodeMode == CodeMode.ClientServer)
+
+				const string clientProtoDir = "../Unity/Assets/Bundles/Config";
+				if (Directory.Exists(clientProtoDir))
 				{
-					string fromDir = "../Config/StartConfig/Localhost";
-					string toDir = "Assets/Bundles/Config/StartConfig/Localhost";
-					if (Directory.Exists(toDir))
-					{
-						Directory.Delete(toDir, true);
-					}
-					FileHelper.CopyDirectory(fromDir, toDir);
-					
-					foreach (string file in Directory.GetFiles("../Config/GameConfig", "*.bytes"))
-					{
-						File.Copy(file, $"Assets/Bundles/Config/GameConfig/{Path.GetFileName(file)}", true);
-					}
+					Directory.Delete(clientProtoDir, true);
 				}
-				Debug.Log("copy config to Assets/Bundles/Config");
+				FileHelper.CopyDirectory("../Config/Excel/c", clientProtoDir);
+				
+				AssetDatabase.Refresh();
 			}
 			
 			if (GUILayout.Button("Proto2CS"))

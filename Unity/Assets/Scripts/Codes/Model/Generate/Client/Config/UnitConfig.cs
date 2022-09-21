@@ -19,10 +19,8 @@ public sealed partial class UnitConfig: Bright.Config.BeanBase
         Id = _buf.ReadInt();
         Type = _buf.ReadInt();
         Name = _buf.ReadString();
-        Desc = _buf.ReadString();
         Position = _buf.ReadInt();
         Height = _buf.ReadInt();
-        Weight = _buf.ReadInt();
         PostInit();
     }
 
@@ -44,10 +42,6 @@ public sealed partial class UnitConfig: Bright.Config.BeanBase
     /// </summary>
     public string Name { get; private set; }
     /// <summary>
-    /// 描述
-    /// </summary>
-    public string Desc { get; private set; }
-    /// <summary>
     /// 位置
     /// </summary>
     public int Position { get; private set; }
@@ -55,10 +49,6 @@ public sealed partial class UnitConfig: Bright.Config.BeanBase
     ///  
     /// </summary>
     public int Height { get; private set; }
-    /// <summary>
-    /// 体重
-    /// </summary>
-    public int Weight { get; private set; }
 
     public const int __ID__ = -568528378;
     public override int GetTypeId() => __ID__;
@@ -78,10 +68,8 @@ public sealed partial class UnitConfig: Bright.Config.BeanBase
         + "Id:" + Id + ","
         + "Type:" + Type + ","
         + "Name:" + Name + ","
-        + "Desc:" + Desc + ","
         + "Position:" + Position + ","
         + "Height:" + Height + ","
-        + "Weight:" + Weight + ","
         + "}";
     }
     

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Bright.Serialization;
 using UnityEngine;
 
@@ -10,15 +11,59 @@ namespace ET.Client
     {
         public override Dictionary<string, ByteBuf> Handle(ConfigComponent.GetAllConfigBytes args)
         {
-            Dictionary<string, ByteBuf> output = new Dictionary<string, ByteBuf>();
-
             Root.Instance.Scene.AddComponent<ResComponent>();
+
+            Dictionary<string, ByteBuf> output = new Dictionary<string, ByteBuf>();
             HashSet<Type> configTypes = EventSystem.Instance.GetTypes(typeof(ConfigAttribute));
-            foreach (Type configType in configTypes)
+
+            if (Define.IsEditor)
             {
-                TextAsset v = ResComponent.Instance.LoadAsset<TextAsset>(configType.Name.ToLower()) as TextAsset;
-                output[configType.Name] = new ByteBuf(v.bytes);
+                string ct = "cs";
+                CodeMode codeMode = Init.Instance.GlobalConfig.CodeMode;
+                switch (codeMode)
+                {
+                    case CodeMode.Client:
+                        ct = "c";
+                        break;
+                    case CodeMode.Server:
+                        ct = "s";
+                        break;
+                    case CodeMode.ClientServer:
+                        ct = "cs";
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+                List<string> startConfigs = new List<string>()
+                {
+                    "StartMachineConfigCategory", 
+                    "StartProcessConfigCategory", 
+                    "StartSceneConfigCategory", 
+                    "StartZoneConfigCategory",
+                };
+                foreach (Type configType in configTypes)
+                {
+                    string configFilePath;
+                    if (startConfigs.Contains(configType.Name))
+                    {
+                        configFilePath = $"../Config/Excel/{ct}/{Options.Instance.StartConfig}/{configType.Name}.bytes";    
+                    }
+                    else
+                    {
+                        configFilePath = $"../Config/Excel/{ct}/{configType.Name}.bytes";
+                    }
+                    output[configType.Name] = new ByteBuf(File.ReadAllBytes(configFilePath));
+                }
             }
+            else
+            {
+                foreach (Type configType in configTypes)
+                {
+                    TextAsset v = ResComponent.Instance.LoadAsset<TextAsset>(configType.Name.ToLower()) as TextAsset;
+                    output[configType.Name] = new ByteBuf(v.bytes);
+                }
+            }
+            
             return output;
         }
     }
