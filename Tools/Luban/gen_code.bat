@@ -213,6 +213,6 @@ echo ======================= Client Json ==========================
  --input_data_dir %CONF_ROOT%\Datas ^
  --output_code_dir %OUTPUT_CODE_DIR%\Client\Config ^
  --output_data_dir Output_Json\c ^
- --output:exclude_tags s  
+ --output:exclude_tags s ^ 
  --gen_types data_json ^
  -s client
