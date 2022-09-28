@@ -5,8 +5,7 @@ using Bright.Serialization;
 
 namespace ET
 {
-    [Callback]
-    public class GetAllConfigBytes: ACallbackHandler<ConfigComponent.GetAllConfigBytes, Dictionary<string, ByteBuf>>
+    public class GetAllConfigBytes: AInvokeHandler<ConfigComponent.GetAllConfigBytes, Dictionary<string,ByteBuf>>
     {
         public override Dictionary<string, ByteBuf> Handle(ConfigComponent.GetAllConfigBytes args)
         {
@@ -37,8 +36,8 @@ namespace ET
         }
     }
     
-    [Callback]
-    public class GetOneConfigBytes: ACallbackHandler<ConfigComponent.GetOneConfigBytes, ByteBuf>
+    [Invoke]
+    public class GetOneConfigBytes: AInvokeHandler<ConfigComponent.GetOneConfigBytes, ByteBuf>
     {
         public override ByteBuf Handle(ConfigComponent.GetOneConfigBytes args)
         {

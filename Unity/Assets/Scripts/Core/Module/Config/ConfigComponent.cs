@@ -10,14 +10,12 @@ namespace ET
     /// </summary>
     public class ConfigComponent: Singleton<ConfigComponent>
     {
-        public struct GetAllConfigBytes: ICallback
+        public struct GetAllConfigBytes
         {
-            public int Id { get; set; }
         }
         
-        public struct GetOneConfigBytes: ICallback
+        public struct GetOneConfigBytes
         {
-            public int Id { get; set; }
             public string ConfigName;
         }
 		
@@ -39,10 +37,11 @@ namespace ET
 				oneConfig.Destroy();
 			}
 			
-			ByteBuf oneConfigBytes = EventSystem.Instance.Callback<GetOneConfigBytes, ByteBuf>(new GetOneConfigBytes() {ConfigName = configType.FullName});
+			ByteBuf oneConfigBytes = EventSystem.Instance.Invoke<GetOneConfigBytes, ByteBuf>(0, new GetOneConfigBytes() {ConfigName = configType.FullName});
 
 			object category = Activator.CreateInstance(configType, oneConfigBytes);
 			IConfigSingleton singleton = category as IConfigSingleton;
+
 			singleton.Register();
 			
 			this.allConfig[configType.Name] = singleton;
@@ -54,7 +53,7 @@ namespace ET
 			this.allConfig.Clear();
 			HashSet<Type> types = EventSystem.Instance.GetTypes(typeof (ConfigAttribute));
 			
-			Dictionary<string, ByteBuf> configBytes = EventSystem.Instance.Callback<GetAllConfigBytes, Dictionary<string, ByteBuf>>(new GetAllConfigBytes());
+			Dictionary<string, ByteBuf> configBytes = EventSystem.Instance.Invoke<GetAllConfigBytes, Dictionary<string, ByteBuf>>(0, new GetAllConfigBytes());
 
 			foreach (Type type in types)
 			{
@@ -73,7 +72,7 @@ namespace ET
 			this.allConfig.Clear();
 			HashSet<Type> types = EventSystem.Instance.GetTypes(typeof (ConfigAttribute));
 			
-			Dictionary<string, ByteBuf> configBytes = EventSystem.Instance.Callback<GetAllConfigBytes, Dictionary<string, ByteBuf>>(new GetAllConfigBytes());
+			Dictionary<string, ByteBuf> configBytes = EventSystem.Instance.Invoke<GetAllConfigBytes, Dictionary<string, ByteBuf>>(0, new GetAllConfigBytes());
 
 			using ListComponent<Task> listTasks = ListComponent<Task>.Create();
 			
