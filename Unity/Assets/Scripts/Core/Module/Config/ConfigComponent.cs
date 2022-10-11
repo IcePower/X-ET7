@@ -41,7 +41,6 @@ namespace ET
 
 			object category = Activator.CreateInstance(configType, oneConfigBytes);
 			IConfigSingleton singleton = category as IConfigSingleton;
-
 			singleton.Register();
 			
 			this.allConfig[configType.Name] = singleton;
@@ -51,13 +50,12 @@ namespace ET
 		public void Load()
 		{
 			this.allConfig.Clear();
-			HashSet<Type> types = EventSystem.Instance.GetTypes(typeof (ConfigAttribute));
-			
-			Dictionary<string, ByteBuf> configBytes = EventSystem.Instance.Invoke<GetAllConfigBytes, Dictionary<string, ByteBuf>>(0, new GetAllConfigBytes());
+			Dictionary<Type, ByteBuf> configBytes = EventSystem.Instance.Invoke<GetAllConfigBytes, Dictionary<Type, ByteBuf>>(0, new GetAllConfigBytes());
 
-			foreach (Type type in types)
+			foreach (Type type in configBytes.Keys)
 			{
-				this.LoadOneInThread(type, configBytes);
+				ByteBuf oneConfigBytes = configBytes[type];
+				this.LoadOneInThread(type, oneConfigBytes);
 			}
 			
 			foreach (IConfigSingleton category in this.allConfig.Values)
@@ -70,15 +68,14 @@ namespace ET
 		public async ETTask LoadAsync()
 		{
 			this.allConfig.Clear();
-			HashSet<Type> types = EventSystem.Instance.GetTypes(typeof (ConfigAttribute));
-			
-			Dictionary<string, ByteBuf> configBytes = EventSystem.Instance.Invoke<GetAllConfigBytes, Dictionary<string, ByteBuf>>(0, new GetAllConfigBytes());
+			Dictionary<Type, ByteBuf> configBytes = EventSystem.Instance.Invoke<GetAllConfigBytes, Dictionary<Type, ByteBuf>>(0, new GetAllConfigBytes());
 
 			using ListComponent<Task> listTasks = ListComponent<Task>.Create();
 			
-			foreach (Type type in types)
+			foreach (Type type in configBytes.Keys)
 			{
-				Task task = Task.Run(() => LoadOneInThread(type, configBytes));
+				ByteBuf oneConfigBytes = configBytes[type];
+				Task task = Task.Run(() => LoadOneInThread(type, oneConfigBytes));
 				listTasks.Add(task);
 			}
 
@@ -91,12 +88,9 @@ namespace ET
 			}
 		}
 		
-		private void LoadOneInThread(Type configType, Dictionary<string, ByteBuf> configBytes)
+		private void LoadOneInThread(Type configType, ByteBuf oneConfigBytes)
 		{
-			ByteBuf oneConfigBytes = configBytes[configType.Name];
-
 			object category = Activator.CreateInstance(configType, oneConfigBytes);
-			
 			lock (this)
 			{
 				this.allConfig[configType.Name] = category as IConfigSingleton;	

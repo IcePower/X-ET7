@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using Bright.Serialization;
 
-namespace ET
+namespace ET.Server
 {
-    public class GetAllConfigBytes: AInvokeHandler<ConfigComponent.GetAllConfigBytes, Dictionary<string,ByteBuf>>
+    [Invoke]
+    public class GetAllConfigBytes: AInvokeHandler<ConfigComponent.GetAllConfigBytes, Dictionary<Type, ByteBuf>>
     {
-        public override Dictionary<string, ByteBuf> Handle(ConfigComponent.GetAllConfigBytes args)
+        public override Dictionary<Type, ByteBuf> Handle(ConfigComponent.GetAllConfigBytes args)
         {
-            Dictionary<string, ByteBuf> output = new Dictionary<string, ByteBuf>();
+            Dictionary<Type, ByteBuf> output = new Dictionary<Type, ByteBuf>();
             List<string> startConfigs = new List<string>()
             {
                 "StartMachineConfigCategory", 
@@ -29,7 +30,7 @@ namespace ET
                 {
                     configFilePath = $"../Config/Excel/s/{configType.Name}.bytes";
                 }
-                output[configType.Name] = new ByteBuf(File.ReadAllBytes(configFilePath));
+                output[configType] = new ByteBuf(File.ReadAllBytes(configFilePath));
             }
 
             return output;

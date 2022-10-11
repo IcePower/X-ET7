@@ -7,13 +7,12 @@ using UnityEngine;
 namespace ET.Client
 {
     [Invoke]
-    public class GetAllConfigBytes: AInvokeHandler<ConfigComponent.GetAllConfigBytes, Dictionary<string, ByteBuf>>
+    public class GetAllConfigBytes: AInvokeHandler<ConfigComponent.GetAllConfigBytes, Dictionary<Type, ByteBuf>>
     {
-        public override Dictionary<string, ByteBuf> Handle(ConfigComponent.GetAllConfigBytes args)
+        public override Dictionary<Type, ByteBuf> Handle(ConfigComponent.GetAllConfigBytes args)
         {
             Root.Instance.Scene.AddComponent<ResComponent>();
-
-            Dictionary<string, ByteBuf> output = new Dictionary<string, ByteBuf>();
+            Dictionary<Type, ByteBuf> output = new Dictionary<Type, ByteBuf>();
             HashSet<Type> configTypes = EventSystem.Instance.GetTypes(typeof(ConfigAttribute));
 
             if (Define.IsEditor)
@@ -52,7 +51,7 @@ namespace ET.Client
                     {
                         configFilePath = $"../Config/Excel/{ct}/{configType.Name}.bytes";
                     }
-                    output[configType.Name] = new ByteBuf(File.ReadAllBytes(configFilePath));
+                    output[configType] = new ByteBuf(File.ReadAllBytes(configFilePath));
                 }
             }
             else
@@ -60,7 +59,7 @@ namespace ET.Client
                 foreach (Type configType in configTypes)
                 {
                     TextAsset v = ResComponent.Instance.LoadAsset<TextAsset>(configType.Name.ToLower()) as TextAsset;
-                    output[configType.Name] = new ByteBuf(v.bytes);
+                    output[configType] = new ByteBuf(v.bytes);
                 }
             }
             
