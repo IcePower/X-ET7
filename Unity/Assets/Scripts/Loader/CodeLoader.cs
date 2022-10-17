@@ -8,13 +8,14 @@ namespace ET
 {
 	public class CodeLoader: Singleton<CodeLoader>
 	{
-		private Assembly assembly;
+		private Assembly model;
 
 		public void Start()
 		{
 			if (Define.EnableCodes)
 			{
-				if (Init.Instance.GlobalConfig.CodeMode != CodeMode.ClientServer)
+				GlobalConfig globalConfig = Resources.Load<GlobalConfig>("GlobalConfig");
+				if (globalConfig.CodeMode != CodeMode.ClientServer)
 				{
 					throw new Exception("ENABLE_CODES mode must use ClientServer code mode!");
 				}
@@ -27,11 +28,11 @@ namespace ET
 					string name = ass.GetName().Name;
 					if (name == "Unity.Model.Codes")
 					{
-						this.assembly = ass;
+						this.model = ass;
 					}
 				}
 				
-				IStaticMethod start = new StaticMethod(assembly, "ET.Entry", "Start");
+				IStaticMethod start = new StaticMethod(this.model, "ET.Entry", "Start");
 				start.Run();
 			}
 			else
@@ -50,10 +51,10 @@ namespace ET
 					pdbBytes = File.ReadAllBytes(Path.Combine(Define.BuildOutputDir, "Model.pdb"));
 				}
 			
-				assembly = Assembly.Load(assBytes, pdbBytes);
+				this.model = Assembly.Load(assBytes, pdbBytes);
 				this.LoadHotfix();
 			
-				IStaticMethod start = new StaticMethod(assembly, "ET.Entry", "Start");
+				IStaticMethod start = new StaticMethod(this.model, "ET.Entry", "Start");
 				start.Run();
 			}
 		}
@@ -84,7 +85,7 @@ namespace ET
 
 			Assembly hotfixAssembly = Assembly.Load(assBytes, pdbBytes);
 			
-			Dictionary<string, Type> types = AssemblyHelper.GetAssemblyTypes(typeof (Game).Assembly, this.assembly, hotfixAssembly);
+			Dictionary<string, Type> types = AssemblyHelper.GetAssemblyTypes(typeof (Game).Assembly, typeof(Init).Assembly, this.model, hotfixAssembly);
 			
 			EventSystem.Instance.Add(types);
 		}

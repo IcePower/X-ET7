@@ -1,5 +1,5 @@
 {
-    "name": "Unity.Mono",
+    "name": "Unity.Loader",
     "rootNamespace": "ET",
     "references": [
         "Unity.ThirdParty",

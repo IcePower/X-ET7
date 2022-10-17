@@ -4,9 +4,9 @@ using CommandLine;
 
 namespace ET
 {
-	internal static class Init
+	public static class Init
 	{
-		private static void Main(string[] args)
+		public static void Start()
 		{
 			try
 			{	
@@ -19,7 +19,7 @@ namespace ET
 				Game.AddSingleton<MainThreadSynchronizationContext>();
 
 				// 命令行参数
-				Parser.Default.ParseArguments<Options>(args)
+				Parser.Default.ParseArguments<Options>(System.Environment.GetCommandLineArgs())
 					.WithNotParsed(error => throw new Exception($"命令行格式错误! {error}"))
 					.WithParsed(Game.AddSingleton);
 				

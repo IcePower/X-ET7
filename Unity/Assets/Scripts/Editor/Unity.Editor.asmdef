@@ -2,12 +2,12 @@
     "name": "Unity.Editor",
     "rootNamespace": "",
     "references": [
-        "Unity.Mono",
         "Unity.ThirdParty",
         "Unity.Core",
         "Unity.ScriptableBuildPipeline",
         "Unity.ScriptableBuildPipeline.Editor",
-        "YooAsset.Editor"
+        "YooAsset.Editor",
+        "Unity.Loader"
     ],
     "includePlatforms": [
         "Editor"

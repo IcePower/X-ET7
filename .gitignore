@@ -73,6 +73,7 @@ Server/.DS_Store
 /Unity/Unity.Core.csproj
 /Unity/UserSettings
 /Unity/Unity.Codes.csproj
+/Unity/Unity.Loader.csproj
 /Unity/Unity.Ignore.csproj
 Publish/
 YooAsset.Editor.csproj
