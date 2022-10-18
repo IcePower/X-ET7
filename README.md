@@ -24,3 +24,13 @@
 2. 在 MonoResComponent 里初始化。这是因为 YooAsset 的初始化是异步的，在热更层没有找到合适的地方。
 3. 在 ResComponentSystem 里调用了 YooAsset 加载的接口。对 Handle 做了缓存。
 4. 通过 Define.IsAsync 来切换 EditorSimulateMode 和 HostPlayMode。
+
+# Reference
+1. ET: https://et-framework.cn
+2. ET-EUI: https://github.com/zzjfengqing/ET-EUI
+3. FairyGUI: https://www.fairygui.com/
+4. Luban: https://github.com/focus-creative-games/luban
+5. YooAsset: https://github.com/tuyoogame/YooAsset
+
+# 联系方式
+<img src="QQ.png" width="200px">
