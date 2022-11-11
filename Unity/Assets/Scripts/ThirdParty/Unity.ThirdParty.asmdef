@@ -1,6 +1,6 @@
 {
     "name": "Unity.ThirdParty",
-    "rootNamespace": "",
+    "rootNamespace": "ET",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

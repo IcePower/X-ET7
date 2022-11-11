@@ -28,7 +28,7 @@ namespace ET
             }
         }
 
-        public void Register()
+        void ISingleton.Register()
         {
             if (instance != null)
             {
@@ -37,14 +37,14 @@ namespace ET
             instance = (T)this;
         }
 
-        public void Destroy()
+        void ISingleton.Destroy()
         {
             T t = instance;
             instance = null;
             t.Dispose();
         }
 
-        public bool IsDisposed()
+        bool ISingleton.IsDisposed()
         {
             throw new NotImplementedException();
         }
