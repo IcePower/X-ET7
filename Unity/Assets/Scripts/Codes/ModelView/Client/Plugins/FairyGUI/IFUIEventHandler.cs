@@ -24,7 +24,8 @@ namespace ET.Client
         /// 打开UI窗口的业务逻辑
         /// </summary>
         /// <param name="fuiEntity"></param>
-        void OnShow(FUIEntity fuiEntity);
+        /// <param name="contextData"></param>
+        void OnShow(FUIEntity fuiEntity, Entity contextData = null);
         
         /// <summary>
         /// 隐藏UI窗口的业务逻辑

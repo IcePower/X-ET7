@@ -13,4 +13,10 @@ namespace ET.Client
    {
       public UIPanelType panelType = UIPanelType.Normal;
    }
+
+   [ChildOf]
+   public class ShowPanelData: Entity, IAwake
+   {
+      public Entity ContextData { get; set; }
+   }
 }

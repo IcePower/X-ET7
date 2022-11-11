@@ -7,7 +7,7 @@ namespace ET.Client
 			self.FUILobbyPanel.EnterMap.AddListnerAsync(self.EnterMap);
 		}
 
-		public static void OnShow(this LobbyPanel self)
+		public static void OnShow(this LobbyPanel self, Entity contextData = null)
 		{
 
 		}

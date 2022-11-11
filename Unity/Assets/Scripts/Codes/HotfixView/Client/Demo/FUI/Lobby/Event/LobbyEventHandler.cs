@@ -20,9 +20,9 @@ namespace ET.Client
 			fuiEntity.GetComponent<LobbyPanel>().RegisterUIEvent();
 		}
 
-		public void OnShow(FUIEntity fuiEntity)
+		public void OnShow(FUIEntity fuiEntity, Entity contextData = null)
 		{
-			fuiEntity.GetComponent<LobbyPanel>().OnShow();
+			fuiEntity.GetComponent<LobbyPanel>().OnShow(contextData);
 		}
 
 		public void OnHide(FUIEntity fuiEntity)

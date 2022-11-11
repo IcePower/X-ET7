@@ -3,7 +3,7 @@
 using FairyGUI;
 using FairyGUI.Utils;
 
-namespace ET.Client
+namespace ET.Client.Common
 {
 	public partial class FUI_InputField1: GComponent
 	{
