@@ -84,6 +84,10 @@ namespace ET
 			foreach (IConfigSingleton category in this.allConfig.Values)
 			{
 				category.Register();
+			}
+			
+			foreach (IConfigSingleton category in this.allConfig.Values)
+			{
 				category.Resolve(allConfig);
 			}
 		}
