@@ -11,6 +11,7 @@ namespace ET.Client
 				tasks.Add(fuiComponent.AddPackageAsync("Common"));
 				tasks.Add(fuiComponent.AddPackageAsync("Lobby"));
 				tasks.Add(fuiComponent.AddPackageAsync("Login"));
+				tasks.Add(fuiComponent.AddPackageAsync("Test"));
 
 				await ETTaskHelper.WaitAll(tasks);
 			}
@@ -18,6 +19,7 @@ namespace ET.Client
 			CommonBinder.BindAll();
 			LobbyBinder.BindAll();
 			LoginBinder.BindAll();
+			TestBinder.BindAll();
 		}
 	}
 }

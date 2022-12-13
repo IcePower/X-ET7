@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="800,600">
+  <displayList>
+    <image id="n0_nkb3" name="bgg" src="nkb30" fileName="Images/big_018.jpg" xy="30,-205"/>
+  </displayList>
+</component>

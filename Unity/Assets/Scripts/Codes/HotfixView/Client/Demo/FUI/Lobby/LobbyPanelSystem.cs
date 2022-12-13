@@ -4,7 +4,7 @@ namespace ET.Client
 	{
 		public static void RegisterUIEvent(this LobbyPanel self)
 		{
-			self.FUILobbyPanel.EnterMap.AddListnerAsync(self.EnterMap);
+			self.FUILobbyPanel.EnterGame.AddListnerAsync(self.EnterMap);
 		}
 
 		public static void OnShow(this LobbyPanel self, Entity contextData = null)

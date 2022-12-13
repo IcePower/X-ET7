@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<packageDescription id="k8mgj3mu">
+  <resources>
+    <image id="nkb30" name="big_018.jpg" path="/Images/" exported="true"/>
+    <component id="nkb31" name="TestPanel.xml" path="/" exported="true"/>
+  </resources>
+  <publish name=""/>
+</packageDescription>

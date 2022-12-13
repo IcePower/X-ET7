@@ -7,6 +7,7 @@ namespace ET.Client.Common
 {
 	public partial class FUI_InputField1: GComponent
 	{
+		public Controller c1;
 		public GTextInput Input;
 		public GTextField simpleText;
 		public GRichTextField richText;
@@ -21,9 +22,10 @@ namespace ET.Client.Common
 		{
 			base.ConstructFromXML(xml);
 
-			Input = (GTextInput)GetChildAt(1);
-			simpleText = (GTextField)GetChildAt(2);
-			richText = (GRichTextField)GetChildAt(3);
+			c1 = GetControllerAt(0);
+			Input = (GTextInput)GetChildAt(2);
+			simpleText = (GTextField)GetChildAt(3);
+			richText = (GRichTextField)GetChildAt(4);
 		}
 	}
 }

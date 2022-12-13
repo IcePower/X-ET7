@@ -18,5 +18,5 @@
     <component id="ab9en" name="ScrollBar1.xml" path="/Components/" exported="true"/>
     <component id="v5syp" name="Button2.xml" path="/Components/" exported="true"/>
   </resources>
-  <publish name="" path="../Unity/Assets/Bundles/FUI/Common" packageCount="2" codePath="../Unity/Codes/ModelView/Demo/FUIAutoGen"/>
+  <publish name="" codePath="../Unity/Codes/ModelView/Demo/FUIAutoGen"/>
 </packageDescription>

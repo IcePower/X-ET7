@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<component size="1080,1920">
-  <controller name="c1" alias="TestC1" pages="0,State1,1,State2" selected="1"/>
+<component size="1080,1920" designImage="ui://rgfb0w49t6kq6" designImageOffsetX="-630" designImageAlpha="76" designImageLayer="1">
+  <controller name="c1" alias="TestC1" pages="0,State1,1,State2" selected="0"/>
   <controller name="c2" pages="0,,1," selected="0"/>
   <displayList>
-    <image id="n25_t52l" name="n25" src="t52l2" fileName="Images/main_poster.jpeg" xy="0,0" size="1080,1919" aspect="true"/>
-    <component id="n0_ab9e" name="LoginBtn" src="ab9e1" fileName="Components/Button1.xml" pkg="f2boiu4i" xy="299,1148" size="511,119">
-      <Button title="登录" titleColor="#cccccc" titleFontSize="40" icon="ui://f2boiu4iab9e4"/>
+    <image id="n28_t6kq" name="n28" src="t6kq3" fileName="Images/big_024.png" xy="8,0" size="1080,1920"/>
+    <component id="n0_ab9e" name="LoginBtn" src="ab9e1" fileName="Components/Button1.xml" pkg="f2boiu4i" xy="314,1223" size="511,119">
+      <Button title="登录" titleColor="#cccccc" titleFontSize="40" icon="ui://rgfb0w49t6kq4"/>
     </component>
-    <component id="n2_ab9e" name="AccountInput" src="ab9e2" fileName="Components/InputField1.xml" pkg="f2boiu4i" xy="375,860"/>
-    <component id="n3_ab9e" name="PasswordInput" src="ab9e2" fileName="Components/InputField1.xml" pkg="f2boiu4i" xy="375,988"/>
+    <component id="n2_ab9e" name="AccountInput" src="ab9e2" fileName="Components/InputField1.xml" pkg="f2boiu4i" xy="370,843">
+      <relation target="" sidePair="center-center"/>
+    </component>
+    <component id="n3_ab9e" name="PasswordInput" src="ab9e2" fileName="Components/InputField1.xml" pkg="f2boiu4i" xy="371,977"/>
+    <component id="n34_nkb3" name="n34" src="nkb3c" fileName="Button2.xml" xy="730,1231"/>
+    <image id="n35_nkb3" name="n35" src="t6kqa" fileName="Images/login027.png" xy="215,220"/>
   </displayList>
 </component>

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="1080,1920">
   <displayList>
-    <component id="n1_t52l" name="EnterMap" src="ab9e1" fileName="Components/Button1.xml" pkg="f2boiu4i" xy="284,900" size="511,119">
-      <Button title="进入地图" titleColor="#cccccc" titleFontSize="40" icon="ui://f2boiu4iab9e4"/>
-    </component>
+    <image id="n3_nkb3" name="bg" src="nkb3d" fileName="big_017.png" xy="4,7" size="1080,1920"/>
+    <component id="n2_nkb3" name="EnterGame" src="ab9e1" fileName="Components/Button1.xml" pkg="f2boiu4i" xy="381,858"/>
   </displayList>
 </component>

@@ -89,3 +89,14 @@ YooAsset.Editor.csproj
 /Unity/Unity.ModelView.Codes.csproj
 /Unity/Unity.GenerateClient.csproj
 /Unity/Unity.GenerateServer.csproj
+Unity/Packages/packages-lock.json
+Unity/ProjectSettings/ShaderGraphSettings.asset
+Unity/ProjectSettings/ProjectVersion.txt
+Unity/ProjectSettings/PackageManagerSettings.asset
+Unity/Packages/packages-lock.json
+Unity/ProjectSettings/PackageManagerSettings.asset
+Unity/ProjectSettings/ProjectVersion.txt
+*.meta
+*.meta
+*.meta
+*.meta

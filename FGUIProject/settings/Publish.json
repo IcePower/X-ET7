@@ -1,5 +1,5 @@
 {
-  "path": "",
+  "path": "../Unity/Assets/Bundles/FUI/{publish_file_name}",
   "branchPath": "",
   "fileExtension": "bytes",
   "packageCount": 2,
@@ -9,7 +9,7 @@
   "compressPNG": false,
   "codeGeneration": {
     "allowGenCode": false,
-    "codePath": "",
+    "codePath": "../Unity/Codes/ModelView/Demo/FUIAutoGen",
     "classNamePrefix": "FUI_",
     "memberNamePrefix": "",
     "packageName": "ET",

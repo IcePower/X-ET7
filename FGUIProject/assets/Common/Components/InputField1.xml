@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="360,71">
+  <controller name="c1" pages="0,,1," selected="0"/>
   <displayList>
-    <image id="n0_ab9e" name="n0" src="ab9e3" fileName="Images/InputBg.png" xy="0,0" size="360,71" aspect="true"/>
+    <image id="n5_t6kq" name="n5" src="t6kq8" fileName="Images/login005.png" pkg="rgfb0w49" xy="-1,2" size="361,67">
+      <gearDisplay controller="c1" pages="0"/>
+    </image>
+    <image id="n4_t6kq" name="n4" src="t6kq7" fileName="Images/login004.png" pkg="rgfb0w49" xy="-4,0" size="366,71" visible="false">
+      <gearDisplay controller="c1" pages="1"/>
+    </image>
     <text id="n1_ab9e" name="Input" xy="0,0" size="360,71" fontSize="40" align="center" vAlign="middle" autoSize="none" text="" input="true"/>
     <text id="n2_ab9e" name="simpleText" xy="-11,-606" size="459,172" fontSize="40" align="center" autoSize="none" text=""/>
     <richtext id="n3_ab9e" name="richText" xy="-15,-351" size="468,174" fontSize="40" align="center" autoSize="none" text=""/>
