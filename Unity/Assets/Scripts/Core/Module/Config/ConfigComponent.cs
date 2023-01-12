@@ -37,7 +37,7 @@ namespace ET
 				oneConfig.Destroy();
 			}
 			
-			ByteBuf oneConfigBytes = EventSystem.Instance.Invoke<GetOneConfigBytes, ByteBuf>(0, new GetOneConfigBytes() {ConfigName = configType.FullName});
+			ByteBuf oneConfigBytes = EventSystem.Instance.Invoke<GetOneConfigBytes, ByteBuf>(new GetOneConfigBytes() {ConfigName = configType.FullName});
 
 			object category = Activator.CreateInstance(configType, oneConfigBytes);
 			IConfigSingleton singleton = category as IConfigSingleton;
@@ -50,7 +50,7 @@ namespace ET
 		public void Load()
 		{
 			this.allConfig.Clear();
-			Dictionary<Type, ByteBuf> configBytes = EventSystem.Instance.Invoke<GetAllConfigBytes, Dictionary<Type, ByteBuf>>(0, new GetAllConfigBytes());
+			Dictionary<Type, ByteBuf> configBytes = EventSystem.Instance.Invoke<GetAllConfigBytes, Dictionary<Type, ByteBuf>>(new GetAllConfigBytes());
 
 			foreach (Type type in configBytes.Keys)
 			{
@@ -68,7 +68,7 @@ namespace ET
 		public async ETTask LoadAsync()
 		{
 			this.allConfig.Clear();
-			Dictionary<Type, ByteBuf> configBytes = EventSystem.Instance.Invoke<GetAllConfigBytes, Dictionary<Type, ByteBuf>>(0, new GetAllConfigBytes());
+			Dictionary<Type, ByteBuf> configBytes = EventSystem.Instance.Invoke<GetAllConfigBytes, Dictionary<Type, ByteBuf>>(new GetAllConfigBytes());
 
 			using ListComponent<Task> listTasks = ListComponent<Task>.Create();
 			

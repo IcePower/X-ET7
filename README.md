@@ -1,4 +1,4 @@
-#### X-ET 是一个融合了 ET, FairyGUI, luban, YooAsset 的缝合怪。
+# X-ET 是一个融合了 ET, FairyGUI, luban, YooAsset 的缝合怪。
 
 # FairyGUI
 ### 代码生成
@@ -31,6 +31,3 @@
 3. FairyGUI: https://www.fairygui.com/
 4. Luban: https://github.com/focus-creative-games/luban
 5. YooAsset: https://github.com/tuyoogame/YooAsset
-
-# 联系方式
-<img src="QQ.png" width="200px">
