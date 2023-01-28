@@ -4,38 +4,87 @@ using System.Collections.Generic;
 
 namespace YooAsset
 {
-	internal class OfflinePlayModeImpl : IBundleServices
+	internal class OfflinePlayModeImpl : IPlayModeServices, IBundleServices
 	{
-		private PatchManifest _appPatchManifest;
+		private PatchManifest _activeManifest;
 		private bool _locationToLower;
 
 		/// <summary>
 		/// 异步初始化
 		/// </summary>
-		public InitializationOperation InitializeAsync(bool locationToLower)
+		public InitializationOperation InitializeAsync(string packageName, bool locationToLower)
 		{
 			_locationToLower = locationToLower;
-			var operation = new OfflinePlayModeInitializationOperation(this);
+			var operation = new OfflinePlayModeInitializationOperation(this, packageName);
 			OperationSystem.StartOperation(operation);
 			return operation;
 		}
 
-		/// <summary>
-		/// 获取资源版本号
-		/// </summary>
-		public int GetResourceVersion()
+		#region IPlayModeServices接口
+		public PatchManifest ActiveManifest
 		{
-			if (_appPatchManifest == null)
-				return 0;
-			return _appPatchManifest.ResourceVersion;
+			set
+			{
+				_activeManifest = value;
+				_activeManifest.InitAssetPathMapping(_locationToLower);
+			}
+			get
+			{
+				return _activeManifest;
+			}
+		}
+		public bool IsBuildinPatchBundle(PatchBundle patchBundle)
+		{
+			return true;
 		}
 
-		// 设置资源清单
-		internal void SetAppPatchManifest(PatchManifest patchManifest)
+		UpdatePackageVersionOperation IPlayModeServices.UpdatePackageVersionAsync(bool appendTimeTicks, int timeout)
 		{
-			_appPatchManifest = patchManifest;
-			_appPatchManifest.InitAssetPathMapping(_locationToLower);
+			var operation = new OfflinePlayModeUpdatePackageVersionOperation();
+			OperationSystem.StartOperation(operation);
+			return operation;
 		}
+		UpdatePackageManifestOperation IPlayModeServices.UpdatePackageManifestAsync(string packageVersion, int timeout)
+		{
+			var operation = new OfflinePlayModeUpdatePackageManifestOperation();
+			OperationSystem.StartOperation(operation);
+			return operation;
+		}
+		PreDownloadPackageOperation IPlayModeServices.PreDownloadPackageAsync(string packageVersion, int timeout)
+		{
+			var operation = new OfflinePlayModePreDownloadPackageOperation();
+			OperationSystem.StartOperation(operation);
+			return operation;
+		}
+		CheckPackageContentsOperation IPlayModeServices.CheckPackageContentsOperation(string packageVersion)
+		{
+			var operation = new OfflinePlayModeCheckPackageContentsOperation();
+			OperationSystem.StartOperation(operation);
+			return operation;
+		}
+
+		PatchDownloaderOperation IPlayModeServices.CreatePatchDownloaderByAll(int downloadingMaxNumber, int failedTryAgain, int timeout)
+		{
+			return PatchDownloaderOperation.CreateEmptyDownloader(downloadingMaxNumber, failedTryAgain, timeout);
+		}
+		PatchDownloaderOperation IPlayModeServices.CreatePatchDownloaderByTags(string[] tags, int downloadingMaxNumber, int failedTryAgain, int timeout)
+		{
+			return PatchDownloaderOperation.CreateEmptyDownloader(downloadingMaxNumber, failedTryAgain, timeout);
+		}
+		PatchDownloaderOperation IPlayModeServices.CreatePatchDownloaderByPaths(AssetInfo[] assetInfos, int downloadingMaxNumber, int failedTryAgain, int timeout)
+		{
+			return PatchDownloaderOperation.CreateEmptyDownloader(downloadingMaxNumber, failedTryAgain, timeout);
+		}
+
+		PatchUnpackerOperation IPlayModeServices.CreatePatchUnpackerByAll(int upackingMaxNumber, int failedTryAgain, int timeout)
+		{
+			return PatchUnpackerOperation.CreateEmptyUnpacker(upackingMaxNumber, failedTryAgain, timeout);
+		}
+		PatchUnpackerOperation IPlayModeServices.CreatePatchUnpackerByTags(string[] tags, int upackingMaxNumber, int failedTryAgain, int timeout)
+		{
+			return PatchUnpackerOperation.CreateEmptyUnpacker(upackingMaxNumber, failedTryAgain, timeout);
+		}
+		#endregion
 
 		#region IBundleServices接口
 		private BundleInfo CreateBundleInfo(PatchBundle patchBundle)
@@ -62,7 +111,7 @@ namespace YooAsset
 				throw new Exception("Should never get here !");
 
 			// 注意：如果补丁清单里未找到资源包会抛出异常！
-			var patchBundle = _appPatchManifest.GetMainPatchBundle(assetInfo.AssetPath);
+			var patchBundle = _activeManifest.GetMainPatchBundle(assetInfo.AssetPath);
 			return CreateBundleInfo(patchBundle);
 		}
 		BundleInfo[] IBundleServices.GetAllDependBundleInfos(AssetInfo assetInfo)
@@ -71,7 +120,7 @@ namespace YooAsset
 				throw new Exception("Should never get here !");
 
 			// 注意：如果补丁清单里未找到资源包会抛出异常！
-			var depends = _appPatchManifest.GetAllDependencies(assetInfo.AssetPath);
+			var depends = _activeManifest.GetAllDependencies(assetInfo.AssetPath);
 			List<BundleInfo> result = new List<BundleInfo>(depends.Length);
 			foreach (var patchBundle in depends)
 			{
@@ -80,20 +129,9 @@ namespace YooAsset
 			}
 			return result.ToArray();
 		}
-		AssetInfo[] IBundleServices.GetAssetInfos(string[] tags)
+		bool IBundleServices.IsServicesValid()
 		{
-			return PatchHelper.GetAssetsInfoByTags(_appPatchManifest, tags);
-		}
-		PatchAsset IBundleServices.TryGetPatchAsset(string assetPath)
-		{
-			if (_appPatchManifest.TryGetPatchAsset(assetPath, out PatchAsset patchAsset))
-				return patchAsset;
-			else
-				return null;
-		}
-		string IBundleServices.MappingToAssetPath(string location)
-		{
-			return _appPatchManifest.MappingToAssetPath(location);
+			return _activeManifest != null;
 		}
 		#endregion
 	}

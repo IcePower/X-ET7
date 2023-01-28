@@ -9,34 +9,43 @@ namespace YooAsset.Editor
 	{
 		private readonly System.Diagnostics.Stopwatch _buildWatch = new System.Diagnostics.Stopwatch();
 
+		private string _pipelineOutputDirectory = string.Empty;
+		private string _packageOutputDirectory = string.Empty;
+
 		/// <summary>
 		/// 构建参数
 		/// </summary>
 		public BuildParameters Parameters { private set; get; }
 
-		/// <summary>
-		/// 构建管线的输出目录
-		/// </summary>
-		public string PipelineOutputDirectory { private set; get; }
-
 
 		public BuildParametersContext(BuildParameters parameters)
 		{
 			Parameters = parameters;
+		}
 
-			PipelineOutputDirectory = AssetBundleBuilderHelper.MakePipelineOutputDirectory(parameters.OutputRoot, parameters.BuildTarget);
-			if (parameters.BuildMode == EBuildMode.DryRunBuild)
-				PipelineOutputDirectory += $"_{EBuildMode.DryRunBuild}";
-			else if (parameters.BuildMode == EBuildMode.SimulateBuild)
-				PipelineOutputDirectory += $"_{EBuildMode.SimulateBuild}";
+		/// <summary>
+		/// 获取构建管线的输出目录
+		/// </summary>
+		/// <returns></returns>
+		public string GetPipelineOutputDirectory()
+		{
+			if (string.IsNullOrEmpty(_pipelineOutputDirectory))
+			{
+				_pipelineOutputDirectory = AssetBundleBuilderHelper.MakePipelineOutputDirectory(Parameters.OutputRoot, Parameters.PackageName, Parameters.BuildTarget, Parameters.BuildMode);
+			}
+			return _pipelineOutputDirectory;
 		}
 
 		/// <summary>
 		/// 获取本次构建的补丁目录
 		/// </summary>
-		public string GetPackageDirectory()
+		public string GetPackageOutputDirectory()
 		{
-			return $"{Parameters.OutputRoot}/{Parameters.BuildTarget}/{Parameters.BuildVersion}";
+			if (string.IsNullOrEmpty(_packageOutputDirectory))
+			{
+				_packageOutputDirectory = $"{Parameters.OutputRoot}/{Parameters.PackageName}/{Parameters.BuildTarget}/{Parameters.PackageVersion}";
+			}
+			return _packageOutputDirectory;
 		}
 
 		/// <summary>
@@ -85,11 +94,9 @@ namespace YooAsset.Editor
 			if (Parameters.BuildMode == EBuildMode.SimulateBuild)
 				throw new Exception("Should never get here !");
 
-			if (Parameters.BuildMode == EBuildMode.DryRunBuild)
-				throw new Exception($"SBP not support {nameof(EBuildMode.DryRunBuild)} build mode !");
-
 			var targetGroup = BuildPipeline.GetBuildTargetGroup(Parameters.BuildTarget);
-			var buildParams = new UnityEditor.Build.Pipeline.BundleBuildParameters(Parameters.BuildTarget, targetGroup, PipelineOutputDirectory);
+			var pipelineOutputDirectory = GetPipelineOutputDirectory();
+			var buildParams = new UnityEditor.Build.Pipeline.BundleBuildParameters(Parameters.BuildTarget, targetGroup, pipelineOutputDirectory);
 
 			if (Parameters.CompressOption == ECompressOption.Uncompressed)
 				buildParams.BundleCompression = UnityEngine.BuildCompression.Uncompressed;
@@ -103,16 +110,9 @@ namespace YooAsset.Editor
 			if (Parameters.DisableWriteTypeTree)
 				buildParams.ContentBuildFlags |= UnityEditor.Build.Content.ContentBuildFlags.DisableWriteTypeTree;
 
-			if(Parameters.BuildMode == EBuildMode.ForceRebuild)
-			{
-				buildParams.UseCache = false;
-			}
-			else
-			{
-				buildParams.UseCache = true;
-				buildParams.CacheServerHost = Parameters.SBPParameters.CacheServerHost;
-				buildParams.CacheServerPort = Parameters.SBPParameters.CacheServerPort;
-			}
+			buildParams.UseCache = true;
+			buildParams.CacheServerHost = Parameters.SBPParameters.CacheServerHost;
+			buildParams.CacheServerPort = Parameters.SBPParameters.CacheServerPort;
 			buildParams.WriteLinkXML = Parameters.SBPParameters.WriteLinkXML;
 
 			return buildParams;

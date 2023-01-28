@@ -19,19 +19,20 @@ namespace YooAsset
 		public delegate void OnDownloadProgress(int totalDownloadCount, int currentDownloadCount, long totalDownloadBytes, long currentDownloadBytes);
 		public delegate void OnDownloadError(string fileName, string error);
 		public delegate void OnStartDownloadFile(string fileName, long sizeBytes);
-		
+
 		private readonly int _downloadingMaxNumber;
 		private readonly int _failedTryAgain;
+		private readonly int _timeout;
 		private readonly List<BundleInfo> _downloadList;
 		private readonly List<DownloaderBase> _downloaders = new List<DownloaderBase>(MAX_LOADER_COUNT);
 		private readonly List<DownloaderBase> _removeList = new List<DownloaderBase>(MAX_LOADER_COUNT);
 		private readonly List<DownloaderBase> _failedList = new List<DownloaderBase>(MAX_LOADER_COUNT);
 
 		// 数据相关
-		private ESteps _steps = ESteps.None;
 		private bool _isPause = false;
 		private long _lastDownloadBytes = 0;
 		private int _lastDownloadCount = 0;
+		private ESteps _steps = ESteps.None;
 
 
 		/// <summary>
@@ -73,13 +74,14 @@ namespace YooAsset
 		/// 当开始下载某个文件
 		/// </summary>
 		public OnStartDownloadFile OnStartDownloadFileCallback { set; get; }
-		
 
-		internal DownloaderOperation(List<BundleInfo> downloadList, int downloadingMaxNumber, int failedTryAgain)
+
+		internal DownloaderOperation(List<BundleInfo> downloadList, int downloadingMaxNumber, int failedTryAgain, int timeout)
 		{
 			_downloadList = downloadList;
 			_downloadingMaxNumber = UnityEngine.Mathf.Clamp(downloadingMaxNumber, 1, MAX_LOADER_COUNT); ;
 			_failedTryAgain = failedTryAgain;
+			_timeout = timeout;
 
 			if (downloadList != null)
 			{
@@ -167,7 +169,7 @@ namespace YooAsset
 					{
 						int index = _downloadList.Count - 1;
 						var bundleInfo = _downloadList[index];
-						var operation = DownloadSystem.BeginDownload(bundleInfo, _failedTryAgain);
+						var operation = DownloadSystem.BeginDownload(bundleInfo, _failedTryAgain, _timeout);
 						_downloaders.Add(operation);
 						_downloadList.RemoveAt(index);
 						OnStartDownloadFileCallback?.Invoke(bundleInfo.Bundle.BundleName, bundleInfo.Bundle.FileSize);
@@ -181,9 +183,9 @@ namespace YooAsset
 					{
 						var failedDownloader = _failedList[0];
 						string fileName = failedDownloader.GetBundleInfo().Bundle.BundleName;
-						Error = $"Failed to download file : {fileName}";
 						_steps = ESteps.Done;
 						Status = EOperationStatus.Failed;
+						Error = $"Failed to download file : {fileName}";
 						OnDownloadErrorCallback?.Invoke(fileName, failedDownloader.GetLastError());
 						OnDownloadOverCallback?.Invoke(false);
 					}
@@ -224,27 +226,53 @@ namespace YooAsset
 		{
 			_isPause = false;
 		}
-	}
 
-	public sealed class PackageDownloaderOperation : DownloaderOperation
-	{
-		internal PackageDownloaderOperation(List<BundleInfo> downloadList, int downloadingMaxNumber, int failedTryAgain)
-			: base(downloadList, downloadingMaxNumber, failedTryAgain)
+		/// <summary>
+		/// 取消下载
+		/// </summary>
+		public void CancelDownload()
 		{
+			if (_steps != ESteps.Done)
+			{
+				_steps = ESteps.Done;
+				Status = EOperationStatus.Failed;
+				Error = "User cancel.";
+			}
 		}
 	}
+
 	public sealed class PatchDownloaderOperation : DownloaderOperation
 	{
-		internal PatchDownloaderOperation(List<BundleInfo> downloadList, int downloadingMaxNumber, int failedTryAgain)
-			: base(downloadList, downloadingMaxNumber, failedTryAgain)
+		internal PatchDownloaderOperation(List<BundleInfo> downloadList, int downloadingMaxNumber, int failedTryAgain, int timeout)
+			: base(downloadList, downloadingMaxNumber, failedTryAgain, timeout)
 		{
+		}
+
+		/// <summary>
+		/// 创建空的下载器
+		/// </summary>
+		internal static PatchDownloaderOperation CreateEmptyDownloader(int downloadingMaxNumber, int failedTryAgain, int timeout)
+		{
+			List<BundleInfo> downloadList = new List<BundleInfo>();
+			var operation = new PatchDownloaderOperation(downloadList, downloadingMaxNumber, failedTryAgain, timeout);
+			return operation;
 		}
 	}
 	public sealed class PatchUnpackerOperation : DownloaderOperation
 	{
-		internal PatchUnpackerOperation(List<BundleInfo> downloadList, int downloadingMaxNumber, int failedTryAgain)
-			: base(downloadList, downloadingMaxNumber, failedTryAgain)
+		internal PatchUnpackerOperation(List<BundleInfo> downloadList, int downloadingMaxNumber, int failedTryAgain, int timeout)
+			: base(downloadList, downloadingMaxNumber, failedTryAgain, timeout)
 		{
+		}
+
+		/// <summary>
+		/// 创建空的解压器
+		/// </summary>
+		internal static PatchUnpackerOperation CreateEmptyUnpacker(int upackingMaxNumber, int failedTryAgain, int timeout)
+		{
+			List<BundleInfo> downloadList = new List<BundleInfo>();
+			var operation = new PatchUnpackerOperation(downloadList, upackingMaxNumber, failedTryAgain, int.MaxValue);
+			return operation;
 		}
 	}
 }

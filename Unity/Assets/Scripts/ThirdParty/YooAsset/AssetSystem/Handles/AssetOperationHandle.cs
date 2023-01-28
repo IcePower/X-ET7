@@ -1,9 +1,10 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace YooAsset
 {
-	public sealed class AssetOperationHandle : OperationHandleBase
+	public sealed class AssetOperationHandle : OperationHandleBase, IDisposable
 	{
 		private System.Action<AssetOperationHandle> _callback;
 
@@ -22,7 +23,7 @@ namespace YooAsset
 		{
 			add
 			{
-				if (IsValid == false)
+				if (IsValidWithWarning == false)
 					throw new System.Exception($"{nameof(AssetOperationHandle)} is invalid");
 				if (Provider.IsDone)
 					value.Invoke(this);
@@ -31,34 +32,10 @@ namespace YooAsset
 			}
 			remove
 			{
-				if (IsValid == false)
+				if (IsValidWithWarning == false)
 					throw new System.Exception($"{nameof(AssetOperationHandle)} is invalid");
 				_callback -= value;
 			}
-		}
-
-		/// <summary>
-		/// 资源对象
-		/// </summary>
-		public UnityEngine.Object AssetObject
-		{
-			get
-			{
-				if (IsValid == false)
-					return null;
-				return Provider.AssetObject;
-			}
-		}
-
-		/// <summary>
-		/// 获取资源对象
-		/// </summary>
-		/// <typeparam name="TAsset">资源类型</typeparam>
-		public TAsset GetAssetObject<TAsset>() where TAsset : UnityEngine.Object
-		{
-			if (IsValid == false)
-				return null;
-			return Provider.AssetObject as TAsset;
 		}
 
 		/// <summary>
@@ -66,7 +43,7 @@ namespace YooAsset
 		/// </summary>
 		public void WaitForAsyncComplete()
 		{
-			if (IsValid == false)
+			if (IsValidWithWarning == false)
 				return;
 			Provider.WaitForAsyncComplete();
 		}
@@ -79,6 +56,38 @@ namespace YooAsset
 			this.ReleaseInternal();
 		}
 
+		/// <summary>
+		/// 释放资源句柄
+		/// </summary>
+		public void Dispose()
+		{
+			this.ReleaseInternal();
+		}
+
+
+		/// <summary>
+		/// 资源对象
+		/// </summary>
+		public UnityEngine.Object AssetObject
+		{
+			get
+			{
+				if (IsValidWithWarning == false)
+					return null;
+				return Provider.AssetObject;
+			}
+		}
+
+		/// <summary>
+		/// 获取资源对象
+		/// </summary>
+		/// <typeparam name="TAsset">资源类型</typeparam>
+		public TAsset GetAssetObject<TAsset>() where TAsset : UnityEngine.Object
+		{
+			if (IsValidWithWarning == false)
+				return null;
+			return Provider.AssetObject as TAsset;
+		}
 
 		/// <summary>
 		/// 同步初始化游戏对象
@@ -87,7 +96,7 @@ namespace YooAsset
 		/// <returns></returns>
 		public GameObject InstantiateSync(Transform parent = null)
 		{
-			return InstantiateSyncInternal(Vector3.zero, Quaternion.identity, parent, false);
+			return InstantiateSyncInternal(Vector3.zero, Quaternion.identity, parent);
 		}
 
 		/// <summary>
@@ -98,7 +107,7 @@ namespace YooAsset
 		/// <param name="parent">父类对象</param>
 		public GameObject InstantiateSync(Vector3 position, Quaternion rotation, Transform parent = null)
 		{
-			return InstantiateSyncInternal(position, rotation, parent, true);
+			return InstantiateSyncInternal(position, rotation, parent);
 		}
 
 		/// <summary>
@@ -107,7 +116,7 @@ namespace YooAsset
 		/// <param name="parent">父类对象</param>
 		public InstantiateOperation InstantiateAsync(Transform parent = null)
 		{
-			return InstantiateAsyncInternal(Vector3.zero, Quaternion.identity, parent, false);
+			return InstantiateAsyncInternal(Vector3.zero, Quaternion.identity, parent);
 		}
 
 		/// <summary>
@@ -118,37 +127,23 @@ namespace YooAsset
 		/// <param name="parent">父类对象</param>
 		public InstantiateOperation InstantiateAsync(Vector3 position, Quaternion rotation, Transform parent = null)
 		{
-			return InstantiateAsyncInternal(position, rotation, parent, true);
+			return InstantiateAsyncInternal(position, rotation, parent);
 		}
 
 
-		private GameObject InstantiateSyncInternal(Vector3 position, Quaternion rotation, Transform parent, bool setPositionRotation)
+		private GameObject InstantiateSyncInternal(Vector3 position, Quaternion rotation, Transform parent)
 		{
-			if (IsValid == false)
+			if (IsValidWithWarning == false)
 				return null;
 			if (Provider.AssetObject == null)
 				return null;
 
-			GameObject result;
-			if (setPositionRotation)
-			{
-				if (parent == null)
-					result = UnityEngine.Object.Instantiate(Provider.AssetObject as GameObject, position, rotation);
-				else
-					result = UnityEngine.Object.Instantiate(Provider.AssetObject as GameObject, position, rotation, parent);
-			}
-			else
-			{
-				if (parent == null)
-					result = UnityEngine.Object.Instantiate(Provider.AssetObject as GameObject);
-				else
-					result = UnityEngine.Object.Instantiate(Provider.AssetObject as GameObject, parent);
-			}
-			return result;
+			GameObject clone = UnityEngine.Object.Instantiate(Provider.AssetObject as GameObject, position, rotation, parent);			
+			return clone;
 		}
-		private InstantiateOperation InstantiateAsyncInternal(Vector3 position, Quaternion rotation, Transform parent, bool setPositionRotation)
+		private InstantiateOperation InstantiateAsyncInternal(Vector3 position, Quaternion rotation, Transform parent)
 		{
-			InstantiateOperation operation = new InstantiateOperation(this, position, rotation, parent, setPositionRotation);
+			InstantiateOperation operation = new InstantiateOperation(this, position, rotation, parent);
 			OperationSystem.StartOperation(operation);
 			return operation;
 		}

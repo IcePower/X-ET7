@@ -9,94 +9,121 @@ namespace YooAsset.Editor
 	public class AssetBundleCollectorSetting : ScriptableObject
 	{
 		/// <summary>
+		/// 是否显示包裹列表视图
+		/// </summary>
+		public bool ShowPackageView = false;
+
+		/// <summary>
 		/// 是否启用可寻址资源定位
 		/// </summary>
 		public bool EnableAddressable = false;
 
 		/// <summary>
-		/// 分组列表
+		/// 资源包名唯一化
 		/// </summary>
-		public List<AssetBundleCollectorGroup> Groups = new List<AssetBundleCollectorGroup>();
+		public bool UniqueBundleName = false;
 
+		/// <summary>
+		/// 是否显示编辑器别名
+		/// </summary>
+		public bool ShowEditorAlias = false;
+
+
+		/// <summary>
+		/// 包裹列表
+		/// </summary>
+		public List<AssetBundleCollectorPackage> Packages = new List<AssetBundleCollectorPackage>();
+
+
+		/// <summary>
+		/// 清空所有数据
+		/// </summary>
+		public void ClearAll()
+		{
+			EnableAddressable = false;
+			Packages.Clear();
+		}
 
 		/// <summary>
 		/// 检测配置错误
 		/// </summary>
 		public void CheckConfigError()
 		{
-			foreach (var group in Groups)
+			foreach (var package in Packages)
 			{
-				group.CheckConfigError();
+				package.CheckConfigError();
 			}
+		}
+
+		/// <summary>
+		/// 修复配置错误
+		/// </summary>
+		public bool FixConfigError()
+		{
+			bool isFixed = false;
+			foreach (var package in Packages)
+			{
+				if (package.FixConfigError())
+				{
+					isFixed = true;
+				}
+			}
+			return isFixed;
 		}
 
 		/// <summary>
 		/// 获取所有的资源标签
 		/// </summary>
-		public List<string> GetAllTags()
+		public List<string> GetPackageAllTags(string packageName)
 		{
-			HashSet<string> result = new HashSet<string>();
-			foreach (var group in Groups)
+			foreach (var package in Packages)
 			{
-				List<string> groupTags = StringUtility.StringToStringList(group.AssetTags, ';');
-				foreach (var tag in groupTags)
+				if (package.PackageName == packageName)
 				{
-					if (result.Contains(tag) == false)
-						result.Add(tag);
-				}
-
-				foreach (var collector in group.Collectors)
-				{
-					List<string> collectorTags = StringUtility.StringToStringList(collector.AssetTags, ';');
-					foreach (var tag in collectorTags)
-					{
-						if (result.Contains(tag) == false)
-							result.Add(tag);
-					}
+					return package.GetAllTags();
 				}
 			}
-			return result.ToList();
+
+			Debug.LogWarning($"Not found package : {packageName}");
+			return new List<string>();
 		}
 
 		/// <summary>
-		/// 获取打包收集的资源文件
+		/// 获取包裹收集的资源文件
 		/// </summary>
-		public List<CollectAssetInfo> GetAllCollectAssets(EBuildMode buildMode)
+		public CollectResult GetPackageAssets(EBuildMode buildMode, string packageName)
 		{
-			Dictionary<string, CollectAssetInfo> result = new Dictionary<string, CollectAssetInfo>(10000);
+			if (string.IsNullOrEmpty(packageName))
+				throw new Exception("Build package name is null or mepty !");
 
-			// 收集打包资源
-			foreach (var group in Groups)
+			foreach (var package in Packages)
 			{
-				var temper = group.GetAllCollectAssets(buildMode);
-				foreach (var assetInfo in temper)
+				if (package.PackageName == packageName)
 				{
-					if (result.ContainsKey(assetInfo.AssetPath) == false)
-						result.Add(assetInfo.AssetPath, assetInfo);
-					else
-						throw new Exception($"The collecting asset file is existed : {assetInfo.AssetPath}");
+					CollectCommand command = new CollectCommand(buildMode, EnableAddressable);
+					CollectResult collectResult = new CollectResult(package.PackageName, EnableAddressable, UniqueBundleName);
+					collectResult.SetCollectAssets(package.GetAllCollectAssets(command));
+					return collectResult;
 				}
 			}
 
-			// 检测可寻址地址是否重复
-			if (EnableAddressable)
-			{
-				HashSet<string> adressTemper = new HashSet<string>();
-				foreach (var collectInfoPair in result)
-				{
-					if (collectInfoPair.Value.CollectorType == ECollectorType.MainAssetCollector)
-					{
-						string address = collectInfoPair.Value.Address;
-						if (adressTemper.Contains(address) == false)
-							adressTemper.Add(address);
-						else
-							throw new Exception($"The address is existed : {address}");
-					}
-				}
-			}
+			throw new Exception($"Not found collector pacakge : {packageName}");
+		}
 
-			// 返回列表
-			return result.Values.ToList();
+		/// <summary>
+		/// 获取所有包裹收集的资源文件
+		/// </summary>
+		public List<CollectResult> GetAllPackageAssets(EBuildMode buildMode)
+		{
+			List<CollectResult> collectResultList = new List<CollectResult>(1000);
+			foreach (var package in Packages)
+			{
+				CollectCommand command = new CollectCommand(buildMode, EnableAddressable);
+				CollectResult collectResult = new CollectResult(package.PackageName, EnableAddressable, UniqueBundleName);
+				collectResult.SetCollectAssets(package.GetAllCollectAssets(command));
+				collectResultList.Add(collectResult);
+			}
+			return collectResultList;
 		}
 	}
 }

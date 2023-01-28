@@ -4,9 +4,7 @@ using System.IO;
 
 namespace YooAsset.Editor
 {
-	/// <summary>
-	/// 收集所有资源
-	/// </summary>
+	[DisplayName("收集所有资源")]
 	public class CollectAll : IFilterRule
 	{
 		public bool IsCollectAsset(FilterRuleData data)
@@ -15,9 +13,7 @@ namespace YooAsset.Editor
 		}
 	}
 
-	/// <summary>
-	/// 只收集场景
-	/// </summary>
+	[DisplayName("收集场景")]
 	public class CollectScene : IFilterRule
 	{
 		public bool IsCollectAsset(FilterRuleData data)
@@ -25,10 +21,8 @@ namespace YooAsset.Editor
 			return Path.GetExtension(data.AssetPath) == ".unity";
 		}
 	}
-	
-	/// <summary>
-	/// 只收集预制体
-	/// </summary>
+
+	[DisplayName("收集预制体")]
 	public class CollectPrefab : IFilterRule
 	{
 		public bool IsCollectAsset(FilterRuleData data)
@@ -37,15 +31,13 @@ namespace YooAsset.Editor
 		}
 	}
 
-	/// <summary>
-	/// 只收集精灵类型的资源
-	/// </summary>
+	[DisplayName("收集精灵类型的纹理")]
 	public class CollectSprite : IFilterRule
 	{
 		public bool IsCollectAsset(FilterRuleData data)
 		{
 			var mainAssetType = AssetDatabase.GetMainAssetTypeAtPath(data.AssetPath);
-			if(mainAssetType == typeof(Texture2D))
+			if (mainAssetType == typeof(Texture2D))
 			{
 				var texImporter = AssetImporter.GetAtPath(data.AssetPath) as TextureImporter;
 				if (texImporter != null && texImporter.textureType == TextureImporterType.Sprite)
@@ -60,9 +52,7 @@ namespace YooAsset.Editor
 		}
 	}
 
-	/// <summary>
-	/// 只收集着色器变种收集文件
-	/// </summary>
+	[DisplayName("收集着色器变种集合")]
 	public class CollectShaderVariants : IFilterRule
 	{
 		public bool IsCollectAsset(FilterRuleData data)

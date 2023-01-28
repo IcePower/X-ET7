@@ -2,7 +2,6 @@
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace YooAsset
 {
@@ -13,13 +12,13 @@ namespace YooAsset
 		/// <summary>
 		/// 初始化时的验证级别
 		/// </summary>
-		public static EVerifyLevel InitVerifyLevel { private set; get; }
+		public static EVerifyLevel InitVerifyLevel { set; get; } = EVerifyLevel.Low;
 
-		public static void Initialize(EVerifyLevel initVerifyLevel)
-		{
-			InitVerifyLevel = initVerifyLevel;
-		}
-		public static void DestroyAll()
+
+		/// <summary>
+		/// 清空所有数据
+		/// </summary>
+		public static void ClearAll()
 		{
 			_cachedDic.Clear();
 		}
@@ -30,8 +29,8 @@ namespace YooAsset
 		/// </summary>
 		public static bool IsCached(PatchBundle patchBundle)
 		{
-			string fileHash = patchBundle.FileHash;
-			if (_cachedDic.ContainsKey(fileHash))
+			string cacheKey = patchBundle.CacheKey;
+			if (_cachedDic.ContainsKey(cacheKey))
 			{
 				string filePath = patchBundle.CachedFilePath;
 				if (File.Exists(filePath))
@@ -40,7 +39,7 @@ namespace YooAsset
 				}
 				else
 				{
-					_cachedDic.Remove(fileHash);
+					_cachedDic.Remove(cacheKey);
 					YooLogger.Error($"Cache file is missing : {filePath}");
 					return false;
 				}
@@ -56,12 +55,12 @@ namespace YooAsset
 		/// </summary>
 		public static void CacheBundle(PatchBundle patchBundle)
 		{
-			string fileHash = patchBundle.FileHash;
-			if (_cachedDic.ContainsKey(fileHash) == false)
+			string cacheKey = patchBundle.CacheKey;
+			if (_cachedDic.ContainsKey(cacheKey) == false)
 			{
 				string filePath = patchBundle.CachedFilePath;
 				YooLogger.Log($"Cache verify file : {filePath}");
-				_cachedDic.Add(fileHash, patchBundle);
+				_cachedDic.Add(cacheKey, patchBundle);
 			}
 		}
 
@@ -74,9 +73,9 @@ namespace YooAsset
 		}
 
 		/// <summary>
-		/// 验证并缓存补丁包文件
+		/// 验证并缓存本地文件
 		/// </summary>
-		public static EVerifyResult VerifyAndCacheBundle(PatchBundle patchBundle, EVerifyLevel verifyLevel)
+		public static EVerifyResult VerifyAndCacheLocalBundleFile(PatchBundle patchBundle, EVerifyLevel verifyLevel)
 		{
 			var verifyResult = VerifyContentInternal(patchBundle.CachedFilePath, patchBundle.FileSize, patchBundle.FileCRC, verifyLevel);
 			if (verifyResult == EVerifyResult.Succeed)
@@ -85,9 +84,39 @@ namespace YooAsset
 		}
 
 		/// <summary>
+		/// 验证并缓存下载文件
+		/// </summary>
+		public static EVerifyResult VerifyAndCacheDownloadBundleFile(string tempFilePath, PatchBundle patchBundle, EVerifyLevel verifyLevel)
+		{
+			var verifyResult = VerifyContentInternal(tempFilePath, patchBundle.FileSize, patchBundle.FileCRC, verifyLevel);
+			if (verifyResult == EVerifyResult.Succeed)
+			{
+				try
+				{
+					string destFilePath = patchBundle.CachedFilePath;
+					if (File.Exists(destFilePath))
+						File.Delete(destFilePath);
+
+					FileInfo fileInfo = new FileInfo(tempFilePath);
+					fileInfo.MoveTo(destFilePath);
+				}
+				catch (Exception)
+				{
+					verifyResult = EVerifyResult.FileMoveFailed;
+				}
+
+				if (verifyResult == EVerifyResult.Succeed)
+				{
+					CacheBundle(patchBundle);
+				}
+			}
+			return verifyResult;
+		}
+
+		/// <summary>
 		/// 验证文件完整性
 		/// </summary>
-		public static EVerifyResult VerifyContentInternal(string filePath, long fileSize, string fileCRC, EVerifyLevel verifyLevel)
+		private static EVerifyResult VerifyContentInternal(string filePath, long fileSize, string fileCRC, EVerifyLevel verifyLevel)
 		{
 			try
 			{

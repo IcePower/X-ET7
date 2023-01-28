@@ -285,6 +285,35 @@ namespace YooAsset.Editor
 		}
 		#endregion
 
+		#region StringUtility
+		public static List<string> StringToStringList(string str, char separator)
+		{
+			List<string> result = new List<string>();
+			if (!String.IsNullOrEmpty(str))
+			{
+				string[] splits = str.Split(separator);
+				foreach (string split in splits)
+				{
+					string value = split.Trim(); //移除首尾空格
+					if (!String.IsNullOrEmpty(value))
+					{
+						result.Add(value);
+					}
+				}
+			}
+			return result;
+		}
+
+		public static T NameToEnum<T>(string name)
+		{
+			if (Enum.IsDefined(typeof(T), name) == false)
+			{
+				throw new ArgumentException($"Enum {typeof(T)} is not defined name {name}");
+			}
+			return (T)Enum.Parse(typeof(T), name);
+		}
+		#endregion
+
 		#region 文件
 		/// <summary>
 		/// 创建文件所在的目录
@@ -349,14 +378,17 @@ namespace YooAsset.Editor
 		}
 
 		/// <summary>
-		/// 文件移动
+		/// 移动文件
 		/// </summary>
-		public static void FileMoveTo(string filePath, string destPath)
+		public static void MoveFile(string filePath, string destPath)
 		{
+			if (File.Exists(destPath))
+				File.Delete(destPath);
+
 			FileInfo fileInfo = new FileInfo(filePath);
 			fileInfo.MoveTo(destPath);
 		}
-
+		
 		/// <summary>
 		/// 拷贝文件夹
 		/// 注意：包括所有子目录的文件

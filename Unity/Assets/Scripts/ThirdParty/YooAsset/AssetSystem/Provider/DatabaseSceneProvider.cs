@@ -9,17 +9,8 @@ namespace YooAsset
 		private readonly bool _activateOnLoad;
 		private readonly int _priority;
 		private AsyncOperation _asyncOp;
-		public override float Progress
-		{
-			get
-			{
-				if (_asyncOp == null)
-					return 0;
-				return _asyncOp.progress;
-			}
-		}
 
-		public DatabaseSceneProvider(string providerGUID, AssetInfo assetInfo, LoadSceneMode sceneMode, bool activateOnLoad, int priority) : base(providerGUID, assetInfo)
+		public DatabaseSceneProvider(AssetSystemImpl impl, string providerGUID, AssetInfo assetInfo, LoadSceneMode sceneMode, bool activateOnLoad, int priority) : base(impl, providerGUID, assetInfo)
 		{
 			SceneMode = sceneMode;
 			_activateOnLoad = activateOnLoad;
@@ -51,7 +42,7 @@ namespace YooAsset
 				}
 				else
 				{
-					Status = EStatus.Fail;
+					Status = EStatus.Failed;
 					LastError = $"Failed to load scene : {MainAssetInfo.AssetPath}";
 					YooLogger.Error(LastError);
 					InvokeCompletion();
@@ -61,13 +52,14 @@ namespace YooAsset
 			// 2. 检测加载结果
 			if (Status == EStatus.Checking)
 			{
+				Progress = _asyncOp.progress;
 				if (_asyncOp.isDone)
 				{				
 					if (SceneObject.IsValid() && _activateOnLoad)
 						SceneManager.SetActiveScene(SceneObject);
 
-					Status = SceneObject.IsValid() ? EStatus.Success : EStatus.Fail;
-					if (Status == EStatus.Fail)
+					Status = SceneObject.IsValid() ? EStatus.Succeed : EStatus.Failed;
+					if (Status == EStatus.Failed)
 					{
 						LastError = $"The loaded scene is invalid : {MainAssetInfo.AssetPath}";
 						YooLogger.Error(LastError);

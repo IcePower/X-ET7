@@ -19,11 +19,11 @@ namespace ET.Client
 
             FUIComponent fuiComponent = clientScene.GetComponent<FUIComponent>();
 
-            // 加载 Packages
-            await FUIPackageLoader.LoadPackagesAsync(fuiComponent);
-            
             // 热更流程
             await ResComponent.Instance.InitResourceAsync(clientScene);
+            
+            // 加载 Packages
+            await FUIPackageLoader.LoadPackagesAsync(fuiComponent);
             
             await clientScene.GetComponent<FUIComponent>().ShowPanelAsync(PanelId.LoginPanel);
 

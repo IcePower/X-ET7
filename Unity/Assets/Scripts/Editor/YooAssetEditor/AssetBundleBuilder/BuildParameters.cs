@@ -57,33 +57,21 @@ namespace YooAsset.Editor
 		public EBuildMode BuildMode;
 
 		/// <summary>
-		/// 构建的版本（资源版本号）
+		/// 构建的包裹名称
 		/// </summary>
-		public int BuildVersion;
+		public string PackageName;
 
 		/// <summary>
-		/// 内置资源标签集合（首包资源标签）
-		/// 注意：分号为分隔符
+		/// 构建的包裹版本
 		/// </summary>
-		public string BuildinTags;
+		public string PackageVersion;
 
 
 		/// <summary>
 		/// 验证构建结果
 		/// </summary>
 		public bool VerifyBuildingResult = false;
-
-		/// <summary>
-		/// 启用可寻址资源定位
-		/// </summary>
-		public bool EnableAddressable = false;
 		
-		/// <summary>
-		/// 拷贝内置资源文件到StreamingAssets目录（首包资源文件）
-		/// </summary>
-		public bool CopyBuildinTagFiles = false;
-
-
 		/// <summary>
 		/// 加密类
 		/// </summary>
@@ -93,6 +81,16 @@ namespace YooAsset.Editor
 		/// 补丁文件名称的样式
 		/// </summary>
 		public EOutputNameStyle OutputNameStyle = EOutputNameStyle.HashName;
+
+		/// <summary>
+		/// 拷贝内置资源选项
+		/// </summary>
+		public ECopyBuildinFileOption CopyBuildinFileOption = ECopyBuildinFileOption.None;
+
+		/// <summary>
+		/// 拷贝内置资源的标签
+		/// </summary>
+		public string CopyBuildinFileTags = string.Empty;
 
 		/// <summary>
 		/// 压缩选项
@@ -108,14 +106,5 @@ namespace YooAsset.Editor
 		/// 忽略类型树变化
 		/// </summary>
 		public bool IgnoreTypeTreeChanges = true;
-
-
-		/// <summary>
-		/// 获取内置资源标签列表（首包资源标签）
-		/// </summary>
-		public List<string> GetBuildinTags()
-		{
-			return StringUtility.StringToStringList(BuildinTags, ';');
-		}
 	}
 }

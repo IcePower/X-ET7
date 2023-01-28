@@ -20,13 +20,19 @@ namespace YooAsset.Editor
 
 			// 检测构建参数是否为空
 			if (buildParameters == null)
-			{
 				throw new Exception($"{nameof(buildParameters)} is null !");
-			}
+
+			// 检测可编程构建管线参数
 			if (buildParameters.BuildPipeline == EBuildPipeline.ScriptableBuildPipeline)
 			{
 				if (buildParameters.SBPParameters == null)
 					throw new Exception($"{nameof(BuildParameters.SBPParameters)} is null !");
+
+				if (buildParameters.BuildMode == EBuildMode.DryRunBuild)
+					throw new Exception($"{nameof(EBuildPipeline.ScriptableBuildPipeline)} not support {nameof(EBuildMode.DryRunBuild)} build mode !");
+
+				if (buildParameters.BuildMode == EBuildMode.ForceRebuild)
+					throw new Exception($"{nameof(EBuildPipeline.ScriptableBuildPipeline)} not support {nameof(EBuildMode.ForceRebuild)} build mode !");
 			}
 
 			// 构建参数
@@ -50,6 +56,7 @@ namespace YooAsset.Editor
 					new TaskBuilding(), //开始执行构建
 					new TaskVerifyBuildResult(), //验证构建结果
 					new TaskEncryption(), //加密资源文件
+					new TaskUpdateBuildInfo(), //更新构建信息
 					new TaskCreatePatchManifest(), //创建清单文件
 					new TaskCreateReport(), //创建报告文件
 					new TaskCreatePatchPackage(), //制作补丁包
@@ -65,6 +72,7 @@ namespace YooAsset.Editor
 					new TaskBuilding_SBP(), //开始执行构建
 					new TaskVerifyBuildResult_SBP(), //验证构建结果
 					new TaskEncryption(), //加密资源文件
+					new TaskUpdateBuildInfo(), //更新构建信息
 					new TaskCreatePatchManifest(), //创建清单文件
 					new TaskCreateReport(), //创建报告文件
 					new TaskCreatePatchPackage(), //制作补丁包
@@ -80,7 +88,7 @@ namespace YooAsset.Editor
 			var buildResult = BuildRunner.Run(pipeline, _buildContext);
 			if (buildResult.Success)
 			{
-				buildResult.OutputPackageDirectory = buildParametersContext.GetPackageDirectory();
+				buildResult.OutputPackageDirectory = buildParametersContext.GetPackageOutputDirectory();
 				Debug.Log($"{buildParameters.BuildMode} pipeline build succeed !");
 			}
 			else

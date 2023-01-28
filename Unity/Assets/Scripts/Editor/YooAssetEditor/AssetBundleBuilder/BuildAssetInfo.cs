@@ -63,7 +63,7 @@ namespace YooAsset.Editor
 			IsRawAsset = isRawAsset;
 
 			System.Type assetType = UnityEditor.AssetDatabase.GetMainAssetTypeAtPath(assetPath);
-			if (assetType == typeof(UnityEngine.Shader))
+			if (assetType == typeof(UnityEngine.Shader) || assetType == typeof(UnityEngine.ShaderVariantCollection))
 				IsShaderAsset = true;
 			else
 				IsShaderAsset = false;
@@ -76,7 +76,7 @@ namespace YooAsset.Editor
 			IsRawAsset = false;
 
 			System.Type assetType = UnityEditor.AssetDatabase.GetMainAssetTypeAtPath(assetPath);
-			if (assetType == typeof(UnityEngine.Shader))
+			if (assetType == typeof(UnityEngine.Shader) || assetType == typeof(UnityEngine.ShaderVariantCollection))
 				IsShaderAsset = true;
 			else
 				IsShaderAsset = false;
@@ -166,7 +166,7 @@ namespace YooAsset.Editor
 		/// <summary>
 		/// 计算主资源或共享资源的完整包名
 		/// </summary>
-		public void CalculateFullBundleName()
+		public void CalculateFullBundleName(bool uniqueBundleName, string packageName)
 		{
 			if (CollectorType == ECollectorType.None)
 			{
@@ -175,17 +175,24 @@ namespace YooAsset.Editor
 
 				if (IsShaderAsset)
 				{
-					string shareBundleName = YooAssetSettingsData.GetUnityShadersBundleFullName();
-					_shareBundleName = EditorTools.GetRegularPath(shareBundleName).ToLower();
-					return;
+					_shareBundleName = YooAssetSettingsData.GetUnityShadersBundleFullName(uniqueBundleName, packageName);
 				}
-
-				if (_referenceBundleNames.Count > 1)
+				else
 				{
-					IPackRule packRule = PackDirectory.StaticPackRule;
-					var bundleName = packRule.GetBundleName(new PackRuleData(AssetPath));
-					var shareBundleName = $"share_{bundleName}.{YooAssetSettingsData.Setting.AssetBundleFileVariant}";
-					_shareBundleName = EditorTools.GetRegularPath(shareBundleName).ToLower();
+					if (_referenceBundleNames.Count > 1)
+					{
+						IPackRule packRule = PackDirectory.StaticPackRule;
+						var bundleName = packRule.GetBundleName(new PackRuleData(AssetPath));
+						if (YooAssetSettingsData.Setting.RegularBundleName)
+							bundleName = EditorTools.GetRegularPath(bundleName).Replace('/', '_').Replace('.', '_').ToLower();
+						else
+							bundleName = EditorTools.GetRegularPath(bundleName).ToLower();
+
+						if (uniqueBundleName)
+							_shareBundleName = $"{packageName.ToLower()}_share_{bundleName}.{YooAssetSettingsData.Setting.AssetBundleFileVariant}";
+						else
+							_shareBundleName = $"share_{bundleName}.{YooAssetSettingsData.Setting.AssetBundleFileVariant}";
+					}
 				}
 			}
 			else
@@ -193,12 +200,17 @@ namespace YooAsset.Editor
 				if (IsRawAsset)
 				{
 					string mainBundleName = $"{_mainBundleName}.{YooAssetSettingsData.Setting.RawFileVariant}";
-					_mainBundleName = EditorTools.GetRegularPath(mainBundleName).ToLower();
+					_mainBundleName = mainBundleName.ToLower();
 				}
 				else
 				{
 					string mainBundleName = $"{_mainBundleName}.{YooAssetSettingsData.Setting.AssetBundleFileVariant}";
-					_mainBundleName = EditorTools.GetRegularPath(mainBundleName).ToLower(); ;
+					_mainBundleName = mainBundleName.ToLower(); ;
+				}
+
+				if (uniqueBundleName)
+				{
+					_mainBundleName = $"{packageName.ToLower()}_{_mainBundleName}";
 				}
 			}
 		}
