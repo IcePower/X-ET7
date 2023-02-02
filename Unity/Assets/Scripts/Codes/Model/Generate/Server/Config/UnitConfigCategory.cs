@@ -32,9 +32,9 @@ public partial class UnitConfigCategory: ConfigSingleton<UnitConfigCategory>
         PostInit();
     }
     
-    public UnitConfigCategory()
+    public bool Contain(int id)
     {
-        throw new System.NotImplementedException();
+        return _dataMap.ContainsKey(id);
     }
 
     public Dictionary<int, UnitConfig> GetAll()

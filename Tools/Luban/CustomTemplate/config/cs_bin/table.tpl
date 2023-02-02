@@ -37,9 +37,9 @@ public partial class {{name}}: ConfigSingleton<{{name}}>
         PostInit();
     }
     
-    public {{name}}()
+    public bool Contain(int id)
     {
-        throw new System.NotImplementedException();
+        return _dataMap.ContainsKey(id);
     }
 
     public Dictionary<{{cs_define_type key_type}}, {{cs_define_type value_type}}> GetAll()
@@ -86,7 +86,6 @@ public partial class {{name}}: ConfigSingleton<{{name}}>
 
     public {{name}}(ByteBuf _buf)
     {
-        Instance = this;
         _dataList = new List<{{cs_define_type value_type}}>();
         
         for(int n = _buf.ReadSize() ; n > 0 ; --n)
@@ -125,7 +124,7 @@ public partial class {{name}}: ConfigSingleton<{{name}}>
         {{~end~}}
     {{~end~}}
 
-    public void Resolve(Dictionary<string, object> _tables)
+    public override void Resolve(Dictionary<string, IConfigSingleton> _tables)
     {
         foreach(var v in _dataList)
         {
@@ -134,7 +133,7 @@ public partial class {{name}}: ConfigSingleton<{{name}}>
         PostResolve();
     }
 
-    public void TranslateText(System.Func<string, string, string> translator)
+    public override void TranslateText(System.Func<string, string, string> translator)
     {
         foreach(var v in _dataList)
         {
@@ -147,13 +146,11 @@ public partial class {{name}}: ConfigSingleton<{{name}}>
 
     public {{name}}(ByteBuf _buf)
     {
-        Instance = this;
         int n = _buf.ReadSize();
         if (n != 1) throw new SerializationException("table mode=one, but size != 1");
         {{cs_deserialize '_buf' '_data' value_type}}
         PostInit();
     }
-
 
     {{~ for field in value_type.bean.hierarchy_export_fields ~}}
 {{~if field.comment != '' ~}}
@@ -164,13 +161,13 @@ public partial class {{name}}: ConfigSingleton<{{name}}>
      public {{cs_define_type field.ctype}} {{field.convention_name}} => _data.{{field.convention_name}};
     {{~end~}}
 
-    public void Resolve(Dictionary<string, object> _tables)
+    public override void Resolve(Dictionary<string, IConfigSingleton> _tables)
     {
         _data.Resolve(_tables);
         PostResolve();
     }
 
-    public void TranslateText(System.Func<string, string, string> translator)
+    public override void TranslateText(System.Func<string, string, string> translator)
     {
         _data.TranslateText(translator);
     }

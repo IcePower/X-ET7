@@ -21,6 +21,14 @@ namespace ET
 		Linux
 	}
 	
+	public enum ConfigFolder
+	{
+		Localhost,
+		Release,
+		RouterTest,
+		Benchmark
+	}
+	
 	public enum BuildType
 	{
 		Development,
@@ -31,6 +39,7 @@ namespace ET
 	{
 		private PlatformType activePlatform;
 		private PlatformType platformType;
+		private ConfigFolder configFolder;
 		private bool clearFolder;
 		private bool isBuildExe;
 		private bool isContainAB;
@@ -158,19 +167,25 @@ namespace ET
 				ShowNotification("Build Hotfix Success!");
 			}
 			
-			if (GUILayout.Button("ExcelExporter"))
+			EditorGUILayout.BeginHorizontal();
 			{
-				ToolsEditor.ExcelExporter();
+				this.configFolder = (ConfigFolder)EditorGUILayout.EnumPopup(this.configFolder, GUILayout.Width(200f));
 
-				const string clientProtoDir = "../Unity/Assets/Bundles/Config";
-				if (Directory.Exists(clientProtoDir))
+				if (GUILayout.Button("ExcelExporter"))
 				{
-					Directory.Delete(clientProtoDir, true);
-				}
-				FileHelper.CopyDirectory("../Config/Excel/c", clientProtoDir);
+					ToolsEditor.ExcelExporter(globalConfig.CodeMode, this.configFolder);
+
+					const string clientProtoDir = "../Unity/Assets/Bundles/Config";
+					if (Directory.Exists(clientProtoDir))
+					{
+						Directory.Delete(clientProtoDir, true);
+					}
+					FileHelper.CopyDirectory("../Config/Excel/c", clientProtoDir);
 				
-				AssetDatabase.Refresh();
+					AssetDatabase.Refresh();
+				}
 			}
+			EditorGUILayout.EndHorizontal();
 			
 			if (GUILayout.Button("Proto2CS"))
 			{
