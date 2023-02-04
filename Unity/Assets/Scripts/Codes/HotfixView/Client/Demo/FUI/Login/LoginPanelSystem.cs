@@ -7,7 +7,7 @@ namespace ET.Client
 			self.FUILoginPanel.LoginBtn.AddListnerAsync(self.Login);
 		}
 
-		public static void OnShow(this LoginPanel self)
+		public static void OnShow(this LoginPanel self, Entity contextData = null)
 		{
 
 		}

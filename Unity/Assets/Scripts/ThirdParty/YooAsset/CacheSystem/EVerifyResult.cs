@@ -4,12 +4,17 @@ namespace YooAsset
 	/// <summary>
 	/// 下载文件校验结果
 	/// </summary>
-	public enum EVerifyResult
+	internal enum EVerifyResult
 	{
 		/// <summary>
 		/// 文件不存在
 		/// </summary>
-		FileNotExisted = -4,
+		FileNotExisted = -5,
+
+		/// <summary>
+		/// 文件移动失败（重命名失败）
+		/// </summary>
+		FileMoveFailed = -4,
 
 		/// <summary>
 		/// 文件内容不足（小于正常大小）

@@ -3,7 +3,7 @@
 using FairyGUI;
 using FairyGUI.Utils;
 
-namespace ET.Client
+namespace ET.Client.Lobby
 {
 	public partial class FUI_LobbyPanel: GComponent
 	{

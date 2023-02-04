@@ -1,3 +1,5 @@
+using ET.Client.Login;
+
 namespace ET.Client
 {
 	[ComponentOf(typeof(FUIEntity))]

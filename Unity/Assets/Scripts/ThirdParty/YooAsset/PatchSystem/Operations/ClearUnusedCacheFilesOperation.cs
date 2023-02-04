@@ -1,49 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
 
 namespace YooAsset
 {
 	/// <summary>
-	/// 清理未使用的缓存资源操作类
+	/// 清理本地包裹未使用的缓存文件
 	/// </summary>
-	public abstract class ClearUnusedCacheFilesOperation : AsyncOperationBase
-	{
-	}
-
-	/// <summary>
-	/// 编辑器模式
-	/// </summary>
-	internal sealed class EditorPlayModeClearUnusedCacheFilesOperation : ClearUnusedCacheFilesOperation
-	{
-		internal override void Start()
-		{
-			Status = EOperationStatus.Succeed;
-		}
-		internal override void Update()
-		{
-		}
-	}
-
-	/// <summary>
-	/// 离线模式
-	/// </summary>
-	internal sealed class OfflinePlayModeClearUnusedCacheFilesOperation : ClearUnusedCacheFilesOperation
-	{
-		internal override void Start()
-		{
-			Status = EOperationStatus.Succeed;
-		}
-		internal override void Update()
-		{
-		}
-	}
-
-	/// <summary>
-	/// 联机模式
-	/// </summary>
-	internal sealed class HostPlayModeClearUnusedCacheFilesOperation : ClearUnusedCacheFilesOperation
+	public sealed class ClearUnusedCacheFilesOperation : AsyncOperationBase
 	{
 		private enum ESteps
 		{
@@ -53,14 +17,14 @@ namespace YooAsset
 			Done,
 		}
 
-		private ESteps _steps = ESteps.None;
+		private readonly AssetsPackage _package;
 		private List<string> _unusedCacheFilePaths;
 		private int _unusedFileTotalCount = 0;
-		private HostPlayModeImpl _impl;
+		private ESteps _steps = ESteps.None;
 
-		internal HostPlayModeClearUnusedCacheFilesOperation(HostPlayModeImpl impl)
+		internal ClearUnusedCacheFilesOperation(AssetsPackage package)
 		{
-			_impl = impl;
+			_package = package;
 		}
 		internal override void Start()
 		{
@@ -73,7 +37,7 @@ namespace YooAsset
 
 			if (_steps == ESteps.GetUnusedCacheFiles)
 			{
-				_unusedCacheFilePaths = _impl.ClearUnusedCacheFilePaths();
+				_unusedCacheFilePaths = GetUnusedCacheFilePaths();
 				_unusedFileTotalCount = _unusedCacheFilePaths.Count;
 				YooLogger.Log($"Found unused cache file count : {_unusedFileTotalCount}");
 				_steps = ESteps.ClearUnusedCacheFiles;
@@ -86,8 +50,15 @@ namespace YooAsset
 					string filePath = _unusedCacheFilePaths[i];
 					if (File.Exists(filePath))
 					{
-						YooLogger.Log($"Delete unused cache file : {filePath}");
-						File.Delete(filePath);
+						try
+						{
+							File.Delete(filePath);
+							YooLogger.Log($"Delete unused cache file : {filePath}");
+						}
+						catch (System.Exception e)
+						{
+							YooLogger.Warning($"Failed delete cache file : {filePath} ! {e.Message}");
+						}
 					}
 					_unusedCacheFilePaths.RemoveAt(i);
 
@@ -106,6 +77,28 @@ namespace YooAsset
 					Status = EOperationStatus.Succeed;
 				}
 			}
+		}
+
+		/// <summary>
+		/// 获取未被使用的缓存文件路径集合
+		/// </summary>
+		private List<string> GetUnusedCacheFilePaths()
+		{
+			string cacheFolderPath = PersistentHelper.GetCacheFolderPath(_package.PackageName);
+			if (Directory.Exists(cacheFolderPath) == false)
+				return new List<string>();
+
+			DirectoryInfo directoryInfo = new DirectoryInfo(cacheFolderPath);
+			FileInfo[] fileInfos = directoryInfo.GetFiles();
+			List<string> result = new List<string>(fileInfos.Length);
+			foreach (FileInfo fileInfo in fileInfos)
+			{
+				if (_package.IsIncludeBundleFile(fileInfo.Name) == false)
+				{
+					result.Add(fileInfo.FullName);
+				}
+			}
+			return result;
 		}
 	}
 }

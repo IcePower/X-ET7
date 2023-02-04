@@ -14,10 +14,10 @@ namespace FUIEditor
     public static class FUICodeSpawner
     {
         // 名字空间
-        private const string NameSpace = "ET.Client";
+        public static string NameSpace = "ET.Client";
         
         // 类名前缀
-        private const string ClassNamePrefix = "FUI_";
+        public static string ClassNamePrefix = "FUI_";
         
         // 代码生成路径
         private const string FUIAutoGenDir = "../Unity/Assets/Scripts/Codes/ModelView/Client/Demo/FUIAutoGen";
@@ -27,28 +27,14 @@ namespace FUIEditor
         // 不生成使用默认名称的成员
         private static readonly bool IgnoreDefaultVariableName = true;
         
-        private static readonly Dictionary<string, PackageInfo> PackageInfos = new Dictionary<string, PackageInfo>();
+        public static readonly Dictionary<string, PackageInfo> PackageInfos = new Dictionary<string, PackageInfo>();
 
-        private static readonly Dictionary<string, ComponentInfo> ComponentInfos = new Dictionary<string, ComponentInfo>();
+        public static readonly Dictionary<string, ComponentInfo> ComponentInfos = new Dictionary<string, ComponentInfo>();
         
         private static readonly MultiDictionary<string, string, ComponentInfo> ExportedComponentInfos = new MultiDictionary<string, string, ComponentInfo>();
 
         private static readonly HashSet<string> ExtralExportURLs = new HashSet<string>();
-        
-        private static readonly Dictionary<ObjectType, string> ObjectTypeToClassType = new Dictionary<ObjectType, string>()
-        {
-            {ObjectType.graph, "GGraph"},
-            {ObjectType.group, "GGroup"},
-            {ObjectType.image, "GImage"},
-            {ObjectType.loader, "GLoader"},
-            {ObjectType.loader3D, "GLoader3D"},
-            {ObjectType.movieclip, "GMovieClip"},
-            {ObjectType.textfield, "GTextField"},
-            {ObjectType.textinput, "GTextInput"},
-            {ObjectType.richtext, "GRichTextField"},
-            {ObjectType.list, "GList"}
-        };
-        
+
         private static readonly Dictionary<ComponentType, string> ComponentTypeToClassType = new Dictionary<ComponentType, string>()
         {
             {ComponentType.Component, "GComponent"},
@@ -71,6 +57,7 @@ namespace FUIEditor
         public static void ParseAndSpawnCode()
         {
             ParseAllPackages();
+            AfterParseAllPackages();
             SpawnCode();
         }
 
@@ -172,38 +159,21 @@ namespace FUIEditor
                 }
             }
 
-            // 下面获取组件的真实类型
-            bool hasNoAppointName = false; // 有不是约定的名字
-            bool hasCustomName = false; // 有自定义的名字
-            foreach (XML displayXML in componentInfo.DisplayList)
-            {
-                string variableName = displayXML.GetAttribute("name");
-
-                bool isAppointName = IsAppointName(variableName, componentInfo.ComponentType);
-                if (isAppointName)
-                {
-                    continue;
-                }
-
-                hasNoAppointName = true;
-
-                bool isDefaultName = displayXML.GetAttribute("id").StartsWith(variableName);
-                if (!isDefaultName)
-                {
-                    hasCustomName = true;
-                }
-            }
-
-            if (hasCustomName || (hasNoAppointName && !IgnoreDefaultVariableName))
-            {
-                componentInfo.ComponentTypeName = "{0}{1}".Fmt(ClassNamePrefix, componentInfo.NameWithoutExtension);
-            }
-            else
-            {
-                componentInfo.ComponentTypeName = ComponentTypeToClassType[componentInfo.ComponentType];
-            }
-
             return componentInfo;
+        }
+        
+        // 检查哪些组件可以导出。需要在 ParseAllPackages 后执行，因为需要有全部 package 的信息。
+        private static void AfterParseAllPackages()
+        {
+            foreach (ComponentInfo componentInfo in ComponentInfos.Values)
+            {
+                componentInfo.CheckCanExport(ExtralExportURLs, IgnoreDefaultVariableName);
+            }
+            
+            foreach (ComponentInfo componentInfo in ComponentInfos.Values)
+            {
+                componentInfo.SetVariableInfoTypeName();
+            }
         }
         
         private static void SpawnCode()
@@ -230,11 +200,15 @@ namespace FUIEditor
             foreach (PackageInfo packageInfo in PackageInfos.Values)
             {
                 string panelName = "{0}Panel.xml".Fmt(packageInfo.Name);
-                if (packageInfo.PackageComponentInfos.ContainsKey(panelName))
+                if (packageInfo.PackageComponentInfos.TryGetValue(panelName, out var packageComponentInfo))
                 {
-                    SpawnCodeForPanel(packageInfo.Name);
-                    SpawnCodeForPanelSystem(packageInfo.Name);
-                    SpawnEventHandler(packageInfo.Name);
+                    string componentId = $"{packageInfo.Id}/{packageComponentInfo.Id}";
+                    if (ComponentInfos.TryGetValue(componentId, out var componentInfo))
+                    {
+                        SpawnCodeForPanel(packageInfo.Name, componentInfo.NameSpace);
+                        SpawnCodeForPanelSystem(packageInfo.Name);
+                        SpawnEventHandler(packageInfo.Name);
+                    }
                 }
             }
         }
@@ -242,8 +216,10 @@ namespace FUIEditor
         private static void SpawnCodeForPanelId()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("/** This is an automatically generated class by FUICodeSpawner. Please do not modify it. **/\n");
-            sb.AppendFormat("namespace {0}\n", NameSpace);
+            sb.AppendLine("/** This is an automatically generated class by FUICodeSpawner. Please do not modify it. **/");
+            sb.AppendLine();
+            sb.AppendFormat("namespace {0}", NameSpace);
+            sb.AppendLine();
             sb.AppendLine("{");
             sb.AppendLine("\tpublic enum PanelId");
             sb.AppendLine("\t{");
@@ -271,8 +247,10 @@ namespace FUIEditor
         private static void SpawnCodeForInit()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("/** This is an automatically generated class by FUICodeSpawner. Please do not modify it. **/\n");
-            sb.AppendFormat("namespace {0}\n", NameSpace);
+            sb.AppendLine("/** This is an automatically generated class by FUICodeSpawner. Please do not modify it. **/");
+            sb.AppendLine();
+            sb.AppendFormat("namespace {0}", NameSpace);
+            sb.AppendLine();
             sb.AppendLine("{");
             sb.AppendLine("\tpublic static class FUIPackageLoader");
             sb.AppendLine("\t{");
@@ -304,7 +282,7 @@ namespace FUIEditor
             sw.Write(sb.ToString());
         }
 
-        private static void SpawnCodeForPanel(string packageName)
+        private static void SpawnCodeForPanel(string packageName, string nameSpace)
         {
             string panelName = "{0}Panel".Fmt(packageName);
             
@@ -324,10 +302,15 @@ namespace FUIEditor
             Debug.Log("Spawn Code For Panel {0}".Fmt(filePath));
             
             StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("namespace {0}\n", NameSpace);
+            sb.AppendFormat($"using {nameSpace};");
+            sb.AppendLine();
+            sb.AppendLine();
+            sb.AppendFormat("namespace {0}", NameSpace);
+            sb.AppendLine();
             sb.AppendLine("{");
             sb.AppendLine("\t[ComponentOf(typeof(FUIEntity))]");
-            sb.AppendFormat("\tpublic class {0}: Entity, IAwake\n", panelName);
+            sb.AppendFormat("\tpublic class {0}: Entity, IAwake", panelName);
+            sb.AppendLine();
             sb.AppendLine("\t{");
             sb.AppendLine("\t\tprivate FUI_{0} _fui{0};".Fmt(panelName));
             sb.AppendLine();
@@ -363,35 +346,43 @@ namespace FUIEditor
             Debug.Log("Spawn Code For PanelSystem {0}".Fmt(filePath));
             
             StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("namespace {0}\n", NameSpace);
+            sb.AppendFormat("namespace {0}", NameSpace);
+            sb.AppendLine();
             sb.AppendLine("{");
-            sb.AppendFormat("\tpublic static class {0}System\n", panelName);
+            sb.AppendFormat("\tpublic static class {0}System", panelName);
+            sb.AppendLine();
             sb.AppendLine("\t{");
             
-            sb.AppendFormat("\t\tpublic static void Awake(this {0} self)\n", panelName);
+            sb.AppendFormat("\t\tpublic static void Awake(this {0} self)", panelName);
+            sb.AppendLine();
             sb.AppendLine("\t\t{");
             sb.AppendLine();
-            sb.AppendLine("\t\t}\n");
-
-            sb.AppendFormat("\t\tpublic static void RegisterUIEvent(this {0} self)\n", panelName);
+            sb.AppendLine("\t\t}");
+            sb.AppendLine();
+            
+            sb.AppendFormat("\t\tpublic static void RegisterUIEvent(this {0} self)", panelName);
+            sb.AppendLine();
             sb.AppendLine("\t\t{");
             sb.AppendLine();
             sb.AppendLine("\t\t}");
             
             sb.AppendLine();
-            sb.AppendFormat("\t\tpublic static void OnShow(this {0} self)\n", panelName);
+            sb.AppendFormat("\t\tpublic static void OnShow(this {0} self, Entity contexData = null)", panelName);
+            sb.AppendLine();
             sb.AppendLine("\t\t{");
             sb.AppendLine();
             sb.AppendLine("\t\t}");
             
             sb.AppendLine();
-            sb.AppendFormat("\t\tpublic static void OnHide(this {0} self)\n", panelName);
+            sb.AppendFormat("\t\tpublic static void OnHide(this {0} self)", panelName);
+            sb.AppendLine();
             sb.AppendLine("\t\t{");
             sb.AppendLine();
             sb.AppendLine("\t\t}");
             
             sb.AppendLine();
-            sb.AppendFormat("\t\tpublic static void BeforeUnload(this {0} self)\n", panelName);
+            sb.AppendFormat("\t\tpublic static void BeforeUnload(this {0} self)", panelName);
+            sb.AppendLine();
             sb.AppendLine("\t\t{");
             sb.AppendLine();
             sb.AppendLine("\t\t}");
@@ -424,48 +415,62 @@ namespace FUIEditor
             Debug.Log("Spawn EventHandler {0}".Fmt(filePath));
 
             StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("namespace {0}\n", NameSpace);
+            sb.AppendFormat("namespace {0}", NameSpace);
+            sb.AppendLine();
             sb.AppendLine("{");
             sb.AppendLine("\t[FriendOf(typeof(PanelCoreData))]");
             sb.AppendLine("\t[FriendOf(typeof(FUIEntity))]");
-            sb.AppendFormat("\t[FUIEvent(PanelId.{0}, \"{1}\", \"{0}\")]\n", panelName, packageName);
-            sb.AppendFormat("\tpublic class {0}EventHandler: IFUIEventHandler\n", packageName);
+            sb.AppendFormat("\t[FUIEvent(PanelId.{0}, \"{1}\", \"{0}\")]", panelName, packageName);
+            sb.AppendLine();
+            sb.AppendFormat("\tpublic class {0}EventHandler: IFUIEventHandler", packageName);
+            sb.AppendLine();
             sb.AppendLine("\t{");
             
-            sb.AppendFormat("\t\tpublic void OnInitPanelCoreData(FUIEntity fuiEntity)\n");
+            sb.AppendFormat("\t\tpublic void OnInitPanelCoreData(FUIEntity fuiEntity)");
+            sb.AppendLine();
             sb.AppendLine("\t\t{");
             sb.AppendLine("\t\t\tfuiEntity.PanelCoreData.panelType = UIPanelType.Normal;");
             sb.AppendLine("\t\t}");
             
             sb.AppendLine();
-            sb.AppendFormat("\t\tpublic void OnInitComponent(FUIEntity fuiEntity)\n");
+            sb.AppendFormat("\t\tpublic void OnInitComponent(FUIEntity fuiEntity)");
+            sb.AppendLine();
             sb.AppendLine("\t\t{");
-            sb.AppendFormat("\t\t\t{0} panel = fuiEntity.AddComponent<{0}>();\n", panelName);
+            sb.AppendFormat("\t\t\t{0} panel = fuiEntity.AddComponent<{0}>();", panelName);
+            sb.AppendLine();
             sb.AppendLine("\t\t\tpanel.Awake();");
             sb.AppendLine("\t\t}");
 
             sb.AppendLine();
-            sb.AppendFormat("\t\tpublic void OnRegisterUIEvent(FUIEntity fuiEntity)\n");
+            sb.AppendFormat("\t\tpublic void OnRegisterUIEvent(FUIEntity fuiEntity)");
+            sb.AppendLine();
             sb.AppendLine("\t\t{");
-            sb.AppendFormat("\t\t\tfuiEntity.GetComponent<{0}>().RegisterUIEvent();\n", panelName);
+            sb.AppendFormat("\t\t\tfuiEntity.GetComponent<{0}>().RegisterUIEvent();", panelName);
+            sb.AppendLine();
             sb.AppendLine("\t\t}");
             
             sb.AppendLine();
-            sb.AppendFormat("\t\tpublic void OnShow(FUIEntity fuiEntity)\n");
+            sb.AppendFormat("\t\tpublic void OnShow(FUIEntity fuiEntity, Entity contexData = null)");
+            sb.AppendLine();
             sb.AppendLine("\t\t{");
-            sb.AppendFormat("\t\t\tfuiEntity.GetComponent<{0}>().OnShow();\n", panelName);
+            sb.AppendFormat("\t\t\tfuiEntity.GetComponent<{0}>().OnShow(contexData);", panelName);
+            sb.AppendLine();
             sb.AppendLine("\t\t}");
 
             sb.AppendLine();
-            sb.AppendFormat("\t\tpublic void OnHide(FUIEntity fuiEntity)\n");
+            sb.AppendFormat("\t\tpublic void OnHide(FUIEntity fuiEntity)");
+            sb.AppendLine();
             sb.AppendLine("\t\t{");
-            sb.AppendFormat("\t\t\tfuiEntity.GetComponent<{0}>().OnHide();\n", panelName);
+            sb.AppendFormat("\t\t\tfuiEntity.GetComponent<{0}>().OnHide();", panelName);
+            sb.AppendLine();
             sb.AppendLine("\t\t}");
 
             sb.AppendLine();
-            sb.AppendFormat("\t\tpublic void BeforeUnload(FUIEntity fuiEntity)\n");
+            sb.AppendFormat("\t\tpublic void BeforeUnload(FUIEntity fuiEntity)");
+            sb.AppendLine();
             sb.AppendLine("\t\t{");
-            sb.AppendFormat("\t\t\tfuiEntity.GetComponent<{0}>().BeforeUnload();\n", panelName);
+            sb.AppendFormat("\t\t\tfuiEntity.GetComponent<{0}>().BeforeUnload();", panelName);
+            sb.AppendLine();
             sb.AppendLine("\t\t}");
             
             sb.AppendLine("\t}");
@@ -479,24 +484,24 @@ namespace FUIEditor
         private static void SpawnCodeForBinder(PackageInfo packageInfo, Dictionary<string, ComponentInfo> componentInfos)
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("/** This is an automatically generated class by FUICodeSpawner. Please do not modify it. **/\n");
+            sb.AppendLine("/** This is an automatically generated class by FUICodeSpawner. Please do not modify it. **/");
+            sb.AppendLine();
             
-            sb.AppendLine("using FairyGUI;\n");
-            sb.AppendFormat("namespace {0}\n", NameSpace);
+            sb.AppendLine("using FairyGUI;");
+            sb.AppendLine();
+            sb.AppendFormat("namespace {0}", NameSpace);
+            sb.AppendLine();
             sb.AppendLine("{");
-            sb.AppendFormat("\tpublic class {0}Binder\n", packageInfo.Name);
+            sb.AppendFormat("\tpublic class {0}Binder", packageInfo.Name);
+            sb.AppendLine();
             sb.AppendLine("\t{");
             sb.AppendLine("\t\tpublic static void BindAll()");
             sb.AppendLine("\t\t{");
 
             foreach (ComponentInfo componentInfo in componentInfos.Values)
             {
-                if (!componentInfo.Exported && !ExtralExportURLs.Contains(componentInfo.Url))
-                {
-                    continue;
-                }
-                
-                sb.AppendFormat("\t\t\tUIObjectFactory.SetPackageItemExtension({0}{1}.URL, typeof({0}{1}));\n", ClassNamePrefix, componentInfo.NameWithoutExtension);
+                sb.AppendFormat("\t\t\tUIObjectFactory.SetPackageItemExtension({0}.{1}.URL, typeof({0}.{1}));", componentInfo.NameSpace, componentInfo.ComponentTypeName);
+                sb.AppendLine();
             }
             
             sb.AppendLine("\t\t}");
@@ -515,26 +520,11 @@ namespace FUIEditor
             sw.Write(sb.ToString());
         }
 
-        private class VariableInfo
-        {
-            public string TypeName;
-            public string VariableName;
-            public bool IsParentName;
-            public bool IsDefaultName;
-        }
-        private static readonly List<VariableInfo> VariableInfos = new List<VariableInfo>();
         private static readonly List<string> ControllerNames = new List<string>();
         private static readonly Dictionary<string, List<string>> ControllerPageNames = new Dictionary<string, List<string>>();
         private static void SpawnCodeForComponent(ComponentInfo componentInfo)
         {
-            if (!componentInfo.Exported && !ExtralExportURLs.Contains(componentInfo.Url))
-            {
-                return;
-            }
-
-            GatherVariable(componentInfo);
-
-            if (VariableInfos.Count == 0)
+            if (!componentInfo.NeedExportClass)
             {
                 return;
             }
@@ -544,65 +534,103 @@ namespace FUIEditor
             ExportedComponentInfos.Add(componentInfo.PackageId, componentInfo.Id, componentInfo);
             
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("/** This is an automatically generated class by FUICodeSpawner. Please do not modify it. **/\n");
+            sb.AppendLine("/** This is an automatically generated class by FUICodeSpawner. Please do not modify it. **/");
+            sb.AppendLine();
             sb.AppendLine("using FairyGUI;");
-            sb.AppendLine("using FairyGUI.Utils;\n");
-            sb.AppendFormat("namespace {0}\n", NameSpace);
+            sb.AppendLine("using FairyGUI.Utils;");
+            sb.AppendLine();
+            sb.AppendFormat("namespace {0}", componentInfo.NameSpace);
+            sb.AppendLine();
             sb.AppendLine("{");
-            sb.AppendFormat("\tpublic partial class {0}{1}: GComponent\n", ClassNamePrefix, componentInfo.NameWithoutExtension);
+            sb.AppendFormat("\tpublic partial class {0}{1}: {2}", ClassNamePrefix, componentInfo.NameWithoutExtension, componentInfo.ComponentClassName);
+            sb.AppendLine();
             sb.AppendLine("\t{");
 
             foreach (var kv in ControllerPageNames)
             {
-                sb.AppendFormat("\t\tpublic enum {0}_Page\n", kv.Key);
+                sb.AppendFormat("\t\tpublic enum {0}_Page", kv.Key);
+                sb.AppendLine();
                 sb.AppendLine("\t\t{");
                 foreach (string pageName in kv.Value)
                 {
-                    sb.AppendFormat("\t\t\tPage_{0},\n", pageName);
+                    sb.AppendFormat("\t\t\tPage_{0},", pageName);
+                    sb.AppendLine();
                 }
-                sb.AppendLine("\t\t}\n");
+                sb.AppendLine("\t\t}");
+                sb.AppendLine();
             }
             
             for (int i = 0; i < ControllerNames.Count; i++)
             {
-                sb.AppendFormat("\t\tpublic Controller {0};\n", ControllerNames[i]);
+                sb.AppendFormat("\t\tpublic Controller {0};", ControllerNames[i]);
+                sb.AppendLine();
             }
             
-            for (int i = 0; i < VariableInfos.Count; i++)
+            // 去掉 typeName 为空的变量
+            List<VariableInfo> variableInfos = new List<VariableInfo>();
+            for (int i = 0; i < componentInfo.VariableInfos.Count; i++)
             {
-                if (IgnoreDefaultVariableName && VariableInfos[i].IsDefaultName)
+                if(!string.IsNullOrEmpty(componentInfo.VariableInfos[i].TypeName))
+                {
+                    variableInfos.Add(componentInfo.VariableInfos[i]);
+                }
+            }
+
+            for (int i = 0; i < variableInfos.Count; i++)
+            {
+                if (IgnoreDefaultVariableName && variableInfos[i].IsDefaultName)
                 {
                     continue;
                 }
                 
-                string typeName = VariableInfos[i].TypeName;
-                string variableName = VariableInfos[i].VariableName;
-                sb.AppendFormat("\t\tpublic {0} {1};\n", typeName, variableName);
-            }
-
-            sb.AppendFormat("\t\tpublic const string URL = \"{0}\";\n\n", componentInfo.Url);
-
-            sb.AppendFormat("\t\tpublic static {0}{1} CreateInstance()\n", ClassNamePrefix, componentInfo.NameWithoutExtension);
-            sb.AppendLine("\t\t{");
-            sb.AppendFormat("\t\t\treturn ({0}{1})UIPackage.CreateObject(\"{2}\", \"{1}\");\n", ClassNamePrefix, componentInfo.NameWithoutExtension, PackageInfos[componentInfo.PackageId].Name);
-            sb.AppendLine("\t\t}\n");
-            
-            sb.AppendLine("\t\tpublic override void ConstructFromXML(XML xml)");
-            sb.AppendLine("\t\t{");
-            sb.AppendLine("\t\t\tbase.ConstructFromXML(xml);\n");
-
-            for (int i = 0; i < ControllerNames.Count; i++)
-            {
-                sb.AppendFormat("\t\t\t{0} = GetControllerAt({1});\n", ControllerNames[i], i);
-            }
-            
-            for (int i = 0; i < VariableInfos.Count; i++)
-            {
-                if (IgnoreDefaultVariableName && VariableInfos[i].IsDefaultName)
+                string typeName = variableInfos[i].TypeName;
+                if(string.IsNullOrEmpty(typeName))
                 {
                     continue;
                 }
-                sb.AppendFormat("\t\t\t{0} = ({1})GetChildAt({2});\n", VariableInfos[i].VariableName, VariableInfos[i].TypeName, i);
+                
+                string variableName = variableInfos[i].VariableName;
+                sb.AppendFormat("\t\tpublic {0} {1};", typeName, variableName);
+                sb.AppendLine();
+            }
+
+            sb.AppendFormat("\t\tpublic const string URL = \"{0}\";", componentInfo.Url);
+            sb.AppendLine();
+            sb.AppendLine();
+
+            sb.AppendFormat("\t\tpublic static {0}{1} CreateInstance()", ClassNamePrefix, componentInfo.NameWithoutExtension);
+            sb.AppendLine();
+            sb.AppendLine("\t\t{");
+            sb.AppendFormat("\t\t\treturn ({0}{1})UIPackage.CreateObject(\"{2}\", \"{1}\");", ClassNamePrefix, componentInfo.NameWithoutExtension, PackageInfos[componentInfo.PackageId].Name);
+            sb.AppendLine();
+            sb.AppendLine("\t\t}");
+            sb.AppendLine();
+            
+            sb.AppendLine("\t\tpublic override void ConstructFromXML(XML xml)");
+            sb.AppendLine("\t\t{");
+            sb.AppendLine("\t\t\tbase.ConstructFromXML(xml);");
+            sb.AppendLine();
+
+            for (int i = 0; i < ControllerNames.Count; i++)
+            {
+                sb.AppendFormat("\t\t\t{0} = GetControllerAt({1});", ControllerNames[i], i);
+                sb.AppendLine();
+            }
+            
+            for (int i = 0; i < variableInfos.Count; i++)
+            {
+                if (IgnoreDefaultVariableName && variableInfos[i].IsDefaultName)
+                {
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(variableInfos[i].TypeName))
+                {
+                    continue;
+                }
+                
+                sb.AppendFormat("\t\t\t{0} = ({1})GetChildAt({2});", variableInfos[i].VariableName, variableInfos[i].TypeName, i);
+                sb.AppendLine();
             }
             sb.AppendLine("\t\t}");
             sb.AppendLine("\t}");
@@ -655,36 +683,6 @@ namespace FUIEditor
             }
         }
 
-        private static void GatherVariable(ComponentInfo componentInfo)
-        {
-            VariableInfos.Clear();
-
-            foreach (XML displayXML in componentInfo.DisplayList)
-            {
-                string variableName = displayXML.GetAttribute("name");
-
-                if (IsAppointName(variableName, componentInfo.ComponentType))
-                {
-                    continue;
-                }
-
-                string typeName = GetTypeNameByDisplayXML(displayXML);
-                if (string.IsNullOrEmpty(typeName))
-                {
-                    continue;
-                }
-
-                bool isDefaultName = displayXML.GetAttribute("id").StartsWith(variableName);
-
-                VariableInfos.Add(new VariableInfo()
-                {
-                    TypeName = typeName,
-                    VariableName = variableName,
-                    IsDefaultName = isDefaultName
-                });
-            }
-        }
-
         private static bool CheckControllerName(string controllerName, ComponentType componentType)
         {
             if (componentType == ComponentType.Button || componentType == ComponentType.ComboBox)
@@ -693,98 +691,6 @@ namespace FUIEditor
             }
 
             return true;
-        }
-        
-        private static bool IsAppointName(string variableName, ComponentType componentType)
-        {
-            if (variableName == "icon" || variableName == "text")
-            {
-                return true;
-            }
-
-            switch (componentType)
-            {
-                case ComponentType.Component:
-                    break;
-                case ComponentType.Button:
-                case ComponentType.ComboBox:
-                case ComponentType.Label:
-                    if (variableName == "title")
-                    {
-                        return true;
-                    }
-                    break;
-                case ComponentType.ProgressBar:
-                    if (variableName == "bar" || variableName == "bar_v" || variableName == "ani")
-                    {
-                        return true;
-                    }
-                    break;
-                case ComponentType.ScrollBar:
-                    if (variableName == "arrow1" || variableName == "arrow2" || variableName == "grip" || variableName == "bar")
-                    {
-                        return true;
-                    }
-                    break;
-                case ComponentType.Slider:
-                    if (variableName == "bar" || variableName == "bar_v" || variableName == "grip" || variableName == "ani")
-                    {
-                        return true;
-                    }
-                    break;
-                default:
-                    throw new Exception("没有处理这种类型: {0}".Fmt(componentType));
-            }
-
-            return false;
-        }
-        
-        private static string GetTypeNameByDisplayXML(XML displayXML)
-        {
-            string typeName = string.Empty;
-
-            if (displayXML.name == "component")
-            {
-                string key = "{0}/{1}".Fmt(displayXML.GetAttribute("pkg"), displayXML.GetAttribute("src"));
-                ComponentInfo displayComponentInfo = ComponentInfos[key];
-                if (displayComponentInfo == null)
-                {
-                    throw new Exception("没找到对应类型：{0}".Fmt(displayXML.GetAttribute("src")));
-                }
-
-                typeName = displayComponentInfo.ComponentTypeName;
-            }
-            else if (displayXML.name == "text")
-            {
-                ObjectType objectType = displayXML.GetAttribute("input") == "true" ? ObjectType.textinput : ObjectType.textfield;
-                typeName = ObjectTypeToClassType[objectType];
-            }
-            else if (displayXML.name == "group") 
-            {
-                if (displayXML.GetAttribute("advanced") != "true")
-                {
-                    return typeName;
-                }
-
-                ObjectType objectType = EnumHelper.FromString<ObjectType>(displayXML.name);
-                typeName = ObjectTypeToClassType[objectType];
-            }
-            else
-            {
-                ObjectType objectType = EnumHelper.FromString<ObjectType>(displayXML.name);
-
-                try
-                {
-                    typeName = ObjectTypeToClassType[objectType];
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"{objectType}没找到！");
-                    Debug.LogError(e);
-                }
-            }
-
-            return typeName;
         }
     }
 }

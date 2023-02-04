@@ -10,7 +10,7 @@ namespace ET.Client
     {
         public static ResComponent Instance { get; set; }
 
-        public int ResourceVersion { get; set; }
+        public string PackageVersion { get; set; }
 
         public PatchDownloaderOperation Downloader { get; set; }
         
@@ -20,7 +20,7 @@ namespace ET.Client
         
         public Dictionary<string, SceneOperationHandle> SceneOperationHandles = new Dictionary<string, SceneOperationHandle>();
         
-        public Dictionary<string, RawFileOperation> RawFileOperationHandles = new Dictionary<string, RawFileOperation>(100);
+        public Dictionary<string, RawFileOperationHandle> RawFileOperationHandles = new Dictionary<string, RawFileOperationHandle>(100);
 
         public Dictionary<OperationHandleBase, Action<float>> HandleProgresses = new Dictionary<OperationHandleBase, Action<float>>();
 

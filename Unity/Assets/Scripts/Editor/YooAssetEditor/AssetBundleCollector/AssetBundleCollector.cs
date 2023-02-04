@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEngine;
 
 namespace YooAsset.Editor
 {
@@ -13,6 +14,11 @@ namespace YooAsset.Editor
 		/// 注意：支持文件夹或单个资源文件
 		/// </summary>
 		public string CollectPath = string.Empty;
+
+		/// <summary>
+		/// 收集器的GUID
+		/// </summary>
+		public string CollectorGUID = string.Empty;
 
 		/// <summary>
 		/// 收集器类型
@@ -68,7 +74,8 @@ namespace YooAsset.Editor
 		/// </summary>
 		public void CheckConfigError()
 		{
-			if (AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(CollectPath) == null)
+			string assetGUID = AssetDatabase.AssetPathToGUID(CollectPath);
+			if (string.IsNullOrEmpty(assetGUID))
 				throw new Exception($"Invalid collect path : {CollectPath}");
 
 			if (CollectorType == ECollectorType.None)
@@ -85,12 +92,50 @@ namespace YooAsset.Editor
 		}
 
 		/// <summary>
+		/// 修复配置错误
+		/// </summary>
+		public bool FixConfigError()
+		{
+			bool isFixed = false;
+
+			if (string.IsNullOrEmpty(CollectorGUID) == false)
+			{
+				string convertAssetPath = AssetDatabase.GUIDToAssetPath(CollectorGUID);
+				if (string.IsNullOrEmpty(convertAssetPath))
+				{
+					Debug.LogWarning($"Collector GUID {CollectorGUID} is invalid and has been auto removed !");
+					CollectorGUID = string.Empty;
+					isFixed = true;
+				}
+				else
+				{
+					if (CollectPath != convertAssetPath)
+					{
+						CollectPath = convertAssetPath;
+						isFixed = true;
+						Debug.LogWarning($"Fix collect path : {CollectPath} -> {convertAssetPath}");
+					}
+				}
+			}
+
+			/*
+			string convertGUID = AssetDatabase.AssetPathToGUID(CollectPath);
+			if(string.IsNullOrEmpty(convertGUID) == false)
+			{
+				CollectorGUID = convertGUID;
+			}
+			*/
+
+			return isFixed;
+		}
+
+		/// <summary>
 		/// 获取打包收集的资源文件
 		/// </summary>
-		public List<CollectAssetInfo> GetAllCollectAssets(EBuildMode buildMode, AssetBundleCollectorGroup group)
+		public List<CollectAssetInfo> GetAllCollectAssets(CollectCommand command, AssetBundleCollectorGroup group)
 		{
 			// 注意：模拟构建模式下只收集主资源
-			if (buildMode == EBuildMode.SimulateBuild)
+			if (command.BuildMode == EBuildMode.SimulateBuild)
 			{
 				if (CollectorType != ECollectorType.MainAssetCollector)
 					return new List<CollectAssetInfo>();
@@ -117,7 +162,7 @@ namespace YooAsset.Editor
 					{
 						if (result.ContainsKey(assetPath) == false)
 						{
-							var collectAssetInfo = CreateCollectAssetInfo(buildMode, group, assetPath, isRawAsset);
+							var collectAssetInfo = CreateCollectAssetInfo(command, group, assetPath, isRawAsset);
 							result.Add(assetPath, collectAssetInfo);
 						}
 						else
@@ -132,7 +177,7 @@ namespace YooAsset.Editor
 				string assetPath = CollectPath;
 				if (IsValidateAsset(assetPath) && IsCollectAsset(assetPath))
 				{
-					var collectAssetInfo = CreateCollectAssetInfo(buildMode, group, assetPath, isRawAsset);
+					var collectAssetInfo = CreateCollectAssetInfo(command, group, assetPath, isRawAsset);
 					result.Add(assetPath, collectAssetInfo);
 				}
 				else
@@ -142,7 +187,7 @@ namespace YooAsset.Editor
 			}
 
 			// 检测可寻址地址是否重复
-			if (AssetBundleCollectorSettingData.Setting.EnableAddressable)
+			if (command.EnableAddressable)
 			{
 				HashSet<string> adressTemper = new HashSet<string>();
 				foreach (var collectInfoPair in result)
@@ -162,7 +207,7 @@ namespace YooAsset.Editor
 			return result.Values.ToList();
 		}
 
-		private CollectAssetInfo CreateCollectAssetInfo(EBuildMode buildMode, AssetBundleCollectorGroup group, string assetPath, bool isRawAsset)
+		private CollectAssetInfo CreateCollectAssetInfo(CollectCommand command, AssetBundleCollectorGroup group, string assetPath, bool isRawAsset)
 		{
 			string address = GetAddress(group, assetPath);
 			string bundleName = GetBundleName(group, assetPath);
@@ -170,7 +215,7 @@ namespace YooAsset.Editor
 			CollectAssetInfo collectAssetInfo = new CollectAssetInfo(CollectorType, bundleName, address, assetPath, assetTags, isRawAsset);
 
 			// 注意：模拟构建模式下不需要收集依赖资源
-			if (buildMode == EBuildMode.SimulateBuild)
+			if (command.BuildMode == EBuildMode.SimulateBuild)
 				collectAssetInfo.DependAssets = new List<string>();
 			else
 				collectAssetInfo.DependAssets = GetAllDependencies(assetPath);
@@ -184,11 +229,6 @@ namespace YooAsset.Editor
 				UnityEngine.Debug.LogError($"Invalid asset path : {assetPath}");
 				return false;
 			}
-			if (assetPath.Contains("/Gizmos/"))
-			{
-				UnityEngine.Debug.LogWarning($"Cannot pack gizmos asset : {assetPath}");
-				return false;
-			}
 
 			// 忽略文件夹
 			if (AssetDatabase.IsValidFolder(assetPath))
@@ -200,13 +240,15 @@ namespace YooAsset.Editor
 				return false;
 
 			// 忽略Unity无法识别的无效文件
-			/*
-			if (type == typeof(UnityEditor.DefaultAsset))
+			// 注意：只对非原生文件收集器处理
+			if(PackRuleName != nameof(PackRawFile))
 			{
-				UnityEngine.Debug.LogWarning($"Cannot pack default asset : {assetPath}");
-				return false;
+				if (type == typeof(UnityEditor.DefaultAsset))
+				{
+					UnityEngine.Debug.LogWarning($"Cannot pack default asset : {assetPath}");
+					return false;
+				}
 			}
-			*/
 
 			string fileExtension = System.IO.Path.GetExtension(assetPath);
 			if (IsIgnoreFile(fileExtension))
@@ -226,7 +268,7 @@ namespace YooAsset.Editor
 		private bool IsCollectAsset(string assetPath)
 		{
 			Type assetType = AssetDatabase.GetMainAssetTypeAtPath(assetPath);
-			if (assetType == typeof(UnityEngine.Shader))
+			if (assetType == typeof(UnityEngine.Shader) || assetType == typeof(UnityEngine.ShaderVariantCollection))
 				return true;
 
 			// 根据规则设置过滤资源文件
@@ -245,20 +287,21 @@ namespace YooAsset.Editor
 		private string GetBundleName(AssetBundleCollectorGroup group, string assetPath)
 		{
 			System.Type assetType = AssetDatabase.GetMainAssetTypeAtPath(assetPath);
-			if (assetType == typeof(UnityEngine.Shader))
-			{
+			if (assetType == typeof(UnityEngine.Shader) || assetType == typeof(UnityEngine.ShaderVariantCollection))
 				return EditorTools.GetRegularPath(YooAssetSettings.UnityShadersBundleName).ToLower();
-			}
 
 			// 根据规则设置获取资源包名称
 			IPackRule packRuleInstance = AssetBundleCollectorSettingData.GetPackRuleInstance(PackRuleName);
 			string bundleName = packRuleInstance.GetBundleName(new PackRuleData(assetPath, CollectPath, group.GroupName));
-			return EditorTools.GetRegularPath(bundleName).ToLower();
+			if(YooAssetSettingsData.Setting.RegularBundleName)
+				return EditorTools.GetRegularPath(bundleName).Replace('/', '_').Replace('.', '_').ToLower();
+			else
+				return EditorTools.GetRegularPath(bundleName).ToLower();
 		}
 		private List<string> GetAssetTags(AssetBundleCollectorGroup group)
 		{
-			List<string> tags = StringUtility.StringToStringList(group.AssetTags, ';');
-			List<string> temper = StringUtility.StringToStringList(AssetTags, ';');
+			List<string> tags = EditorTools.StringToStringList(group.AssetTags, ';');
+			List<string> temper = EditorTools.StringToStringList(AssetTags, ';');
 			tags.AddRange(temper);
 			return tags;
 		}

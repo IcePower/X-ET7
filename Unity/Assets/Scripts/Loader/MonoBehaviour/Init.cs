@@ -7,6 +7,12 @@ namespace ET
 {
 	public class Init: MonoBehaviour
 	{
+		// /// <summary>
+		// /// 资源系统运行模式
+		// /// </summary>
+		// public YooAsset.EPlayMode PlayMode = YooAsset.EPlayMode.EditorSimulateMode;
+		public bool IsUseEditorMode = true; 
+		
 		private async ETTask Start()
 		{
 			DontDestroyOnLoad(gameObject);
@@ -34,7 +40,11 @@ namespace ET
 			
 			ETTask.ExceptionHandler += Log.Error;
 
-			await Game.AddSingleton<MonoResComponent>().InitAsync();
+			if (!Application.isEditor)
+			{
+				IsUseEditorMode = false;
+			}
+			await Game.AddSingleton<MonoResComponent>().InitAsync(IsUseEditorMode);
 			Game.AddSingleton<CodeLoader>().Start();
 		}
 

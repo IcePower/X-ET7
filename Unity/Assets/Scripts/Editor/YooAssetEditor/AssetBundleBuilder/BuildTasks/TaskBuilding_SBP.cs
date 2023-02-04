@@ -33,7 +33,7 @@ namespace YooAsset.Editor
 			// 开始构建
 			IBundleBuildResults buildResults;
 			var buildParameters = buildParametersContext.GetSBPBuildParameters();
-			var shadersBunldeName = YooAssetSettingsData.GetUnityShadersBundleFullName();
+			var shadersBunldeName = YooAssetSettingsData.GetUnityShadersBundleFullName(buildMapContext.UniqueBundleName, buildParametersContext.Parameters.PackageName);
 			var taskList = SBPBuildTasks.Create(shadersBunldeName);
 			ReturnCode exitCode = ContentPipeline.BuildAssetBundles(buildParameters, buildContent, out buildResults, taskList);
 			if (exitCode < 0)
@@ -46,10 +46,10 @@ namespace YooAsset.Editor
 			buildResultContext.Results = buildResults;
 			context.SetContextObject(buildResultContext);
 
+			// 拷贝原生文件
 			if (buildMode == EBuildMode.ForceRebuild || buildMode == EBuildMode.IncrementalBuild)
 			{
 				CopyRawBundle(buildMapContext, buildParametersContext);
-				UpdateBuildBundleInfo(buildMapContext, buildParametersContext, buildResultContext);
 			}
 		}
 
@@ -58,39 +58,17 @@ namespace YooAsset.Editor
 		/// </summary>
 		private void CopyRawBundle(BuildMapContext buildMapContext, BuildParametersContext buildParametersContext)
 		{
+			string pipelineOutputDirectory = buildParametersContext.GetPipelineOutputDirectory();
 			foreach (var bundleInfo in buildMapContext.BundleInfos)
 			{
 				if (bundleInfo.IsRawFile)
 				{
-					string dest = $"{buildParametersContext.PipelineOutputDirectory}/{bundleInfo.BundleName}";
+					string dest = $"{pipelineOutputDirectory}/{bundleInfo.BundleName}";
 					foreach (var buildAsset in bundleInfo.BuildinAssets)
 					{
 						if (buildAsset.IsRawAsset)
 							EditorTools.CopyFile(buildAsset.AssetPath, dest, true);
 					}
-				}
-			}
-		}
-
-		/// <summary>
-		/// 更新构建结果
-		/// </summary>
-		private void UpdateBuildBundleInfo(BuildMapContext buildMapContext, BuildParametersContext buildParametersContext, BuildResultContext buildResult)
-		{
-			foreach (var bundleInfo in buildMapContext.BundleInfos)
-			{
-				if (bundleInfo.IsRawFile)
-				{
-					string filePath = $"{buildParametersContext.PipelineOutputDirectory}/{bundleInfo.BundleName}";
-					bundleInfo.ContentHash = HashUtility.FileMD5(filePath);
-				}
-				else
-				{
-					// 注意：当资源包的依赖列表发生变化的时候，ContentHash也会发生变化！
-					if (buildResult.Results.BundleInfos.TryGetValue(bundleInfo.BundleName, out var value))
-						bundleInfo.ContentHash = value.Hash.ToString();
-					else
-						throw new Exception($"Not found bundle in build result : {bundleInfo.BundleName}");
 				}
 			}
 		}

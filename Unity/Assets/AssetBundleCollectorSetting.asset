@@ -12,55 +12,66 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 185f6993d5150494d98da50e26cb1c25, type: 3}
   m_Name: AssetBundleCollectorSetting
   m_EditorClassIdentifier: 
+  ShowPackageView: 0
   EnableAddressable: 1
-  Groups:
-  - GroupName: Config
-    GroupDesc: Config
-    AssetTags: Buildin
-    ActiveRuleName: EnableGroup
-    Collectors:
-    - CollectPath: Assets/Bundles/Config
-      CollectorType: 0
-      AddressRuleName: AddressByFileName
-      PackRuleName: PackGroup
-      FilterRuleName: CollectAll
+  UniqueBundleName: 0
+  ShowEditorAlias: 0
+  Packages:
+  - PackageName: DefaultPackage
+    PackageDesc: 
+    Groups:
+    - GroupName: Config
+      GroupDesc: 
       AssetTags: 
-  - GroupName: UI
-    GroupDesc: UI
-    AssetTags: UI
-    ActiveRuleName: EnableGroup
-    Collectors:
-    - CollectPath: Assets/Bundles/FUI
-      CollectorType: 0
-      AddressRuleName: AddressByFileName
-      PackRuleName: PackDirectory
-      FilterRuleName: CollectAtlas
+      ActiveRuleName: EnableGroup
+      Collectors:
+      - CollectPath: Assets/Bundles/Config
+        CollectorGUID: fa72a9d3b736d46988407658bca910e1
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectAll
+        AssetTags: 
+    - GroupName: UI
+      GroupDesc: 
       AssetTags: 
-    - CollectPath: Assets/Bundles/FUI
-      CollectorType: 0
-      AddressRuleName: AddressByFileName
-      PackRuleName: PackRawFile
-      FilterRuleName: CollectBytes
+      ActiveRuleName: EnableGroup
+      Collectors:
+      - CollectPath: Assets/Bundles/FUI
+        CollectorGUID: 90d4b1892ed984abd872a4e996d78bfb
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectAtlas
+        AssetTags: 
+      - CollectPath: Assets/Bundles/FUI
+        CollectorGUID: 90d4b1892ed984abd872a4e996d78bfb
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackRawFile
+        FilterRuleName: CollectBytes
+        AssetTags: 
+    - GroupName: Unit
+      GroupDesc: 
       AssetTags: 
-  - GroupName: Unit
-    GroupDesc: Unit
-    AssetTags: Unit
-    ActiveRuleName: EnableGroup
-    Collectors:
-    - CollectPath: Assets/Res/Unit
-      CollectorType: 0
-      AddressRuleName: AddressByFileName
-      PackRuleName: PackDirectory
-      FilterRuleName: CollectPrefab
+      ActiveRuleName: EnableGroup
+      Collectors:
+      - CollectPath: Assets/Res/Unit
+        CollectorGUID: 20054f3f410561544a8b77946c75836d
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectPrefab
+        AssetTags: 
+    - GroupName: Scene
+      GroupDesc: 
       AssetTags: 
-  - GroupName: Scene
-    GroupDesc: Scene
-    AssetTags: Scene
-    ActiveRuleName: EnableGroup
-    Collectors:
-    - CollectPath: Assets/Scenes
-      CollectorType: 0
-      AddressRuleName: AddressByFileName
-      PackRuleName: PackSeparately
-      FilterRuleName: CollectScene
-      AssetTags: 
+      ActiveRuleName: EnableGroup
+      Collectors:
+      - CollectPath: Assets/Scenes
+        CollectorGUID: 921727de139ab454b8a316139a2ed5fa
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackSeparately
+        FilterRuleName: CollectScene
+        AssetTags: 

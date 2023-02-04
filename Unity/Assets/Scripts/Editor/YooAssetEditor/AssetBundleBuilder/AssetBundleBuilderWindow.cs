@@ -21,16 +21,19 @@ namespace YooAsset.Editor
 		private BuildTarget _buildTarget;
 		private List<Type> _encryptionServicesClassTypes;
 		private List<string> _encryptionServicesClassNames;
+		private List<string> _buildPackageNames;
 
 		private Button _saveButton;
 		private TextField _buildOutputField;
-		private IntegerField _buildVersionField;
 		private EnumField _buildPipelineField;
 		private EnumField _buildModeField;
-		private TextField _buildinTagsField;
+		private TextField _buildVersionField;
+		private PopupField<string> _buildPackageField;
 		private PopupField<string> _encryptionField;
 		private EnumField _compressionField;
 		private EnumField _outputNameStyleField;
+		private EnumField _copyBuildinFileOptionField;
+		private TextField _copyBuildinFileTagsField;
 
 		public void CreateGUI()
 		{
@@ -52,25 +55,18 @@ namespace YooAsset.Editor
 				// 构建平台
 				_buildTarget = EditorUserBuildSettings.activeBuildTarget;
 
+				// 包裹名称列表
+				_buildPackageNames = GetBuildPackageNames();
+
 				// 加密服务类
 				_encryptionServicesClassTypes = GetEncryptionServicesClassTypes();
 				_encryptionServicesClassNames = _encryptionServicesClassTypes.Select(t => t.FullName).ToList();
 
 				// 输出目录
 				string defaultOutputRoot = AssetBundleBuilderHelper.GetDefaultOutputRoot();
-				string pipelineOutputDirectory = AssetBundleBuilderHelper.MakePipelineOutputDirectory(defaultOutputRoot, _buildTarget);
 				_buildOutputField = root.Q<TextField>("BuildOutput");
-				_buildOutputField.SetValueWithoutNotify(pipelineOutputDirectory);
+				_buildOutputField.SetValueWithoutNotify(defaultOutputRoot);
 				_buildOutputField.SetEnabled(false);
-
-				// 构建版本
-				_buildVersionField = root.Q<IntegerField>("BuildVersion");
-				_buildVersionField.SetValueWithoutNotify(AssetBundleBuilderSettingData.Setting.BuildVersion);
-				_buildVersionField.RegisterValueChangedCallback(evt =>
-				{
-					AssetBundleBuilderSettingData.IsDirty = true;
-					AssetBundleBuilderSettingData.Setting.BuildVersion = _buildVersionField.value;
-				});
 
 				// 构建管线
 				_buildPipelineField = root.Q<EnumField>("BuildPipeline");
@@ -96,20 +92,38 @@ namespace YooAsset.Editor
 					RefreshWindow();
 				});
 
-				// 内置资源标签
-				_buildinTagsField = root.Q<TextField>("BuildinTags");
-				_buildinTagsField.SetValueWithoutNotify(AssetBundleBuilderSettingData.Setting.BuildTags);
-				_buildinTagsField.RegisterValueChangedCallback(evt =>
+				// 构建版本
+				_buildVersionField = root.Q<TextField>("BuildVersion");
+				_buildVersionField.SetValueWithoutNotify(GetBuildPackageVersion());
+
+				// 构建包裹
+				var buildPackageContainer = root.Q("BuildPackageContainer");
+				if (_buildPackageNames.Count > 0)
 				{
-					AssetBundleBuilderSettingData.IsDirty = true;
-					AssetBundleBuilderSettingData.Setting.BuildTags = _buildinTagsField.value;
-				});
+					int defaultIndex = GetDefaultPackageIndex(AssetBundleBuilderSettingData.Setting.BuildPackage);
+					_buildPackageField = new PopupField<string>(_buildPackageNames, defaultIndex);
+					_buildPackageField.label = "Build Package";
+					_buildPackageField.style.width = 350;
+					_buildPackageField.RegisterValueChangedCallback(evt =>
+					{
+						AssetBundleBuilderSettingData.IsDirty = true;
+						AssetBundleBuilderSettingData.Setting.BuildPackage = _buildPackageField.value;
+					});
+					buildPackageContainer.Add(_buildPackageField);
+				}
+				else
+				{
+					_buildPackageField = new PopupField<string>();
+					_buildPackageField.label = "Build Package";
+					_buildPackageField.style.width = 350;
+					buildPackageContainer.Add(_buildPackageField);
+				}
 
 				// 加密方法
 				var encryptionContainer = root.Q("EncryptionContainer");
 				if (_encryptionServicesClassNames.Count > 0)
 				{
-					int defaultIndex = GetEncryptionDefaultIndex(AssetBundleBuilderSettingData.Setting.EncyptionClassName);
+					int defaultIndex = GetDefaultEncryptionIndex(AssetBundleBuilderSettingData.Setting.EncyptionClassName);
 					_encryptionField = new PopupField<string>(_encryptionServicesClassNames, defaultIndex);
 					_encryptionField.label = "Encryption";
 					_encryptionField.style.width = 350;
@@ -128,7 +142,7 @@ namespace YooAsset.Editor
 					encryptionContainer.Add(_encryptionField);
 				}
 
-				// 压缩方式
+				// 压缩方式选项
 				_compressionField = root.Q<EnumField>("Compression");
 				_compressionField.Init(AssetBundleBuilderSettingData.Setting.CompressOption);
 				_compressionField.SetValueWithoutNotify(AssetBundleBuilderSettingData.Setting.CompressOption);
@@ -150,6 +164,27 @@ namespace YooAsset.Editor
 					AssetBundleBuilderSettingData.Setting.OutputNameStyle = (EOutputNameStyle)_outputNameStyleField.value;
 				});
 
+				// 首包文件拷贝选项
+				_copyBuildinFileOptionField = root.Q<EnumField>("CopyBuildinFileOption");
+				_copyBuildinFileOptionField.Init(AssetBundleBuilderSettingData.Setting.CopyBuildinFileOption);
+				_copyBuildinFileOptionField.SetValueWithoutNotify(AssetBundleBuilderSettingData.Setting.CopyBuildinFileOption);
+				_copyBuildinFileOptionField.style.width = 350;
+				_copyBuildinFileOptionField.RegisterValueChangedCallback(evt =>
+				{
+					AssetBundleBuilderSettingData.IsDirty = true;
+					AssetBundleBuilderSettingData.Setting.CopyBuildinFileOption = (ECopyBuildinFileOption)_copyBuildinFileOptionField.value;
+					RefreshWindow();
+				});
+
+				// 首包文件的资源标签
+				_copyBuildinFileTagsField = root.Q<TextField>("CopyBuildinFileTags");
+				_copyBuildinFileTagsField.SetValueWithoutNotify(AssetBundleBuilderSettingData.Setting.CopyBuildinFileTags);
+				_copyBuildinFileTagsField.RegisterValueChangedCallback(evt =>
+				{
+					AssetBundleBuilderSettingData.IsDirty = true;
+					AssetBundleBuilderSettingData.Setting.CopyBuildinFileTags = _copyBuildinFileTagsField.value;
+				});
+
 				// 构建按钮
 				var buildButton = root.Q<Button>("Build");
 				buildButton.clicked += BuildButton_clicked; ;
@@ -163,21 +198,21 @@ namespace YooAsset.Editor
 		}
 		public void OnDestroy()
 		{
-			if(AssetBundleBuilderSettingData.IsDirty)
+			if (AssetBundleBuilderSettingData.IsDirty)
 				AssetBundleBuilderSettingData.SaveFile();
 		}
 		public void Update()
 		{
-			if(_saveButton != null)
+			if (_saveButton != null)
 			{
-				if(AssetBundleBuilderSettingData.IsDirty)
+				if (AssetBundleBuilderSettingData.IsDirty)
 				{
 					if (_saveButton.enabledSelf == false)
 						_saveButton.SetEnabled(true);
 				}
 				else
 				{
-					if(_saveButton.enabledSelf)
+					if (_saveButton.enabledSelf)
 						_saveButton.SetEnabled(false);
 				}
 			}
@@ -186,11 +221,15 @@ namespace YooAsset.Editor
 		private void RefreshWindow()
 		{
 			var buildMode = AssetBundleBuilderSettingData.Setting.BuildMode;
+			var copyOption = AssetBundleBuilderSettingData.Setting.CopyBuildinFileOption;
 			bool enableElement = buildMode == EBuildMode.ForceRebuild;
-			_buildinTagsField.SetEnabled(enableElement);
+			bool tagsFiledVisible = copyOption == ECopyBuildinFileOption.ClearAndCopyByTags || copyOption == ECopyBuildinFileOption.OnlyCopyByTags;
 			_encryptionField.SetEnabled(enableElement);
 			_compressionField.SetEnabled(enableElement);
 			_outputNameStyleField.SetEnabled(enableElement);
+			_copyBuildinFileOptionField.SetEnabled(enableElement);
+			_copyBuildinFileTagsField.SetEnabled(enableElement);
+			_copyBuildinFileTagsField.visible = tagsFiledVisible;
 		}
 		private void SaveBtn_clicked()
 		{
@@ -221,31 +260,63 @@ namespace YooAsset.Editor
 			buildParameters.BuildTarget = _buildTarget;
 			buildParameters.BuildPipeline = AssetBundleBuilderSettingData.Setting.BuildPipeline;
 			buildParameters.BuildMode = AssetBundleBuilderSettingData.Setting.BuildMode;
-			buildParameters.BuildVersion = AssetBundleBuilderSettingData.Setting.BuildVersion;
-			buildParameters.BuildinTags = AssetBundleBuilderSettingData.Setting.BuildTags;
+			buildParameters.PackageName = AssetBundleBuilderSettingData.Setting.BuildPackage;
+			buildParameters.PackageVersion = _buildVersionField.value;
 			buildParameters.VerifyBuildingResult = true;
-			buildParameters.EnableAddressable = AssetBundleCollectorSettingData.Setting.EnableAddressable;
-			buildParameters.CopyBuildinTagFiles = AssetBundleBuilderSettingData.Setting.BuildMode == EBuildMode.ForceRebuild;
 			buildParameters.EncryptionServices = CreateEncryptionServicesInstance();
 			buildParameters.CompressOption = AssetBundleBuilderSettingData.Setting.CompressOption;
 			buildParameters.OutputNameStyle = AssetBundleBuilderSettingData.Setting.OutputNameStyle;
+			buildParameters.CopyBuildinFileOption = AssetBundleBuilderSettingData.Setting.CopyBuildinFileOption;
+			buildParameters.CopyBuildinFileTags = AssetBundleBuilderSettingData.Setting.CopyBuildinFileTags;
 
 			if (AssetBundleBuilderSettingData.Setting.BuildPipeline == EBuildPipeline.ScriptableBuildPipeline)
 			{
 				buildParameters.SBPParameters = new BuildParameters.SBPBuildParameters();
 				buildParameters.SBPParameters.WriteLinkXML = true;
 			}
-			
+
 			var builder = new AssetBundleBuilder();
 			var buildResult = builder.Run(buildParameters);
 			if (buildResult.Success)
 			{
-				EditorUtility.RevealInFinder($"{buildParameters.OutputRoot}/{buildParameters.BuildTarget}/{buildParameters.BuildVersion}");
+				EditorUtility.RevealInFinder(buildResult.OutputPackageDirectory);
 			}
 		}
 
+		// 构建版本相关
+		private string GetBuildPackageVersion()
+		{
+			int totalMinutes = DateTime.Now.Hour * 60 + DateTime.Now.Minute;
+			return DateTime.Now.ToString("yyyy-MM-dd") + "-" + totalMinutes;
+		}
+
+		// 构建包裹相关
+		private int GetDefaultPackageIndex(string packageName)
+		{
+			for (int index = 0; index < _buildPackageNames.Count; index++)
+			{
+				if (_buildPackageNames[index] == packageName)
+				{
+					return index;
+				}
+			}
+
+			AssetBundleBuilderSettingData.IsDirty = true;
+			AssetBundleBuilderSettingData.Setting.BuildPackage = _buildPackageNames[0];
+			return 0;
+		}
+		private List<string> GetBuildPackageNames()
+		{
+			List<string> result = new List<string>();
+			foreach (var package in AssetBundleCollectorSettingData.Setting.Packages)
+			{
+				result.Add(package.PackageName);
+			}
+			return result;
+		}
+
 		// 加密类相关
-		private int GetEncryptionDefaultIndex(string className)
+		private int GetDefaultEncryptionIndex(string className)
 		{
 			for (int index = 0; index < _encryptionServicesClassNames.Count; index++)
 			{
@@ -254,6 +325,9 @@ namespace YooAsset.Editor
 					return index;
 				}
 			}
+
+			AssetBundleBuilderSettingData.IsDirty = true;
+			AssetBundleBuilderSettingData.Setting.EncyptionClassName = _encryptionServicesClassNames[0];
 			return 0;
 		}
 		private List<Type> GetEncryptionServicesClassTypes()

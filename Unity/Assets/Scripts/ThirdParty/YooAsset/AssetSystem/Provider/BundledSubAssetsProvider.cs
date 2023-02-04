@@ -7,21 +7,14 @@ namespace YooAsset
 	internal sealed class BundledSubAssetsProvider : BundledProvider
 	{
 		private AssetBundleRequest _cacheRequest;
-		public override float Progress
-		{
-			get
-			{
-				if (_cacheRequest == null)
-					return 0;
-				return _cacheRequest.progress;
-			}
-		}
 
-		public BundledSubAssetsProvider(string providerGUID, AssetInfo assetInfo) : base(providerGUID, assetInfo)
+		public BundledSubAssetsProvider(AssetSystemImpl impl, string providerGUID, AssetInfo assetInfo) : base(impl, providerGUID, assetInfo)
 		{
 		}
 		public override void Update()
 		{
+			DebugRecording();
+
 			if (IsDone)
 				return;
 
@@ -46,15 +39,15 @@ namespace YooAsset
 
 				if (DependBundleGroup.IsSucceed() == false)
 				{
-					Status = EStatus.Fail;
+					Status = EStatus.Failed;
 					LastError = DependBundleGroup.GetLastError();
 					InvokeCompletion();
 					return;
 				}
 
-				if (OwnerBundle.Status != AssetBundleLoaderBase.EStatus.Succeed)
+				if (OwnerBundle.Status != BundleLoaderBase.EStatus.Succeed)
 				{
-					Status = EStatus.Fail;
+					Status = EStatus.Failed;
 					LastError = OwnerBundle.LastError;
 					InvokeCompletion();
 					return;
@@ -96,14 +89,15 @@ namespace YooAsset
 					}
 					else
 					{
+						Progress = _cacheRequest.progress;
 						if (_cacheRequest.isDone == false)
 							return;
 						AllAssetObjects = _cacheRequest.allAssets;
 					}
 				}
 
-				Status = AllAssetObjects == null ? EStatus.Fail : EStatus.Success;
-				if (Status == EStatus.Fail)
+				Status = AllAssetObjects == null ? EStatus.Failed : EStatus.Succeed;
+				if (Status == EStatus.Failed)
 				{
 					if (MainAssetInfo.AssetType == null)
 						LastError = $"Failed to load sub assets : {MainAssetInfo.AssetPath} AssetType : null AssetBundle : {OwnerBundle.MainBundleInfo.Bundle.BundleName}";

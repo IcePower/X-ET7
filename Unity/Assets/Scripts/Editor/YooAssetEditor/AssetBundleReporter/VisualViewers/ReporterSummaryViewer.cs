@@ -40,7 +40,7 @@ namespace YooAsset.Editor
 			_visualAsset = EditorHelper.LoadWindowUXML<ReporterSummaryViewer>();
 			if (_visualAsset == null)
 				return;
-			
+
 			_root = _visualAsset.CloneTree();
 			_root.style.flexGrow = 1f;
 
@@ -56,7 +56,7 @@ namespace YooAsset.Editor
 		public void FillViewData(BuildReport buildReport)
 		{
 			_buildReport = buildReport;
-			
+
 			_items.Clear();
 
 			_items.Add(new ItemWrapper("YooAsset版本", buildReport.Summary.YooVersion));
@@ -66,11 +66,11 @@ namespace YooAsset.Editor
 			_items.Add(new ItemWrapper("构建平台", $"{buildReport.Summary.BuildTarget}"));
 			_items.Add(new ItemWrapper("构建管线", $"{buildReport.Summary.BuildPipeline}"));
 			_items.Add(new ItemWrapper("构建模式", $"{buildReport.Summary.BuildMode}"));
-			_items.Add(new ItemWrapper("构建版本", $"{buildReport.Summary.BuildVersion}"));
-			_items.Add(new ItemWrapper("内置资源标签", $"{buildReport.Summary.BuildinTags}"));
+			_items.Add(new ItemWrapper("包裹名称", buildReport.Summary.BuildPackageName));
+			_items.Add(new ItemWrapper("包裹版本", buildReport.Summary.BuildPackageVersion));
 
 			_items.Add(new ItemWrapper("启用可寻址资源定位", $"{buildReport.Summary.EnableAddressable}"));
-			_items.Add(new ItemWrapper("拷贝内置资源文件", $"{buildReport.Summary.CopyBuildinTagFiles}"));
+			_items.Add(new ItemWrapper("资源包名唯一化", $"{buildReport.Summary.UniqueBundleName}"));
 			_items.Add(new ItemWrapper("加密服务类名称", $"{buildReport.Summary.EncryptionServicesClassName}"));
 
 			_items.Add(new ItemWrapper(string.Empty, string.Empty));
@@ -86,8 +86,6 @@ namespace YooAsset.Editor
 			_items.Add(new ItemWrapper("主资源总数", $"{buildReport.Summary.MainAssetTotalCount}"));
 			_items.Add(new ItemWrapper("资源包总数", $"{buildReport.Summary.AllBundleTotalCount}"));
 			_items.Add(new ItemWrapper("资源包总大小", ConvertSize(buildReport.Summary.AllBundleTotalSize)));
-			_items.Add(new ItemWrapper("内置资源包总数", $"{buildReport.Summary.BuildinBundleTotalCount}"));
-			_items.Add(new ItemWrapper("内置资源包总大小", ConvertSize(buildReport.Summary.BuildinBundleTotalSize)));
 			_items.Add(new ItemWrapper("加密资源包总数", $"{buildReport.Summary.EncryptedBundleTotalCount}"));
 			_items.Add(new ItemWrapper("加密资源包总大小", ConvertSize(buildReport.Summary.EncryptedBundleTotalSize)));
 			_items.Add(new ItemWrapper("原生资源包总数", $"{buildReport.Summary.RawBundleTotalCount}"));

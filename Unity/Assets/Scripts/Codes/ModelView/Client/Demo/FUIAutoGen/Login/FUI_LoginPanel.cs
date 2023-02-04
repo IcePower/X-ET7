@@ -3,7 +3,7 @@
 using FairyGUI;
 using FairyGUI.Utils;
 
-namespace ET.Client
+namespace ET.Client.Login
 {
 	public partial class FUI_LoginPanel: GComponent
 	{
@@ -16,8 +16,8 @@ namespace ET.Client
 		public Controller c1;
 		public Controller c2;
 		public GButton LoginBtn;
-		public FUI_InputField1 AccountInput;
-		public FUI_InputField1 PasswordInput;
+		public ET.Client.Common.FUI_InputField1 AccountInput;
+		public ET.Client.Common.FUI_InputField1 PasswordInput;
 		public const string URL = "ui://rgfb0w498omm0";
 
 		public static FUI_LoginPanel CreateInstance()
@@ -32,8 +32,8 @@ namespace ET.Client
 			c1 = GetControllerAt(0);
 			c2 = GetControllerAt(1);
 			LoginBtn = (GButton)GetChildAt(1);
-			AccountInput = (FUI_InputField1)GetChildAt(2);
-			PasswordInput = (FUI_InputField1)GetChildAt(3);
+			AccountInput = (ET.Client.Common.FUI_InputField1)GetChildAt(2);
+			PasswordInput = (ET.Client.Common.FUI_InputField1)GetChildAt(3);
 		}
 	}
 }

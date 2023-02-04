@@ -2,7 +2,7 @@
 namespace YooAsset
 {
 	internal interface IBundleServices
-	{
+	{	
 		/// <summary>
 		/// 获取资源包信息
 		/// </summary>
@@ -14,18 +14,8 @@ namespace YooAsset
 		BundleInfo[] GetAllDependBundleInfos(AssetInfo assetPath);
 
 		/// <summary>
-		/// 获取资源信息列表
+		/// 服务接口是否有效
 		/// </summary>
-		AssetInfo[] GetAssetInfos(string[] tags);
-
-		/// <summary>
-		/// 尝试获取补丁资源
-		/// </summary>
-		PatchAsset TryGetPatchAsset(string assetPath);
-
-		/// <summary>
-		/// 映射为资源路径
-		/// </summary>
-		string MappingToAssetPath(string location);
+		bool IsServicesValid();
 	}
 }

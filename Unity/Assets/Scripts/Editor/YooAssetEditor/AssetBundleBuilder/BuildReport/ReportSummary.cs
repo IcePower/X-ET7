@@ -44,14 +44,14 @@ namespace YooAsset.Editor
 		public EBuildMode BuildMode;
 
 		/// <summary>
-		/// 构建版本
+		/// 构建包裹名称
 		/// </summary>
-		public int BuildVersion;
+		public string BuildPackageName;
 
 		/// <summary>
-		/// 内置资源标签
+		/// 构建包裹版本
 		/// </summary>
-		public string BuildinTags;
+		public string BuildPackageVersion;
 
 		/// <summary>
 		/// 启用可寻址资源定位
@@ -59,9 +59,9 @@ namespace YooAsset.Editor
 		public bool EnableAddressable;
 
 		/// <summary>
-		/// 拷贝内置资源文件
+		/// 资源包名唯一化
 		/// </summary>
-		public bool CopyBuildinTagFiles;
+		public bool UniqueBundleName;
 
 		/// <summary>
 		/// 加密服务类名称
@@ -79,8 +79,6 @@ namespace YooAsset.Editor
 		public int MainAssetTotalCount;
 		public int AllBundleTotalCount;
 		public long AllBundleTotalSize;
-		public int BuildinBundleTotalCount;
-		public long BuildinBundleTotalSize;
 		public int EncryptedBundleTotalCount;
 		public long EncryptedBundleTotalSize;
 		public int RawBundleTotalCount;

@@ -11,7 +11,7 @@ namespace ET
             Process process = new();
             try
             {
-#if UNITY_EDITOR_OSX
+#if UNITY_EDITOR_OSX || UNITY_EDITOR_LINUX
                 string app = "bash";
                 string splitChar = ":";
                 string arguments = "-c";
@@ -59,7 +59,17 @@ namespace ET
                 {
                     if (args.Data != null)
                     {
-                        UnityEngine.Debug.Log(args.Data);
+                        if (args.Data != null)
+                        {
+                            if (args.Data.Contains("fail") || args.Data.Contains("不存在"))
+                            {
+                                UnityEngine.Debug.LogError(args.Data);
+                            }
+                            else
+                            {
+                                UnityEngine.Debug.Log(args.Data);
+                            }
+                        }
                     }
                     else
                     {

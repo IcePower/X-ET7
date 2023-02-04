@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using YooAsset;
 
@@ -57,6 +58,13 @@ namespace ET
         {
             ETTask task = ETTask.Create(true);
             sceneOperationHandle.Completed += _ => { task.SetResult(); };
+            return task;
+        }
+        
+        public static ETTask GetAwaiter(this RawFileOperationHandle assetOperationHandle)
+        {
+            ETTask task = ETTask.Create(true);
+            assetOperationHandle.Completed += _ => { task.SetResult(); };
             return task;
         }
     }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.IO;
 
 namespace YooAsset
 {
@@ -28,35 +27,25 @@ namespace YooAsset
 		public long FileSize;
 
 		/// <summary>
+		/// 是否为原生文件
+		/// </summary>
+		public bool IsRawFile;
+
+		/// <summary>
+		/// 加载方法
+		/// </summary>
+		public byte LoadMethod;
+
+		/// <summary>
 		/// 资源包的分类标签
 		/// </summary>
 		public string[] Tags;
 
+
 		/// <summary>
-		/// Flags
+		/// 所属的包裹名称
 		/// </summary>
-		public int Flags;
-
-
-		/// <summary>
-		/// 是否为加密文件
-		/// </summary>
-		public bool IsEncrypted { private set; get; }
-
-		/// <summary>
-		/// 是否为内置文件
-		/// </summary>
-		public bool IsBuildin { private set; get; }
-
-		/// <summary>
-		/// 是否为原生文件
-		/// </summary>
-		public bool IsRawFile { private set; get; }
-
-		/// <summary>
-		/// 文件名称
-		/// </summary>	
-		public string FileName { private set; get; }
+		private string _packageName;
 
 		/// <summary>
 		/// 缓存文件路径
@@ -69,7 +58,7 @@ namespace YooAsset
 				if (string.IsNullOrEmpty(_cachedFilePath) == false)
 					return _cachedFilePath;
 
-				string cacheRoot = SandboxHelper.GetCacheFolderPath();			
+				string cacheRoot = PersistentHelper.GetCacheFolderPath(_packageName);
 				_cachedFilePath = $"{cacheRoot}/{FileName}";
 				return _cachedFilePath;
 			}
@@ -91,73 +80,47 @@ namespace YooAsset
 			}
 		}
 
-
-		public PatchBundle(string bundleName, string fileHash, string fileCRC, long fileSize, string[] tags)
+		/// <summary>
+		/// 文件名称
+		/// </summary>
+		private string _fileName;
+		public string FileName
 		{
-			BundleName = bundleName;
-			FileHash = fileHash;
-			FileCRC = fileCRC;
-			FileSize = fileSize;
-			Tags = tags;
+			get
+			{
+				if (string.IsNullOrEmpty(_fileName))
+					throw new Exception("Should never get here !");
+				return _fileName;
+			}
 		}
 
 		/// <summary>
-		/// 设置Flags
+		/// 缓存查询Key
 		/// </summary>
-		public void SetFlagsValue(bool isEncrypted, bool isBuildin, bool isRawFile)
+		private string _cacheKey;
+		public string CacheKey
 		{
-			IsEncrypted = isEncrypted;
-			IsBuildin = isBuildin;
-			IsRawFile = isRawFile;
+			get
+			{
+				if (string.IsNullOrEmpty(_cacheKey))
+					throw new Exception("Should never get here !");
+				return _cacheKey;
+			}
+		}
 
-			BitMask32 mask = new BitMask32(0);
-			if (isEncrypted) mask.Open(0);
-			if (isBuildin) mask.Open(1);
-			if (isRawFile) mask.Open(2);
-			Flags = mask;
+
+		public PatchBundle()
+		{
 		}
 
 		/// <summary>
-		/// 解析Flags
+		/// 解析资源包
 		/// </summary>
-		public void ParseFlagsValue()
+		public void ParseBundle(string packageName, int nameStype)
 		{
-			BitMask32 value = Flags;
-			IsEncrypted = value.Test(0);
-			IsBuildin = value.Test(1);
-			IsRawFile = value.Test(2);
-		}
-
-		/// <summary>
-		/// 解析文件名称
-		/// </summary>
-		public void ParseFileName(int nameStype)
-		{
-			if (nameStype == 1)
-			{
-				FileName = FileHash;
-			}
-			else if (nameStype == 2)
-			{
-				string tempFileExtension = System.IO.Path.GetExtension(BundleName);
-				FileName = $"{FileHash}{tempFileExtension}";
-			}
-			else if (nameStype == 3)
-			{
-				string tempFileExtension = System.IO.Path.GetExtension(BundleName);
-				string tempBundleName = BundleName.Replace('/', '_').Replace(tempFileExtension, "");
-				FileName = $"{tempBundleName}_{FileHash}";
-			}
-			else if (nameStype == 4)
-			{
-				string tempFileExtension = System.IO.Path.GetExtension(BundleName);
-				string tempBundleName = BundleName.Replace('/', '_').Replace(tempFileExtension, "");
-				FileName = $"{tempBundleName}_{FileHash}{tempFileExtension}";
-			}
-			else
-			{
-				throw new NotImplementedException();
-			}
+			_packageName = packageName;
+			_cacheKey = $"{packageName}-{FileHash}";
+			_fileName = PatchManifestTools.CreateBundleFileName(nameStype, BundleName, FileHash, IsRawFile);
 		}
 
 		/// <summary>
@@ -179,11 +142,11 @@ namespace YooAsset
 		}
 
 		/// <summary>
-		/// 是否为纯内置资源（不带任何Tag的资源）
+		/// 是否包含任意Tags
 		/// </summary>
-		public bool IsPureBuildin()
+		public bool HasAnyTags()
 		{
-			if (Tags == null || Tags.Length == 0)
+			if (Tags != null && Tags.Length > 0)
 				return true;
 			else
 				return false;
@@ -196,7 +159,7 @@ namespace YooAsset
 		{
 			if (FileHash == otherBundle.FileHash)
 				return true;
-			
+
 			return false;
 		}
 	}

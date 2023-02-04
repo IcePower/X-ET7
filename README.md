@@ -1,4 +1,4 @@
-#### X-ET 是一个融合了 ET, FairyGUI, luban, YooAsset 的缝合怪。
+# X-ET 是一个融合了 ET, FairyGUI, luban, YooAsset 的缝合怪。
 
 # FairyGUI
 ### 代码生成
@@ -26,11 +26,8 @@
 4. 通过 Define.IsAsync 来切换 EditorSimulateMode 和 HostPlayMode。
 
 # Reference
-1. ET: https://et-framework.cn
-2. ET-EUI: https://github.com/zzjfengqing/ET-EUI
-3. FairyGUI: https://www.fairygui.com/
-4. Luban: https://github.com/focus-creative-games/luban
-5. YooAsset: https://github.com/tuyoogame/YooAsset
-
-# 联系方式
-<img src="QQ.png" width="200px">
+1. ET: 更新至[ec578e6](https://github.com/egametang/ET/commit/ec578e6c2fe1bc6af9ce1e7acf6b9ae79f093ebf)
+2. YooAsset: 更新至[cc75594](https://github.com/tuyoogame/YooAsset/commit/cc75594747e4af229ff5e32312bf714786e53b51)
+3. Luban: https://github.com/focus-creative-games/luban
+4. ET-EUI: https://github.com/zzjfengqing/ET-EUI
+5. FairyGUI: https://www.fairygui.com/

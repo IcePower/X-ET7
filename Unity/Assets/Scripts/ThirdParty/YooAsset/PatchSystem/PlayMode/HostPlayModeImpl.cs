@@ -1,146 +1,144 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 
 namespace YooAsset
 {
-	internal class HostPlayModeImpl : IBundleServices
+	internal class HostPlayModeImpl : IPlayModeServices, IBundleServices, IRemoteServices
 	{
-		// 补丁清单
-		internal PatchManifest AppPatchManifest { private set; get; }
-		internal PatchManifest LocalPatchManifest { private set; get; }
+		private PatchManifest _activeManifest;
 
 		// 参数相关
+		private string _packageName;
 		private bool _locationToLower;
-		private bool _clearCacheWhenDirty;
 		private string _defaultHostServer;
 		private string _fallbackHostServer;
-
-		public bool ClearCacheWhenDirty
-		{
-			get { return _clearCacheWhenDirty; }
-		}
+		private IQueryServices _queryServices;
 
 		/// <summary>
 		/// 异步初始化
 		/// </summary>
-		public InitializationOperation InitializeAsync(bool locationToLower, bool clearCacheWhenDirty, string defaultHostServer, string fallbackHostServer)
+		public InitializationOperation InitializeAsync(string packageName, bool locationToLower, string defaultHostServer, string fallbackHostServer, IQueryServices queryServices)
 		{
+			_packageName = packageName;
 			_locationToLower = locationToLower;
-			_clearCacheWhenDirty = clearCacheWhenDirty;
 			_defaultHostServer = defaultHostServer;
 			_fallbackHostServer = fallbackHostServer;
+			_queryServices = queryServices;
 
-			var operation = new HostPlayModeInitializationOperation(this);
+			var operation = new HostPlayModeInitializationOperation(this, packageName);
 			OperationSystem.StartOperation(operation);
 			return operation;
 		}
 
-		/// <summary>
-		/// 异步更新资源版本号
-		/// </summary>
-		public UpdateStaticVersionOperation UpdateStaticVersionAsync(int timeout)
+		// 下载相关
+		private List<BundleInfo> ConvertToDownloadList(List<PatchBundle> downloadList)
 		{
-			var operation = new HostPlayModeUpdateStaticVersionOperation(this, timeout);
-			OperationSystem.StartOperation(operation);
-			return operation;
-		}
-
-		/// <summary>
-		/// 异步更新补丁清单
-		/// </summary>
-		public UpdateManifestOperation UpdatePatchManifestAsync(int resourceVersion, int timeout)
-		{
-			var operation = new HostPlayModeUpdateManifestOperation(this, resourceVersion, timeout);
-			OperationSystem.StartOperation(operation);
-			return operation;
-		}
-
-		/// <summary>
-		/// 异步更新补丁清单（弱联网）
-		/// </summary>
-		public UpdateManifestOperation WeaklyUpdatePatchManifestAsync(int resourceVersion)
-		{
-			var operation = new HostPlayModeWeaklyUpdateManifestOperation(this, resourceVersion);
-			OperationSystem.StartOperation(operation);
-			return operation;
-		}
-
-		/// <summary>
-		/// 异步更新资源包裹
-		/// </summary>
-		public UpdatePackageOperation UpdatePackageAsync(int resourceVersion, int timeout)
-		{
-			var operation = new HostPlayModeUpdatePackageOperation(this, resourceVersion, timeout);
-			OperationSystem.StartOperation(operation);
-			return operation;
-		}
-
-		/// <summary>
-		/// 获取资源版本号
-		/// </summary>
-		public int GetResourceVersion()
-		{
-			if (LocalPatchManifest == null)
-				return 0;
-			return LocalPatchManifest.ResourceVersion;
-		}
-
-		/// <summary>
-		/// 获取未被使用的缓存文件路径集合
-		/// </summary>
-		public List<string> ClearUnusedCacheFilePaths()
-		{
-			string cacheFolderPath = SandboxHelper.GetCacheFolderPath();
-			if (Directory.Exists(cacheFolderPath) == false)
-				return new List<string>();
-
-			DirectoryInfo directoryInfo = new DirectoryInfo(cacheFolderPath);
-			FileInfo[] fileInfos = directoryInfo.GetFiles();
-			List<string> result = new List<string>(fileInfos.Length);
-			foreach (FileInfo fileInfo in fileInfos)
+			List<BundleInfo> result = new List<BundleInfo>(downloadList.Count);
+			foreach (var patchBundle in downloadList)
 			{
-				bool used = false;
-				foreach (var patchBundle in LocalPatchManifest.BundleList)
-				{
-					if (fileInfo.Name == patchBundle.FileName)
-					{
-						used = true;
-						break;
-					}
-				}
-				if (used == false)
-					result.Add(fileInfo.FullName);
+				var bundleInfo = ConvertToDownloadInfo(patchBundle);
+				result.Add(bundleInfo);
 			}
 			return result;
 		}
-
-		/// <summary>
-		/// 创建下载器
-		/// </summary>
-		public PatchDownloaderOperation CreatePatchDownloaderByAll(int fileLoadingMaxNumber, int failedTryAgain)
+		private BundleInfo ConvertToDownloadInfo(PatchBundle patchBundle)
 		{
-			List<BundleInfo> downloadList = GetDownloadListByAll();
-			var operation = new PatchDownloaderOperation(downloadList, fileLoadingMaxNumber, failedTryAgain);
+			string remoteMainURL = GetRemoteMainURL(patchBundle.FileName);
+			string remoteFallbackURL = GetRemoteFallbackURL(patchBundle.FileName);
+			BundleInfo bundleInfo = new BundleInfo(patchBundle, BundleInfo.ELoadMode.LoadFromRemote, remoteMainURL, remoteFallbackURL);
+			return bundleInfo;
+		}
+
+		// 解压相关
+		private List<BundleInfo> ConvertToUnpackList(List<PatchBundle> unpackList)
+		{
+			List<BundleInfo> result = new List<BundleInfo>(unpackList.Count);
+			foreach (var patchBundle in unpackList)
+			{
+				var bundleInfo = ConvertToUnpackInfo(patchBundle);
+				result.Add(bundleInfo);
+			}
+			return result;
+		}
+		private BundleInfo ConvertToUnpackInfo(PatchBundle patchBundle)
+		{
+			return PatchManifestTools.GetUnpackInfo(patchBundle);
+		}
+
+		#region IRemoteServices接口
+		public string GetRemoteMainURL(string fileName)
+		{
+			return $"{_defaultHostServer}/{fileName}";
+		}
+		public string GetRemoteFallbackURL(string fileName)
+		{
+			return $"{_fallbackHostServer}/{fileName}";
+		}
+		#endregion
+
+		#region IPlayModeServices接口
+		public PatchManifest ActiveManifest
+		{
+			set
+			{
+				_activeManifest = value;
+				_activeManifest.InitAssetPathMapping(_locationToLower);
+				PersistentHelper.SaveCachePackageVersionFile(_packageName, _activeManifest.PackageVersion);
+			}
+			get
+			{
+				return _activeManifest;
+			}
+		}
+		public bool IsBuildinPatchBundle(PatchBundle patchBundle)
+		{
+			return _queryServices.QueryStreamingAssets(patchBundle.FileName);
+		}
+
+		UpdatePackageVersionOperation IPlayModeServices.UpdatePackageVersionAsync(bool appendTimeTicks, int timeout)
+		{
+			var operation = new HostPlayModeUpdatePackageVersionOperation(this, _packageName, appendTimeTicks, timeout);
+			OperationSystem.StartOperation(operation);
 			return operation;
 		}
-		private List<BundleInfo> GetDownloadListByAll()
+		UpdatePackageManifestOperation IPlayModeServices.UpdatePackageManifestAsync(string packageVersion, int timeout)
+		{
+			var operation = new HostPlayModeUpdatePackageManifestOperation(this, _packageName, packageVersion, timeout);
+			OperationSystem.StartOperation(operation);
+			return operation;
+		}
+		PreDownloadPackageOperation IPlayModeServices.PreDownloadPackageAsync(string packageVersion, int timeout)
+		{
+			var operation = new HostPlayModePreDownloadPackageOperation(this, _packageName, packageVersion, timeout);
+			OperationSystem.StartOperation(operation);
+			return operation;
+		}
+		CheckPackageContentsOperation IPlayModeServices.CheckPackageContentsOperation(string packageVersion)
+		{
+			var operation = new HostPlayModeCheckPackageContentsOperation(this, _packageName, packageVersion);
+			OperationSystem.StartOperation(operation);
+			return operation;
+		}
+
+		PatchDownloaderOperation IPlayModeServices.CreatePatchDownloaderByAll(int downloadingMaxNumber, int failedTryAgain, int timeout)
+		{
+			List<BundleInfo> downloadList = GetDownloadListByAll(_activeManifest);
+			var operation = new PatchDownloaderOperation(downloadList, downloadingMaxNumber, failedTryAgain, timeout);
+			return operation;
+		}
+		public List<BundleInfo> GetDownloadListByAll(PatchManifest patchManifest)
 		{
 			List<PatchBundle> downloadList = new List<PatchBundle>(1000);
-			foreach (var patchBundle in LocalPatchManifest.BundleList)
+			foreach (var patchBundle in patchManifest.BundleList)
 			{
 				// 忽略缓存文件
 				if (CacheSystem.IsCached(patchBundle))
 					continue;
 
 				// 忽略APP资源
-				// 注意：如果是APP资源并且哈希值相同，则不需要下载
-				if (AppPatchManifest.TryGetPatchBundle(patchBundle.BundleName, out PatchBundle appPatchBundle))
-				{
-					if (appPatchBundle.IsBuildin && appPatchBundle.Equals(patchBundle))
-						continue;
-				}
+				if (IsBuildinPatchBundle(patchBundle))
+					continue;
 
 				downloadList.Add(patchBundle);
 			}
@@ -148,36 +146,27 @@ namespace YooAsset
 			return ConvertToDownloadList(downloadList);
 		}
 
-		/// <summary>
-		/// 创建下载器
-		/// </summary>
-		public PatchDownloaderOperation CreatePatchDownloaderByTags(string[] tags, int fileLoadingMaxNumber, int failedTryAgain)
+		PatchDownloaderOperation IPlayModeServices.CreatePatchDownloaderByTags(string[] tags, int downloadingMaxNumber, int failedTryAgain, int timeout)
 		{
-			List<BundleInfo> downloadList = GetDownloadListByTags(tags);
-			var operation = new PatchDownloaderOperation(downloadList, fileLoadingMaxNumber, failedTryAgain);
+			List<BundleInfo> downloadList = GetDownloadListByTags(_activeManifest, tags);
+			var operation = new PatchDownloaderOperation(downloadList, downloadingMaxNumber, failedTryAgain, timeout);
 			return operation;
 		}
-		private List<BundleInfo> GetDownloadListByTags(string[] tags)
+		public List<BundleInfo> GetDownloadListByTags(PatchManifest patchManifest, string[] tags)
 		{
 			List<PatchBundle> downloadList = new List<PatchBundle>(1000);
-			foreach (var patchBundle in LocalPatchManifest.BundleList)
+			foreach (var patchBundle in patchManifest.BundleList)
 			{
 				// 忽略缓存文件
 				if (CacheSystem.IsCached(patchBundle))
 					continue;
 
 				// 忽略APP资源
-				// 注意：如果是APP资源并且哈希值相同，则不需要下载
-				if (AppPatchManifest.TryGetPatchBundle(patchBundle.BundleName, out PatchBundle appPatchBundle))
-				{
-					if (appPatchBundle.IsBuildin && appPatchBundle.Equals(patchBundle))
-						continue;
-				}
+				if (IsBuildinPatchBundle(patchBundle))
+					continue;
 
-				// 如果是纯内置资源，则统一下载
-				// 注意：可能是新增的或者变化的内置资源
-				// 注意：可能是由热更资源转换的内置资源
-				if (patchBundle.IsPureBuildin())
+				// 如果未带任何标记，则统一下载
+				if (patchBundle.HasAnyTags() == false)
 				{
 					downloadList.Add(patchBundle);
 				}
@@ -194,16 +183,13 @@ namespace YooAsset
 			return ConvertToDownloadList(downloadList);
 		}
 
-		/// <summary>
-		/// 创建下载器
-		/// </summary>
-		public PatchDownloaderOperation CreatePatchDownloaderByPaths(AssetInfo[] assetInfos, int fileLoadingMaxNumber, int failedTryAgain)
+		PatchDownloaderOperation IPlayModeServices.CreatePatchDownloaderByPaths(AssetInfo[] assetInfos, int downloadingMaxNumber, int failedTryAgain, int timeout)
 		{
-			List<BundleInfo> downloadList = GetDownloadListByPaths(assetInfos);
-			var operation = new PatchDownloaderOperation(downloadList, fileLoadingMaxNumber, failedTryAgain);
+			List<BundleInfo> downloadList = GetDownloadListByPaths(_activeManifest, assetInfos);
+			var operation = new PatchDownloaderOperation(downloadList, downloadingMaxNumber, failedTryAgain, timeout);
 			return operation;
 		}
-		private List<BundleInfo> GetDownloadListByPaths(AssetInfo[] assetInfos)
+		public List<BundleInfo> GetDownloadListByPaths(PatchManifest patchManifest, AssetInfo[] assetInfos)
 		{
 			// 获取资源对象的资源包和所有依赖资源包
 			List<PatchBundle> checkList = new List<PatchBundle>();
@@ -216,12 +202,12 @@ namespace YooAsset
 				}
 
 				// 注意：如果补丁清单里未找到资源包会抛出异常！
-				PatchBundle mainBundle = LocalPatchManifest.GetMainPatchBundle(assetInfo.AssetPath);
+				PatchBundle mainBundle = patchManifest.GetMainPatchBundle(assetInfo.AssetPath);
 				if (checkList.Contains(mainBundle) == false)
 					checkList.Add(mainBundle);
 
 				// 注意：如果补丁清单里未找到资源包会抛出异常！
-				PatchBundle[] dependBundles = LocalPatchManifest.GetAllDependencies(assetInfo.AssetPath);
+				PatchBundle[] dependBundles = patchManifest.GetAllDependencies(assetInfo.AssetPath);
 				foreach (var dependBundle in dependBundles)
 				{
 					if (checkList.Contains(dependBundle) == false)
@@ -237,12 +223,8 @@ namespace YooAsset
 					continue;
 
 				// 忽略APP资源
-				// 注意：如果是APP资源并且哈希值相同，则不需要下载
-				if (AppPatchManifest.TryGetPatchBundle(patchBundle.BundleName, out PatchBundle appPatchBundle))
-				{
-					if (appPatchBundle.IsBuildin && appPatchBundle.Equals(patchBundle))
-						continue;
-				}
+				if (IsBuildinPatchBundle(patchBundle))
+					continue;
 
 				downloadList.Add(patchBundle);
 			}
@@ -250,105 +232,58 @@ namespace YooAsset
 			return ConvertToDownloadList(downloadList);
 		}
 
-		/// <summary>
-		/// 创建解压器
-		/// </summary>
-		public PatchUnpackerOperation CreatePatchUnpackerByTags(string[] tags, int fileUpackingMaxNumber, int failedTryAgain)
+		PatchUnpackerOperation IPlayModeServices.CreatePatchUnpackerByAll(int upackingMaxNumber, int failedTryAgain, int timeout)
 		{
-			List<BundleInfo> unpcakList = GetUnpackListByTags(tags);
-			var operation = new PatchUnpackerOperation(unpcakList, fileUpackingMaxNumber, failedTryAgain);
+			List<BundleInfo> unpcakList = GetUnpackListByAll(_activeManifest);
+			var operation = new PatchUnpackerOperation(unpcakList, upackingMaxNumber, failedTryAgain, timeout);
 			return operation;
 		}
-		private List<BundleInfo> GetUnpackListByTags(string[] tags)
+		private List<BundleInfo> GetUnpackListByAll(PatchManifest patchManifest)
 		{
 			List<PatchBundle> downloadList = new List<PatchBundle>(1000);
-			foreach (var patchBundle in AppPatchManifest.BundleList)
+			foreach (var patchBundle in patchManifest.BundleList)
 			{
-				// 如果不是内置资源
-				if (patchBundle.IsBuildin == false)
-					continue;
-
 				// 忽略缓存文件
 				if (CacheSystem.IsCached(patchBundle))
 					continue;
 
-				// 查询DLC资源
-				if (patchBundle.HasTag(tags))
+				if (IsBuildinPatchBundle(patchBundle))
 				{
 					downloadList.Add(patchBundle);
 				}
 			}
 
-			return PatchHelper.ConvertToUnpackList(downloadList);
+			return ConvertToUnpackList(downloadList);
 		}
 
-		/// <summary>
-		/// 创建解压器
-		/// </summary>
-		public PatchUnpackerOperation CreatePatchUnpackerByAll(int fileUpackingMaxNumber, int failedTryAgain)
+		PatchUnpackerOperation IPlayModeServices.CreatePatchUnpackerByTags(string[] tags, int upackingMaxNumber, int failedTryAgain, int timeout)
 		{
-			List<BundleInfo> unpcakList = GetUnpackListByAll();
-			var operation = new PatchUnpackerOperation(unpcakList, fileUpackingMaxNumber, failedTryAgain);
+			List<BundleInfo> unpcakList = GetUnpackListByTags(_activeManifest, tags);
+			var operation = new PatchUnpackerOperation(unpcakList, upackingMaxNumber, failedTryAgain, timeout);
 			return operation;
 		}
-		private List<BundleInfo> GetUnpackListByAll()
+		private List<BundleInfo> GetUnpackListByTags(PatchManifest patchManifest, string[] tags)
 		{
 			List<PatchBundle> downloadList = new List<PatchBundle>(1000);
-			foreach (var patchBundle in AppPatchManifest.BundleList)
+			foreach (var patchBundle in patchManifest.BundleList)
 			{
-				// 如果不是内置资源
-				if (patchBundle.IsBuildin == false)
-					continue;
-
 				// 忽略缓存文件
 				if (CacheSystem.IsCached(patchBundle))
 					continue;
 
-				downloadList.Add(patchBundle);
+				// 查询DLC资源
+				if (IsBuildinPatchBundle(patchBundle))
+				{
+					if (patchBundle.HasTag(tags))
+					{
+						downloadList.Add(patchBundle);
+					}
+				}
 			}
 
-			return PatchHelper.ConvertToUnpackList(downloadList);
+			return ConvertToUnpackList(downloadList);
 		}
-
-		// WEB相关
-		public string GetPatchDownloadMainURL(string fileName)
-		{
-			return $"{_defaultHostServer}/{fileName}";
-		}
-		public string GetPatchDownloadFallbackURL(string fileName)
-		{
-			return $"{_fallbackHostServer}/{fileName}";
-		}
-
-		// 下载相关
-		public List<BundleInfo> ConvertToDownloadList(List<PatchBundle> downloadList)
-		{
-			List<BundleInfo> result = new List<BundleInfo>(downloadList.Count);
-			foreach (var patchBundle in downloadList)
-			{
-				var bundleInfo = ConvertToDownloadInfo(patchBundle);
-				result.Add(bundleInfo);
-			}
-			return result;
-		}
-		public BundleInfo ConvertToDownloadInfo(PatchBundle patchBundle)
-		{
-			string remoteMainURL = GetPatchDownloadMainURL(patchBundle.FileName);
-			string remoteFallbackURL = GetPatchDownloadFallbackURL(patchBundle.FileName);
-			BundleInfo bundleInfo = new BundleInfo(patchBundle, BundleInfo.ELoadMode.LoadFromRemote, remoteMainURL, remoteFallbackURL);
-			return bundleInfo;
-		}
-
-		// 设置资源清单
-		internal void SetAppPatchManifest(PatchManifest patchManifest)
-		{
-			AppPatchManifest = patchManifest;
-		}
-		internal void SetLocalPatchManifest(PatchManifest patchManifest)
-		{
-			LocalPatchManifest = patchManifest;
-			LocalPatchManifest.InitAssetPathMapping(_locationToLower);
-		}
+		#endregion
 
 		#region IBundleServices接口
 		private BundleInfo CreateBundleInfo(PatchBundle patchBundle)
@@ -364,13 +299,10 @@ namespace YooAsset
 			}
 
 			// 查询APP资源
-			if (AppPatchManifest.TryGetPatchBundle(patchBundle.BundleName, out PatchBundle appPatchBundle))
+			if (IsBuildinPatchBundle(patchBundle))
 			{
-				if (appPatchBundle.IsBuildin && appPatchBundle.Equals(patchBundle))
-				{
-					BundleInfo bundleInfo = new BundleInfo(appPatchBundle, BundleInfo.ELoadMode.LoadFromStreaming);
-					return bundleInfo;
-				}
+				BundleInfo bundleInfo = new BundleInfo(patchBundle, BundleInfo.ELoadMode.LoadFromStreaming);
+				return bundleInfo;
 			}
 
 			// 从服务端下载
@@ -382,7 +314,7 @@ namespace YooAsset
 				throw new Exception("Should never get here !");
 
 			// 注意：如果补丁清单里未找到资源包会抛出异常！
-			var patchBundle = LocalPatchManifest.GetMainPatchBundle(assetInfo.AssetPath);
+			var patchBundle = _activeManifest.GetMainPatchBundle(assetInfo.AssetPath);
 			return CreateBundleInfo(patchBundle);
 		}
 		BundleInfo[] IBundleServices.GetAllDependBundleInfos(AssetInfo assetInfo)
@@ -391,7 +323,7 @@ namespace YooAsset
 				throw new Exception("Should never get here !");
 
 			// 注意：如果补丁清单里未找到资源包会抛出异常！
-			var depends = LocalPatchManifest.GetAllDependencies(assetInfo.AssetPath);
+			var depends = _activeManifest.GetAllDependencies(assetInfo.AssetPath);
 			List<BundleInfo> result = new List<BundleInfo>(depends.Length);
 			foreach (var patchBundle in depends)
 			{
@@ -400,20 +332,9 @@ namespace YooAsset
 			}
 			return result.ToArray();
 		}
-		AssetInfo[] IBundleServices.GetAssetInfos(string[] tags)
+		bool IBundleServices.IsServicesValid()
 		{
-			return PatchHelper.GetAssetsInfoByTags(LocalPatchManifest, tags);
-		}
-		PatchAsset IBundleServices.TryGetPatchAsset(string assetPath)
-		{
-			if (LocalPatchManifest.TryGetPatchAsset(assetPath, out PatchAsset patchAsset))
-				return patchAsset;
-			else
-				return null;
-		}
-		string IBundleServices.MappingToAssetPath(string location)
-		{
-			return LocalPatchManifest.MappingToAssetPath(location);
+			return _activeManifest != null;
 		}
 		#endregion
 	}

@@ -1,3 +1,5 @@
+using ET.Client.Lobby;
+
 namespace ET.Client
 {
 	[ComponentOf(typeof(FUIEntity))]

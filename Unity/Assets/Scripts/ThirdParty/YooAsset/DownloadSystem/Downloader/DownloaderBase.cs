@@ -7,8 +7,12 @@ namespace YooAsset
 		{
 			None,
 			CheckLocalFile,
-			CreateDownload,
+			CheckTempFile,
+			PrepareDownload,
+			CreateResumeDownloader,
+			CreateGeneralDownloader,
 			CheckDownload,
+			VerifyDownload,
 			TryAgain,
 			Succeed,
 			Failed,
@@ -24,12 +28,13 @@ namespace YooAsset
 		protected string _requestURL;
 
 		protected string _lastError = string.Empty;
+		protected long _lastCode = 0;
 		protected float _downloadProgress = 0f;
 		protected ulong _downloadedBytes = 0;
 
 
 		/// <summary>
-		/// 下载进度
+		/// 下载进度（0f~1f）
 		/// </summary>
 		public float DownloadProgress
 		{
@@ -119,7 +124,7 @@ namespace YooAsset
 		/// </summary>
 		public string GetLastError()
 		{
-			return $"Failed to download : {_requestURL} Error : {_lastError}";
+			return $"Failed to download : {_requestURL} Error : {_lastError} Code : {_lastCode}";
 		}
 	}
 }

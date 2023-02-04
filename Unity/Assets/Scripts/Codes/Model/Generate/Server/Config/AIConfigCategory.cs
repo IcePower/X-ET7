@@ -32,9 +32,9 @@ public partial class AIConfigCategory: ConfigSingleton<AIConfigCategory>
         PostInit();
     }
     
-    public AIConfigCategory()
+    public bool Contain(int id)
     {
-        throw new System.NotImplementedException();
+        return _dataMap.ContainsKey(id);
     }
 
     public Dictionary<int, AIConfig> GetAll()

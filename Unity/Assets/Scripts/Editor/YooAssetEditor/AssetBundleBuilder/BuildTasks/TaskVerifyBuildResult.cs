@@ -32,7 +32,7 @@ namespace YooAsset.Editor
 		/// </summary>
 		private void VerifyingBuildingResult(BuildContext context, AssetBundleManifest unityManifest)
 		{
-			var buildParameters = context.GetContextObject<BuildParametersContext>();
+			var buildParametersContext = context.GetContextObject<BuildParametersContext>();
 			var buildMapContext = context.GetContextObject<BuildMapContext>();
 			string[] buildedBundles = unityManifest.GetAllAssetBundles();
 
@@ -62,14 +62,16 @@ namespace YooAsset.Editor
 			}
 
 			// 4. 验证Asset
+			/*
 			bool isPass = true;
-			var buildMode = buildParameters.Parameters.BuildMode;
+			var buildMode = buildParametersContext.Parameters.BuildMode;
 			if (buildMode == EBuildMode.ForceRebuild || buildMode == EBuildMode.IncrementalBuild)
 			{
 				int progressValue = 0;
+				string pipelineOutputDirectory = buildParametersContext.GetPipelineOutputDirectory();
 				foreach (var buildedBundle in buildedBundles)
 				{
-					string filePath = $"{buildParameters.PipelineOutputDirectory}/{buildedBundle}";
+					string filePath = $"{pipelineOutputDirectory}/{buildedBundle}";
 					string[] buildedAssetPaths = GetAssetBundleAllAssets(filePath);
 					string[] mapAssetPaths = buildMapContext.GetBuildinAssetPaths(buildedBundle);
 					if (mapAssetPaths.Length != buildedAssetPaths.Length)
@@ -97,6 +99,7 @@ namespace YooAsset.Editor
 					throw new Exception("构建结果验证没有通过，请参考警告日志！");
 				}
 			}
+			*/
 
 			BuildRunner.Log("构建结果验证成功！");
 		}

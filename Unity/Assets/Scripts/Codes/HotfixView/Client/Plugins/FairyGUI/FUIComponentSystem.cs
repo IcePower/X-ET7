@@ -90,10 +90,10 @@ namespace ET.Client
             self.ClosePanel(PanelId);
         }
 
-        public static void ShowPanel<T>(this FUIComponent self, PanelId prePanelId = PanelId.Invalid) where T : Entity
+        public static void ShowPanel<T>(this FUIComponent self, ShowPanelData showData = null, PanelId prePanelId = PanelId.Invalid) where T : Entity
         {
             PanelId panelId = self.GetPanelIdByGeneric<T>();
-            self.ShowPanel(panelId, prePanelId);
+            self.ShowPanel(panelId, showData, prePanelId);
         }
 
         /// <summary>
@@ -101,35 +101,50 @@ namespace ET.Client
         /// </summary>
         /// <OtherParam name="id"></OtherParam>
         /// <OtherParam name="showData"></OtherParam>
-        public static void ShowPanel(this FUIComponent self, PanelId id, PanelId prePanelId = PanelId.Invalid)
+        public static void ShowPanel(this FUIComponent self, PanelId id, ShowPanelData showData = null, PanelId prePanelId = PanelId.Invalid)
         {
             FUIEntity fuiEntity = self.ReadyToShowfuiEntity(id);
-            if (null != fuiEntity)
+            if (fuiEntity != null)
             {
-                self.RealShowPanel(fuiEntity, id, prePanelId);
+                if (showData != null)
+                {
+                    fuiEntity.AddChild(showData);
+                }
+                self.RealShowPanel(fuiEntity, id, showData, prePanelId);
             }
         }
 
-        public static async ETTask ShowPanelAsync(this FUIComponent self, PanelId id, PanelId prePanelId = PanelId.Invalid)
+        public static async ETTask ShowPanelAsync(this FUIComponent self, PanelId id, ShowPanelData showData = null, PanelId prePanelId = PanelId.Invalid)
         {
             try
             {
                 FUIEntity fuiEntity = await self.ShowFUIEntityAsync(id);
-                if (null != fuiEntity)
+                if (fuiEntity != null)
                 {
-                    self.RealShowPanel(fuiEntity, id, prePanelId);
+                    if (showData != null)
+                    {
+                        fuiEntity.AddChild(showData);
+                    }                  
+                    self.RealShowPanel(fuiEntity, id, showData, prePanelId);
                 }
             }
             catch (Exception e)
             {
                 Log.Error(e);
             }
+            finally
+            {
+                if (showData != null)
+                {
+                    showData.Dispose();
+                }
+            }
         }
 
-        public static async ETTask ShowPanelAsync<T>(this FUIComponent self, PanelId prePanelId = PanelId.Invalid) where T : Entity
+        public static async ETTask ShowPanelAsync<T>(this FUIComponent self, ShowPanelData showData = null, PanelId prePanelId = PanelId.Invalid) where T : Entity
         {
             PanelId panelId = self.GetPanelIdByGeneric<T>();
-            await self.ShowPanelAsync(panelId, prePanelId);
+            await self.ShowPanelAsync(panelId, showData, prePanelId);
         }
 
         public static void HideAndShowPanelStack(this FUIComponent self, PanelId hidePanelId, PanelId showPanelId)
@@ -232,7 +247,7 @@ namespace ET.Client
             // 如果UI不存在开始实例化新的窗口
             if (null == fuiEntity)
             {
-                fuiEntity = self.AddChild<FUIEntity>();
+                fuiEntity = self.AddChild<FUIEntity>(true);
                 fuiEntity.PanelId = id;
                 self.LoadFUIEntity(fuiEntity);
             }
@@ -256,7 +271,7 @@ namespace ET.Client
                 // 如果UI不存在开始实例化新的窗口
                 if (null == fuiEntity)
                 {
-                    fuiEntity = self.AddChild<FUIEntity>();
+                    fuiEntity = self.AddChild<FUIEntity>(true);
                     fuiEntity.PanelId = id;
                     await self.LoadFUIEntitysAsync(fuiEntity);
                 }
@@ -405,8 +420,9 @@ namespace ET.Client
             self.HidePanelsStack.Clear();
         }
 
-        private static void RealShowPanel(this FUIComponent self, FUIEntity fuiEntity, PanelId id, PanelId prePanelId = PanelId.Invalid)
+        private static void RealShowPanel(this FUIComponent self, FUIEntity fuiEntity, PanelId id, ShowPanelData showData = null, PanelId prePanelId = PanelId.Invalid)
         {
+            Entity contextData = showData?.ContextData;
             if (fuiEntity.PanelCoreData.panelType == UIPanelType.PopUp)
             {
                 self.VisiblePanelsQueue.Add(id);
@@ -414,7 +430,7 @@ namespace ET.Client
 
             fuiEntity.GComponent.visible = true;
 
-            FUIEventComponent.Instance.GetUIEventHandler(id).OnShow(fuiEntity);
+            FUIEventComponent.Instance.GetUIEventHandler(id).OnShow(fuiEntity, contextData);
 
             self.VisiblePanelsDic[(int)id] = fuiEntity;
             if (prePanelId != PanelId.Invalid)

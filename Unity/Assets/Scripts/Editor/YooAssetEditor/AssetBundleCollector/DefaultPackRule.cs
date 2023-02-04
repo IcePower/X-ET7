@@ -7,34 +7,32 @@ namespace YooAsset.Editor
 	/// <summary>
 	/// 以文件路径作为资源包名
 	/// 注意：每个文件独自打资源包
-	/// 例如：收集器路径为 "Assets/UIPanel"
-	/// 例如："Assets/UIPanel/Shop/Image/backgroud.png" --> "assets/uipanel/shop/image/backgroud.bundle"
-	/// 例如："Assets/UIPanel/Shop/View/main.prefab" --> "assets/uipanel/shop/view/main.bundle"
+	/// 例如："Assets/UIPanel/Shop/Image/backgroud.png" --> "assets_uipanel_shop_image_backgroud.bundle"
+	/// 例如："Assets/UIPanel/Shop/View/main.prefab" --> "assets_uipanel_shop_view_main.bundle"
 	/// </summary>
+	[DisplayName("以文件路径作为资源包名")]
 	public class PackSeparately : IPackRule
 	{
 		string IPackRule.GetBundleName(PackRuleData data)
 		{
-			string bundleName = StringUtility.RemoveExtension(data.AssetPath);
-			return EditorTools.GetRegularPath(bundleName).Replace('/', '_');
+			return StringUtility.RemoveExtension(data.AssetPath);
 		}
 	}
 
 	/// <summary>
 	/// 以父类文件夹路径作为资源包名
 	/// 注意：文件夹下所有文件打进一个资源包
-	/// 例如：收集器路径为 "Assets/UIPanel"
-	/// 例如："Assets/UIPanel/Shop/Image/backgroud.png" --> "assets/uipanel/shop/image.bundle"
-	/// 例如："Assets/UIPanel/Shop/View/main.prefab" --> "assets/uipanel/shop/view.bundle"
+	/// 例如："Assets/UIPanel/Shop/Image/backgroud.png" --> "assets_uipanel_shop_image.bundle"
+	/// 例如："Assets/UIPanel/Shop/View/main.prefab" --> "assets_uipanel_shop_view.bundle"
 	/// </summary>
+	[DisplayName("以父类文件夹路径作为资源包名")]
 	public class PackDirectory : IPackRule
 	{
 		public static PackDirectory StaticPackRule = new PackDirectory();
 
 		string IPackRule.GetBundleName(PackRuleData data)
 		{
-			string bundleName = Path.GetDirectoryName(data.AssetPath);
-			return EditorTools.GetRegularPath(bundleName).Replace('/', '_');
+			return Path.GetDirectoryName(data.AssetPath);
 		}
 	}
 
@@ -42,9 +40,10 @@ namespace YooAsset.Editor
 	/// 以收集器路径下顶级文件夹为资源包名
 	/// 注意：文件夹下所有文件打进一个资源包
 	/// 例如：收集器路径为 "Assets/UIPanel"
-	/// 例如："Assets/UIPanel/Shop/Image/backgroud.png" --> "assets/uipanel/shop.bundle"
-	/// 例如："Assets/UIPanel/Shop/View/main.prefab" --> "assets/uipanel/shop.bundle"
+	/// 例如："Assets/UIPanel/Shop/Image/backgroud.png" --> "assets_uipanel_shop.bundle"
+	/// 例如："Assets/UIPanel/Shop/View/main.prefab" --> "assets_uipanel_shop.bundle"
 	/// </summary>
+	[DisplayName("以收集器路径下顶级文件夹为资源包名")]
 	public class PackTopDirectory : IPackRule
 	{
 		string IPackRule.GetBundleName(PackRuleData data)
@@ -57,7 +56,7 @@ namespace YooAsset.Editor
 				if (Path.HasExtension(splits[0]))
 					throw new Exception($"Not found root directory : {assetPath}");
 				string bundleName = $"{data.CollectPath}/{splits[0]}";
-				return EditorTools.GetRegularPath(bundleName).Replace('/', '_');
+				return bundleName;
 			}
 			else
 			{
@@ -70,12 +69,20 @@ namespace YooAsset.Editor
 	/// 以收集器路径作为资源包名
 	/// 注意：收集的所有文件打进一个资源包
 	/// </summary>
+	[DisplayName("以收集器路径作为资源包名")]
 	public class PackCollector : IPackRule
 	{
 		string IPackRule.GetBundleName(PackRuleData data)
 		{
-			string bundleName = StringUtility.RemoveExtension(data.CollectPath);
-			return EditorTools.GetRegularPath(bundleName).Replace('/', '_');
+			string collectPath = data.CollectPath;
+			if (AssetDatabase.IsValidFolder(collectPath))
+			{
+				return collectPath;
+			}
+			else
+			{
+				return StringUtility.RemoveExtension(collectPath);
+			}
 		}
 	}
 
@@ -83,6 +90,7 @@ namespace YooAsset.Editor
 	/// 以分组名称作为资源包名
 	/// 注意：收集的所有文件打进一个资源包
 	/// </summary>
+	[DisplayName("以分组名称作为资源包名")]
 	public class PackGroup : IPackRule
 	{
 		string IPackRule.GetBundleName(PackRuleData data)
@@ -92,9 +100,10 @@ namespace YooAsset.Editor
 	}
 
 	/// <summary>
-	/// 原生文件打包模式
+	/// 打包原生文件
 	/// 注意：原生文件打包支持：图片，音频，视频，文本
 	/// </summary>
+	[DisplayName("打包原生文件")]
 	public class PackRawFile : IPackRule
 	{
 		string IPackRule.GetBundleName(PackRuleData data)
@@ -113,14 +122,14 @@ namespace YooAsset.Editor
 			if (depends.Length != 1)
 				throw new Exception($"{nameof(PackRawFile)} is not support estension : {extension}");
 
-			string bundleName = StringUtility.RemoveExtension(data.AssetPath);
-			return EditorTools.GetRegularPath(bundleName).Replace('/', '_');
+			return data.AssetPath;
 		}
 	}
 
 	/// <summary>
-	/// 着色器变种收集文件
+	/// 打包着色器变种集合
 	/// </summary>
+	[DisplayName("打包着色器变种集合")]
 	public class PackShaderVariants : IPackRule
 	{
 		public string GetBundleName(PackRuleData data)
