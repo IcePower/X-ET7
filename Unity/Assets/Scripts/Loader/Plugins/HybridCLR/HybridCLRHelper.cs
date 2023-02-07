@@ -8,10 +8,10 @@ namespace ET
     {
         public static void Load()
         {
-            Dictionary<string, UnityEngine.Object> dictionary = AssetsBundleHelper.LoadBundle("aotdlls.unity3d");
-            foreach (var kv in dictionary)
+            string[] addresses = MonoResComponent.Instance.GetAddressesByTag("aotdlls");
+            foreach (string address in addresses)
             {
-                byte[] bytes = (kv.Value as TextAsset).bytes;
+                byte[] bytes = MonoResComponent.Instance.LoadRawFile(address);
                 RuntimeApi.LoadMetadataForAOTAssembly(bytes, HomologousImageMode.Consistent);
             }
         }

@@ -11,7 +11,7 @@ namespace ET
 {
     public class MonoResComponent: Singleton<MonoResComponent>
     {
-        public async ETTask<bool> InitAsync(bool isUseEditorMode)
+        public IEnumerator InitAsync(bool isUseEditorMode)
         {
             // 初始化BetterStreaming
             BetterStreamingAssets.Initialize();
@@ -26,12 +26,10 @@ namespace ET
             YooAssets.Initialize();
             YooAssets.SetOperationSystemMaxTimeSlice(30);
 
-            await InitPackage(isUseEditorMode);
-
-            return true;
+            yield return InitPackage(isUseEditorMode);
         }
 
-        private async ETTask InitPackage(bool isUseEditorMode)
+        private IEnumerator InitPackage(bool isUseEditorMode)
         {
             // 如果是真机，先以离线模式初始化,等热更完成后再重新以联机运行模式初始化。如果是编辑器，可以在编辑器里选择是否使用 EditorSimulateMode。 
             EPlayMode playMode = isUseEditorMode ? YooAsset.EPlayMode.EditorSimulateMode : YooAsset.EPlayMode.OfflinePlayMode;
@@ -57,12 +55,30 @@ namespace ET
                 initializationOperation = package.InitializeAsync(createParameters);
             }
 
-            await initializationOperation;
+            yield return initializationOperation;
             
             if (package.InitializeStatus != EOperationStatus.Succeed)
             {
                 Debug.LogError($"{initializationOperation.Error}");
             }
+        }
+
+        public byte[] LoadRawFile(string location)
+        {
+            RawFileOperationHandle handle = YooAssets.LoadRawFileSync(location);
+            return handle.GetRawFileData();
+        }
+
+        public string[] GetAddressesByTag(string tag)
+        {
+            AssetInfo[] assetInfos = YooAssets.GetAssetInfos(tag);
+            string[] addresses = new string[assetInfos.Length];
+            for(int i = 0; i < assetInfos.Length; i++)
+            {
+                addresses[i] = assetInfos[i].Address;
+            }
+
+            return addresses;
         }
     }
 }

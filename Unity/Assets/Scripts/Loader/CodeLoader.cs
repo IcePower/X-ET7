@@ -12,6 +12,7 @@ namespace ET
 
 		public void Start()
 		{
+			Debug.Log("CodeLoader.Start !!!");
 			if (Define.EnableCodes)
 			{
 				GlobalConfig globalConfig = Resources.Load<GlobalConfig>("GlobalConfig");
@@ -34,23 +35,15 @@ namespace ET
 			}
 			else
 			{
-				byte[] assBytes;
-				byte[] pdbBytes;
+				byte[] assBytes = MonoResComponent.Instance.LoadRawFile("Model.dll");
+				byte[] pdbBytes = MonoResComponent.Instance.LoadRawFile("Model.pdb");
+
 				if (!Define.IsEditor)
 				{
-					Dictionary<string, UnityEngine.Object> dictionary = AssetsBundleHelper.LoadBundle("code.unity3d");
-					assBytes = ((TextAsset)dictionary["Model.dll"]).bytes;
-					pdbBytes = ((TextAsset)dictionary["Model.pdb"]).bytes;
-
 					if (Define.EnableIL2CPP)
 					{
 						HybridCLRHelper.Load();
 					}
-				}
-				else
-				{
-					assBytes = File.ReadAllBytes(Path.Combine(Define.BuildOutputDir, "Model.dll"));
-					pdbBytes = File.ReadAllBytes(Path.Combine(Define.BuildOutputDir, "Model.pdb"));
 				}
 			
 				this.model = Assembly.Load(assBytes, pdbBytes);
@@ -66,11 +59,11 @@ namespace ET
 		{
 			byte[] assBytes;
 			byte[] pdbBytes;
+			
 			if (!Define.IsEditor)
 			{
-				Dictionary<string, UnityEngine.Object> dictionary = AssetsBundleHelper.LoadBundle("code.unity3d");
-				assBytes = ((TextAsset)dictionary["Hotfix.dll"]).bytes;
-				pdbBytes = ((TextAsset)dictionary["Hotfix.pdb"]).bytes;
+				assBytes = MonoResComponent.Instance.LoadRawFile("Hotfix.dll");
+				pdbBytes = MonoResComponent.Instance.LoadRawFile("Hotfix.pdb");
 			}
 			else
 			{

@@ -75,3 +75,27 @@ MonoBehaviour:
         PackRuleName: PackSeparately
         FilterRuleName: CollectScene
         AssetTags: 
+    - GroupName: AotCode
+      GroupDesc: 
+      AssetTags: aotdlls
+      ActiveRuleName: EnableGroup
+      Collectors:
+      - CollectPath: Assets/Bundles/AotDlls
+        CollectorGUID: f632dbe3c739a4d4fb01c9f7a76180b7
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackRawFile
+        FilterRuleName: CollectAll
+        AssetTags: 
+    - GroupName: Code
+      GroupDesc: 
+      AssetTags: 
+      ActiveRuleName: EnableGroup
+      Collectors:
+      - CollectPath: Assets/Bundles/Code
+        CollectorGUID: 55d9010d6a87934468703901aa518c85
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackRawFile
+        FilterRuleName: CollectAll
+        AssetTags: 

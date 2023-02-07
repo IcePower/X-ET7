@@ -35,7 +35,6 @@ MonoBehaviour:
   - mscorlib.dll
   - System.dll
   - System.Core.dll
-  - System.Core.dll
   collectAssetReferenceTypes: 0
   outputLinkFile: Scripts/Loader/Plugins/HybridCLR/Generated/link.xml
   outputAOTGenericReferenceFile: Scripts/Loader/Plugins/HybridCLR/Generated/AOTGenericReferences.cs
