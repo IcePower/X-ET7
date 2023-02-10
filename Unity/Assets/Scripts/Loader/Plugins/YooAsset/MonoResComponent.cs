@@ -11,7 +11,7 @@ namespace ET
 {
     public class MonoResComponent: Singleton<MonoResComponent>
     {
-        public IEnumerator InitAsync(bool isUseEditorMode)
+        public IEnumerator InitAsync(EPlayMode playMode)
         {
             // 初始化BetterStreaming
             BetterStreamingAssets.Initialize();
@@ -26,13 +26,12 @@ namespace ET
             YooAssets.Initialize();
             YooAssets.SetOperationSystemMaxTimeSlice(30);
 
-            yield return InitPackage(isUseEditorMode);
+            yield return InitPackage(playMode);
         }
 
-        private IEnumerator InitPackage(bool isUseEditorMode)
+        private IEnumerator InitPackage(EPlayMode playMode)
         {
-            // 如果是真机，先以离线模式初始化,等热更完成后再重新以联机运行模式初始化。如果是编辑器，可以在编辑器里选择是否使用 EditorSimulateMode。 
-            EPlayMode playMode = isUseEditorMode ? YooAsset.EPlayMode.EditorSimulateMode : YooAsset.EPlayMode.OfflinePlayMode;
+            // EPlayMode playMode = isUseEditorMode ? YooAsset.EPlayMode.EditorSimulateMode : YooAsset.EPlayMode.HostPlayMode;
             // 创建默认的资源包
             string packageName = "DefaultPackage";
             var package = YooAssets.TryGetAssetsPackage(packageName);
@@ -50,8 +49,17 @@ namespace ET
                 createParameters.SimulatePatchManifestPath = EditorSimulateModeHelper.SimulateBuild(packageName);
                 initializationOperation = package.InitializeAsync(createParameters);
             }
-            else{
+            else if (playMode == EPlayMode.OfflinePlayMode){
                 var createParameters = new OfflinePlayModeParameters();
+                initializationOperation = package.InitializeAsync(createParameters);
+            }
+            else if (playMode == EPlayMode.HostPlayMode)
+            {
+                var createParameters = new HostPlayModeParameters();
+                createParameters.DecryptionServices = new GameDecryptionServices(); 
+                createParameters.QueryServices = new GameQueryServices();
+                createParameters.DefaultHostServer = GetHostServerURL();
+                createParameters.FallbackHostServer = GetHostServerURL();
                 initializationOperation = package.InitializeAsync(createParameters);
             }
 
@@ -79,6 +87,76 @@ namespace ET
             }
 
             return addresses;
+        }
+        
+        /// <summary>
+        /// 获取资源服务器地址
+        /// </summary>
+        private string GetHostServerURL()
+        {
+            //string hostServerIP = "http://10.0.2.2"; //安卓模拟器地址
+            string hostServerIP = "http://127.0.0.1";
+            string gameVersion = "v1.0";
+
+#if UNITY_EDITOR
+            if (UnityEditor.EditorUserBuildSettings.activeBuildTarget == UnityEditor.BuildTarget.Android)
+                return $"{hostServerIP}/CDN/Android/{gameVersion}";
+            else if (UnityEditor.EditorUserBuildSettings.activeBuildTarget == UnityEditor.BuildTarget.iOS)
+                return $"{hostServerIP}/CDN/IPhone/{gameVersion}";
+            else if (UnityEditor.EditorUserBuildSettings.activeBuildTarget == UnityEditor.BuildTarget.WebGL)
+                return $"{hostServerIP}/CDN/WebGL/{gameVersion}";
+            else
+                return $"{hostServerIP}/CDN/PC/{gameVersion}";
+#else
+		if (Application.platform == RuntimePlatform.Android)
+			return $"{hostServerIP}/CDN/Android/{gameVersion}";
+		else if (Application.platform == RuntimePlatform.IPhonePlayer)
+			return $"{hostServerIP}/CDN/IPhone/{gameVersion}";
+		else if (Application.platform == RuntimePlatform.WebGLPlayer)
+			return $"{hostServerIP}/CDN/WebGL/{gameVersion}";
+		else
+			return $"{hostServerIP}/CDN/PC/{gameVersion}";
+#endif
+        }
+        
+        /// <summary>
+        /// 内置文件查询服务类
+        /// </summary>
+        private class GameQueryServices : IQueryServices
+        {
+            public bool QueryStreamingAssets(string fileName)
+            {
+                // 注意：使用了BetterStreamingAssets插件，使用前需要初始化该插件！
+                string buildinFolderName = YooAssets.GetStreamingAssetBuildinFolderName();
+                return BetterStreamingAssets.FileExists($"{buildinFolderName}/{fileName}");
+            }
+        }
+        
+        /// <summary>
+        /// 资源文件解密服务类
+        /// </summary>
+        private class GameDecryptionServices : IDecryptionServices
+        {
+            public ulong LoadFromFileOffset(DecryptFileInfo fileInfo)
+            {
+                return 32;
+            }
+
+            public byte[] LoadFromMemory(DecryptFileInfo fileInfo)
+            {
+                throw new NotImplementedException();
+            }
+
+            public FileStream LoadFromStream(DecryptFileInfo fileInfo)
+            {
+                BundleStream bundleStream = new BundleStream(fileInfo.FilePath, FileMode.Open);
+                return bundleStream;
+            }
+
+            public uint GetManagedReadBufferSize()
+            {
+                return 1024;
+            }
         }
     }
 }

@@ -19,4 +19,4 @@ MonoBehaviour:
   OutputNameStyle: 4
   CopyBuildinFileOption: 1
   CopyBuildinFileTags: 
-  EncyptionClassName: 
+  EncyptionClassName: ET.EncryptionNone
