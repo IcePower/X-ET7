@@ -26,7 +26,7 @@
 4. 通过 Define.IsAsync 来切换 EditorSimulateMode 和 HostPlayMode。
 
 # Reference
-1. ET: 更新至[ec578e6](https://github.com/egametang/ET/commit/ec578e6c2fe1bc6af9ce1e7acf6b9ae79f093ebf)
+1. ET: 更新至[a0dd93c5](https://github.com/egametang/ET/commit/a0dd93c58ac7ea240c1880dc77cf0734800ce3e1)
 2. YooAsset: 更新至[cc75594](https://github.com/tuyoogame/YooAsset/commit/cc75594747e4af229ff5e32312bf714786e53b51)
 3. Luban: https://github.com/focus-creative-games/luban
 4. ET-EUI: https://github.com/zzjfengqing/ET-EUI
