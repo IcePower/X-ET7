@@ -221,6 +221,22 @@ namespace YooAsset
 		}
 
 		/// <summary>
+		/// 获取资源包名称
+		/// </summary>
+		public string GetBundleName(int bundleID)
+		{
+			if (bundleID >= 0 && bundleID < BundleList.Count)
+			{
+				var patchBundle = BundleList[bundleID];
+				return patchBundle.BundleName;
+			}
+			else
+			{
+				throw new Exception($"Invalid bundle id : {bundleID}");
+			}
+		}
+
+		/// <summary>
 		/// 尝试获取补丁资源
 		/// </summary>
 		public bool TryGetPatchAsset(string assetPath, out PatchAsset result)
@@ -239,11 +255,11 @@ namespace YooAsset
 		/// <summary>
 		/// 是否包含资源文件
 		/// </summary>
-		public bool IsIncludeBundleFile(string fileName)
+		public bool IsIncludeBundleFile(string cacheGUID)
 		{
 			foreach (var patchBundle in BundleList)
 			{
-				if (patchBundle.FileName == fileName)
+				if (patchBundle.CacheGUID == cacheGUID)
 					return true;
 			}
 			return false;

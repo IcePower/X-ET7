@@ -2,7 +2,7 @@
 
 namespace YooAsset.Editor
 {
-	[DisplayName("以文件名称为定位地址")]
+	[DisplayName("定位地址: 文件名")]
 	public class AddressByFileName : IAddressRule
 	{
 		string IAddressRule.GetAssetAddress(AddressRuleData data)
@@ -11,7 +11,7 @@ namespace YooAsset.Editor
 		}
 	}
 
-	[DisplayName("以分组名称+文件名称为定位地址")]
+	[DisplayName("定位地址: 分组名+文件名")]
 	public class AddressByGroupAndFileName : IAddressRule
 	{
 		string IAddressRule.GetAssetAddress(AddressRuleData data)
@@ -21,8 +21,8 @@ namespace YooAsset.Editor
 		}
 	}
 
-	[DisplayName("以收集器名称+文件名称为定位地址")]
-	public class AddressByCollectorAndFileName : IAddressRule
+	[DisplayName("定位地址: 文件夹名+文件名")]
+	public class AddressByFolderAndFileName : IAddressRule
 	{
 		string IAddressRule.GetAssetAddress(AddressRuleData data)
 		{

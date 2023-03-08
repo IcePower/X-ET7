@@ -16,7 +16,6 @@ namespace YooAsset
 		}
 
 		private ESteps _steps = ESteps.None;
-		private bool _isShowWaitForAsyncError = false;
 		private DownloaderBase _unpacker;
 		private DownloaderBase _downloader;
 
@@ -38,13 +37,13 @@ namespace YooAsset
 				if (MainBundleInfo.LoadMode == BundleInfo.ELoadMode.LoadFromRemote)
 				{
 					_steps = ESteps.Download;
-					FileLoadPath = MainBundleInfo.Bundle.CachedFilePath;
+					FileLoadPath = MainBundleInfo.Bundle.CachedDataFilePath;
 				}
 				else if (MainBundleInfo.LoadMode == BundleInfo.ELoadMode.LoadFromStreaming)
 				{
-#if UNITY_ANDROID || UNITY_WEBGL
+#if UNITY_ANDROID
 					_steps = ESteps.Unpack;
-					FileLoadPath = MainBundleInfo.Bundle.CachedFilePath;
+					FileLoadPath = MainBundleInfo.Bundle.CachedDataFilePath;
 #else
 					_steps = ESteps.CheckFile;
 					FileLoadPath = MainBundleInfo.Bundle.StreamingFilePath;
@@ -53,7 +52,7 @@ namespace YooAsset
 				else if (MainBundleInfo.LoadMode == BundleInfo.ELoadMode.LoadFromCache)
 				{
 					_steps = ESteps.CheckFile;
-					FileLoadPath = MainBundleInfo.Bundle.CachedFilePath;
+					FileLoadPath = MainBundleInfo.Bundle.CachedDataFilePath;
 				}
 				else
 				{
@@ -149,20 +148,22 @@ namespace YooAsset
 				// 文件解压
 				if (_unpacker != null)
 				{
+					_unpacker.WaitForAsyncComplete = true;
 					_unpacker.Update();
 					if (_unpacker.IsDone() == false)
 						continue;
 				}
 
 				// 保险机制
-				// 注意：如果需要从WEB端下载资源，可能会触发保险机制！
+				// 注意：如果需要从远端下载资源，可能会触发保险机制！
 				frame--;
 				if (frame == 0)
 				{
-					if (_isShowWaitForAsyncError == false)
+					if (IsDone() == false)
 					{
-						_isShowWaitForAsyncError = true;
-						YooLogger.Error($"WaitForAsyncComplete failed ! Try load bundle : {MainBundleInfo.Bundle.BundleName} from remote with sync load method !");
+						Status = EStatus.Failed;
+						LastError = $"WaitForAsyncComplete failed ! Try load bundle : {MainBundleInfo.Bundle.BundleName} from remote with sync load method !";
+						YooLogger.Error(LastError);
 					}
 					break;
 				}

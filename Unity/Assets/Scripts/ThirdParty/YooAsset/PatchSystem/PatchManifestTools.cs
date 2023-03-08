@@ -8,6 +8,8 @@ namespace YooAsset
 {
 	internal static class PatchManifestTools
 	{
+
+#if UNITY_EDITOR
 		/// <summary>
 		/// 序列化（JSON文件）
 		/// </summary>
@@ -63,6 +65,7 @@ namespace YooAsset
 					buffer.WriteBool(patchBundle.IsRawFile);
 					buffer.WriteByte(patchBundle.LoadMethod);
 					buffer.WriteUTF8Array(patchBundle.Tags);
+					buffer.WriteInt32Array(patchBundle.ReferenceIDs);
 				}
 
 				// 写入文件流
@@ -125,6 +128,7 @@ namespace YooAsset
 					patchBundle.IsRawFile = buffer.ReadBool();
 					patchBundle.LoadMethod = buffer.ReadByte();
 					patchBundle.Tags = buffer.ReadUTF8Array();
+					patchBundle.ReferenceIDs = buffer.ReadInt32Array();
 					manifest.BundleList.Add(patchBundle);
 				}
 			}
@@ -151,22 +155,23 @@ namespace YooAsset
 
 			return manifest;
 		}
+#endif
 
-		/// <summary>
-		/// 生成Bundle文件的正式名称
-		/// </summary>
-		public static string CreateBundleFileName(int nameStyle, string bundleName, string fileHash, bool isRawFile)
+		public static string GetRemoteBundleFileExtension(string bundleName)
+		{
+			string fileExtension = Path.GetExtension(bundleName);
+			return fileExtension;
+		}
+		public static string GetRemoteBundleFileName(int nameStyle, string bundleName, string fileExtension, string fileHash)
 		{
 			if (nameStyle == 1) //HashName
 			{
-				string fileExtension = isRawFile ? YooAssetSettingsData.Setting.RawFileVariant : YooAssetSettingsData.Setting.AssetBundleFileVariant;
-				return StringUtility.Format("{0}.{1}", fileHash, fileExtension);
+				return StringUtility.Format("{0}{1}", fileHash, fileExtension);
 			}
 			else if (nameStyle == 4) //BundleName_HashName
 			{
 				string fileName = bundleName.Remove(bundleName.LastIndexOf('.'));
-				string fileExtension = isRawFile ? YooAssetSettingsData.Setting.RawFileVariant : YooAssetSettingsData.Setting.AssetBundleFileVariant;
-				return StringUtility.Format("{0}_{1}.{2}", fileName, fileHash, fileExtension);
+				return StringUtility.Format("{0}_{1}{2}", fileName, fileHash, fileExtension);
 			}
 			else
 			{

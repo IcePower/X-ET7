@@ -13,9 +13,6 @@ namespace ET
     {
         public IEnumerator InitAsync(EPlayMode playMode)
         {
-            // 初始化BetterStreaming
-            BetterStreamingAssets.Initialize();
-
             // 初始化事件系统
             UniEvent.Initalize();
 
@@ -31,7 +28,6 @@ namespace ET
 
         private IEnumerator InitPackage(EPlayMode playMode)
         {
-            // EPlayMode playMode = isUseEditorMode ? YooAsset.EPlayMode.EditorSimulateMode : YooAsset.EPlayMode.HostPlayMode;
             // 创建默认的资源包
             string packageName = "DefaultPackage";
             var package = YooAssets.TryGetAssetsPackage(packageName);
@@ -128,7 +124,7 @@ namespace ET
             {
                 // 注意：使用了BetterStreamingAssets插件，使用前需要初始化该插件！
                 string buildinFolderName = YooAssets.GetStreamingAssetBuildinFolderName();
-                return BetterStreamingAssets.FileExists($"{buildinFolderName}/{fileName}");
+                return StreamingAssetsHelper.FileExists($"{buildinFolderName}/{fileName}");
             }
         }
         
@@ -147,7 +143,7 @@ namespace ET
                 throw new NotImplementedException();
             }
 
-            public FileStream LoadFromStream(DecryptFileInfo fileInfo)
+            public Stream LoadFromStream(DecryptFileInfo fileInfo)
             {
                 BundleStream bundleStream = new BundleStream(fileInfo.FilePath, FileMode.Open);
                 return bundleStream;

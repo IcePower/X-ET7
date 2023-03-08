@@ -13,16 +13,12 @@ namespace YooAsset.Editor
 			var buildParameters = context.GetContextObject<BuildParametersContext>();
 			var buildMapContext = context.GetContextObject<BuildMapContext>();
 			var patchManifestContext = context.GetContextObject<PatchManifestContext>();
-			buildParameters.StopWatch();
 
 			var buildMode = buildParameters.Parameters.BuildMode;
 			if (buildMode != EBuildMode.SimulateBuild)
 			{
 				CreateReportFile(buildParameters, buildMapContext, patchManifestContext);
 			}
-
-			float buildSeconds = buildParameters.GetBuildingSeconds();
-			BuildRunner.Info($"Build time consuming {buildSeconds} seconds.");
 		}
 
 		private void CreateReportFile(BuildParametersContext buildParametersContext, BuildMapContext buildMapContext, PatchManifestContext patchManifestContext)
@@ -42,7 +38,7 @@ namespace YooAsset.Editor
 #endif
 				buildReport.Summary.UnityVersion = UnityEngine.Application.unityVersion;
 				buildReport.Summary.BuildDate = DateTime.Now.ToString();
-				buildReport.Summary.BuildSeconds = (int)buildParametersContext.GetBuildingSeconds();
+				buildReport.Summary.BuildSeconds = BuildRunner.TotalSeconds;
 				buildReport.Summary.BuildTarget = buildParameters.BuildTarget;
 				buildReport.Summary.BuildPipeline = buildParameters.BuildPipeline;
 				buildReport.Summary.BuildMode = buildParameters.BuildMode;
@@ -98,6 +94,7 @@ namespace YooAsset.Editor
 				reportBundleInfo.FileCRC = patchBundle.FileCRC;
 				reportBundleInfo.FileSize = patchBundle.FileSize;
 				reportBundleInfo.Tags = patchBundle.Tags;
+				reportBundleInfo.ReferenceIDs = patchBundle.ReferenceIDs;
 				reportBundleInfo.IsRawFile = patchBundle.IsRawFile;
 				reportBundleInfo.LoadMethod = (EBundleLoadMethod)patchBundle.LoadMethod;
 				buildReport.BundleInfos.Add(reportBundleInfo);
@@ -107,7 +104,7 @@ namespace YooAsset.Editor
 			string fileName = YooAssetSettingsData.GetReportFileName(buildParameters.PackageName, buildParameters.PackageVersion);
 			string filePath = $"{packageOutputDirectory}/{fileName}";
 			BuildReport.Serialize(filePath, buildReport);
-			BuildRunner.Log($"资源构建报告文件创建完成：{filePath}");
+			BuildLogger.Log($"资源构建报告文件创建完成：{filePath}");
 		}
 
 		/// <summary>

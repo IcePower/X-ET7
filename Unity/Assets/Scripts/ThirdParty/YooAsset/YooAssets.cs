@@ -15,13 +15,16 @@ namespace YooAsset
 		/// <summary>
 		/// 初始化资源系统
 		/// </summary>
-		public static void Initialize()
+		/// <param name="logger">自定义日志处理</param>
+		public static void Initialize(ILogger logger = null)
 		{
 			if (_isInitialize)
 				throw new Exception($"{nameof(YooAssets)} is initialized !");
 
 			if (_isInitialize == false)
 			{
+				YooLogger.Logger = logger;
+
 				// 创建驱动器
 				_isInitialize = true;
 				_driver = new UnityEngine.GameObject($"[{nameof(YooAssets)}]");
@@ -34,8 +37,8 @@ namespace YooAsset
 				_driver.AddComponent<RemoteDebuggerInRuntime>();
 #endif
 
-				// 初始化异步系统
 				OperationSystem.Initialize();
+				DownloadSystem.Initialize();
 			}
 		}
 
@@ -182,6 +185,14 @@ namespace YooAsset
 		public static void SetDownloadSystemCertificateHandler(UnityEngine.Networking.CertificateHandler instance)
 		{
 			DownloadSystem.CertificateHandlerInstance = instance;
+		}
+
+		/// <summary>
+		/// 设置下载系统参数，自定义下载请求
+		/// </summary>
+		public static void SetDownloadSystemUnityWebRequest(DownloadRequestDelegate requestDelegate)
+		{
+			DownloadSystem.RequestDelegate = requestDelegate;
 		}
 
 		/// <summary>
