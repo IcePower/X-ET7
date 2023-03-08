@@ -15,7 +15,7 @@ namespace ET.Client
             
             if (ResComponent.Instance.Downloader != null)
             {
-                Log.Info("Count: {0}, Bytes: {1}", ResComponent.Instance.Downloader.TotalDownloadCount, ResComponent.Instance.Downloader.TotalDownloadBytes);
+                Log.Info("Count: {0}, Bytes: {1}".Fmt(ResComponent.Instance.Downloader.TotalDownloadCount, ResComponent.Instance.Downloader.TotalDownloadBytes));
                 fsmComponent.Transition(nameof(FsmDonwloadWebFiles));
             }
             else
