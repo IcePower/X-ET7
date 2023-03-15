@@ -24,8 +24,11 @@ namespace ET.Client
             
             // 加载 Packages
             await FUIPackageLoader.LoadPackagesAsync(fuiComponent);
-            
-            await clientScene.GetComponent<FUIComponent>().ShowPanelAsync(PanelId.LoginPanel);
+
+            LoginPanel_ContextData contextData = fuiComponent.AddChild<LoginPanel_ContextData>();
+            contextData.Data = "界面参数测试";
+            // 显示登录界面, 并传递参数contextData
+            await clientScene.GetComponent<FUIComponent>().ShowPanelAsync(PanelId.LoginPanel, contextData);
 
             await EventSystem.Instance.PublishAsync(clientScene, new EventType.AppStartInitFinish());
         }

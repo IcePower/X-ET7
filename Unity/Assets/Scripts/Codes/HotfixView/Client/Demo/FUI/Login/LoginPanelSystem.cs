@@ -9,7 +9,8 @@ namespace ET.Client
 
 		public static void OnShow(this LoginPanel self, Entity contextData = null)
 		{
-
+			var context = (LoginPanel_ContextData)contextData;
+			Log.Info(context.Data);
 		}
 
 		public static void OnHide(this LoginPanel self)

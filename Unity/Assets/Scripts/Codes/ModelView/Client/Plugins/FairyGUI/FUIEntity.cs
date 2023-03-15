@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ET.Client
 {
     [ChildOf(typeof(FUIComponent))]
-    public class FUIEntity : Entity, IAwake
+    public class FUIEntity : Entity, IAwake, IDestroy
     {
         public bool IsPreLoad
         {
@@ -20,7 +20,7 @@ namespace ET.Client
             {
                 if (this.panelId == PanelId.Invalid)
                 {
-                    Log.Error("window id is " + PanelId.Invalid);
+                    Log.Error("panel id is " + PanelId.Invalid);
                 }
                 return this.panelId;
             }
@@ -30,6 +30,11 @@ namespace ET.Client
         private PanelId panelId = PanelId.Invalid;
 
         public GComponent GComponent { get; set; }
-        public PanelCoreData PanelCoreData = null;
+
+        public PanelCoreData PanelCoreData { get; set; }
+
+        public Entity ContextData { get; set; }
+
+        public bool IsUsingStack;
     }
 }

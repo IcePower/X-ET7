@@ -12,4 +12,13 @@ namespace ET.Client
 			get => _fuiLoginPanel ??= (FUI_LoginPanel)this.GetParent<FUIEntity>().GComponent;
 		}
 	}
+	
+	[ChildOf]
+	public class LoginPanel_ContextData: Entity, IAwake
+	{
+		/// <summary>
+		/// 测试数据
+		/// </summary>
+		public string Data { get; set; }
+	}
 }
