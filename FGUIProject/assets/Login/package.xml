@@ -5,5 +5,5 @@
     <image id="t52l1" name="main_poster.png" path="/Images/"/>
     <image id="t52l2" name="main_poster.jpeg" path="/Images/"/>
   </resources>
-  <publish name="" path="../Unity/Assets/Bundles/FUI/Login" packageCount="2" codePath="../Unity/Codes/ModelView/Demo/FUIAutoGen"/>
+  <publish name="" path="../Unity/Assets/Bundles/FUI/Login" packageCount="2"/>
 </packageDescription>

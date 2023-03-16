@@ -2,6 +2,11 @@ namespace ET.Client
 {
 	public static class LoginPanelSystem
 	{
+		public static void Awake(this LoginPanel self)
+		{
+
+		}
+
 		public static void RegisterUIEvent(this LoginPanel self)
 		{
 			self.FUILoginPanel.LoginBtn.AddListnerAsync(self.Login);

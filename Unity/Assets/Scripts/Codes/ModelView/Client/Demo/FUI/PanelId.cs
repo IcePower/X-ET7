@@ -7,5 +7,7 @@ namespace ET.Client
 		Invalid = 0,
 		LobbyPanel,
 		LoginPanel,
+		TestAPanel,
+		TestBPanel,
 	}
 }

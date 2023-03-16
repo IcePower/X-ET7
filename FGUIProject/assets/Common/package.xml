@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <packageDescription id="f2boiu4i">
   <resources>
-    <component id="ab9e1" name="Button1.xml" path="/Components/" exported="true"/>
     <component id="ab9e2" name="InputField1.xml" path="/Components/" exported="true"/>
     <image id="ab9e3" name="InputBg.png" path="/Images/"/>
     <image id="ab9e4" name="Button.png" path="/Images/" exported="true"/>
@@ -16,7 +15,7 @@
     <component id="ab9el" name="ScrollBar1_arrow2.xml" path="/Components/"/>
     <component id="ab9em" name="ScrollBar1_grip.xml" path="/Components/"/>
     <component id="ab9en" name="ScrollBar1.xml" path="/Components/" exported="true"/>
-    <component id="v5syp" name="Button2.xml" path="/Components/" exported="true"/>
+    <component id="lobhq" name="CommonBtn.xml" path="/Components/" exported="true"/>
   </resources>
-  <publish name="" path="../Unity/Assets/Bundles/FUI/Common" packageCount="2" codePath="../Unity/Codes/ModelView/Demo/FUIAutoGen"/>
+  <publish name="" path="../Unity/Assets/Bundles/FUI/Common" packageCount="2"/>
 </packageDescription>

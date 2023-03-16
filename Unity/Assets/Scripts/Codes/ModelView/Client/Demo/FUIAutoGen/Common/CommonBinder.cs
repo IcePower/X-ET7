@@ -11,6 +11,7 @@ namespace ET.Client
 			UIObjectFactory.SetPackageItemExtension(ET.Client.Common.FUI_InputField1.URL, typeof(ET.Client.Common.FUI_InputField1));
 			UIObjectFactory.SetPackageItemExtension(ET.Client.Common.FUI_ComboBox1_popup.URL, typeof(ET.Client.Common.FUI_ComboBox1_popup));
 			UIObjectFactory.SetPackageItemExtension(ET.Client.Common.FUI_ComboBox1.URL, typeof(ET.Client.Common.FUI_ComboBox1));
+			UIObjectFactory.SetPackageItemExtension(ET.Client.Common.FUI_CommonBtn.URL, typeof(ET.Client.Common.FUI_CommonBtn));
 		}
 	}
 }

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="100,100" pivot="0.5,0.5" extention="Button">
+  <displayList>
+    <loader id="n15_rh9l" name="image" xy="0,0" size="100,100" url="ui://f2boiu4igu2os" align="center" vAlign="middle" fill="scaleFree">
+      <relation target="" sidePair="width-width,height-height"/>
+    </loader>
+    <loader id="n11_rh9l" name="icon" xy="25,25" size="50,50" align="center" vAlign="middle" fill="scale">
+      <relation target="" sidePair="width-width%,height-height%,center-center,middle-middle"/>
+    </loader>
+    <text id="n3_87uf" name="title" xy="0,0" size="100,100" fontSize="35" color="#faf7db" align="center" vAlign="middle" autoSize="none" singleLine="true" text="">
+      <relation target="" sidePair="width-width,height-height"/>
+    </text>
+  </displayList>
+  <Button downEffect="scale" downEffectValue=".8"/>
+  <customProperty target="image" propertyId="1"/>
+</component>

@@ -2,8 +2,18 @@ namespace ET.Client
 {
 	public static class LobbyPanelSystem
 	{
+		public static void Awake(this LobbyPanel self)
+		{
+
+		}
+		
 		public static void RegisterUIEvent(this LobbyPanel self)
 		{
+			self.FUILobbyPanel.TestABtn.AddListner(() =>
+			{
+				self.ClientScene().GetComponent<FUIComponent>().HideAndShowPanelStackAsync(PanelId.LobbyPanel, PanelId.TestAPanel).Coroutine();
+			});
+			
 			self.FUILobbyPanel.EnterMap.AddListnerAsync(self.EnterMap);
 		}
 

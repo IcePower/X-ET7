@@ -9,8 +9,6 @@ namespace ET.Client
     {
         protected override async ETTask Run(Scene scene, ET.EventType.EntryEvent3 args)
         {
-            // 加载配置
-            
             Root.Instance.Scene.AddComponent<GlobalComponent>();
             
             Root.Instance.Scene.AddComponent<FsmDispatcherComponent>();
@@ -22,8 +20,8 @@ namespace ET.Client
             // 热更流程
             await ResComponent.Instance.InitResourceAsync(clientScene);
             
-            // 加载 Packages
-            await FUIPackageLoader.LoadPackagesAsync(fuiComponent);
+            // 预加载Packages
+            await PreloadPackagesAsync(fuiComponent);
 
             LoginPanel_ContextData contextData = fuiComponent.AddChild<LoginPanel_ContextData>();
             contextData.Data = "界面参数测试";
@@ -31,6 +29,17 @@ namespace ET.Client
             await clientScene.GetComponent<FUIComponent>().ShowPanelAsync(PanelId.LoginPanel, contextData);
 
             await EventSystem.Instance.PublishAsync(clientScene, new EventType.AppStartInitFinish());
+        }
+        
+        /// <summary>
+        /// 预加载Packages
+        /// </summary>
+        /// <param name="fuiComponent"></param>
+        private static async ETTask PreloadPackagesAsync(FUIComponent fuiComponent)
+        {
+            await fuiComponent.AddPackageAsync("Common");
+            
+            CommonBinder.BindAll();
         }
     }
 }

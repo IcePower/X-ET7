@@ -141,6 +141,10 @@ namespace FUIEditor
                 { 
                     
                 }
+                else if (element.name == "customProperty")
+                { 
+                    
+                }
                 else
                 {
                     ComponentType type = EnumHelper.FromString<ComponentType>(element.name);
@@ -193,8 +197,6 @@ namespace FUIEditor
                 SpawnCodeForBinder(PackageInfos[kv.Key], kv.Value);
             }
 
-            SpawnCodeForInit();
-            
             SpawnCodeForPanelId();
 
             foreach (PackageInfo packageInfo in PackageInfos.Values)
@@ -426,6 +428,29 @@ namespace FUIEditor
             sb.AppendLine();
             sb.AppendLine("\t{");
             
+            sb.AppendFormat("\t\tpublic async ETTask OnAddPackage(FUIComponent fuiComponent)");
+            sb.AppendLine();
+            sb.AppendLine("\t\t{");
+            sb.AppendFormat("\t\t\tif (fuiComponent.IsAddPackage(\"{0}\"))", packageName);
+            sb.AppendLine();
+            sb.AppendFormat("\t\t\t\treturn;");
+            sb.AppendLine();
+            sb.AppendLine();
+            sb.AppendFormat("\t\t\tawait fuiComponent.AddPackageAsync(\"{0}\");", packageName);
+            sb.AppendLine();
+            sb.AppendFormat("\t\t\t{0}Binder.BindAll();", packageName);
+            sb.AppendLine();
+            sb.AppendLine("\t\t}");
+            
+            sb.AppendLine();
+            sb.AppendFormat("\t\tpublic void OnRemovePackage(FUIComponent fuiComponent)");
+            sb.AppendLine();
+            sb.AppendLine("\t\t{");
+            sb.AppendFormat("\t\t\tfuiComponent.RemovePackage(\"{0}\");", packageName);
+            sb.AppendLine();
+            sb.AppendLine("\t\t}");
+            
+            sb.AppendLine();
             sb.AppendFormat("\t\tpublic void OnInitPanelCoreData(FUIEntity fuiEntity)");
             sb.AppendLine();
             sb.AppendLine("\t\t{");
@@ -450,10 +475,10 @@ namespace FUIEditor
             sb.AppendLine("\t\t}");
             
             sb.AppendLine();
-            sb.AppendFormat("\t\tpublic void OnShow(FUIEntity fuiEntity, Entity contexData = null)");
+            sb.AppendFormat("\t\tpublic void OnShow(FUIEntity fuiEntity, Entity contextData = null)");
             sb.AppendLine();
             sb.AppendLine("\t\t{");
-            sb.AppendFormat("\t\t\tfuiEntity.GetComponent<{0}>().OnShow(contexData);", panelName);
+            sb.AppendFormat("\t\t\tfuiEntity.GetComponent<{0}>().OnShow(contextData);", panelName);
             sb.AppendLine();
             sb.AppendLine("\t\t}");
 
@@ -548,12 +573,12 @@ namespace FUIEditor
 
             foreach (var kv in ControllerPageNames)
             {
-                sb.AppendFormat("\t\tpublic enum {0}_Page", kv.Key);
+                sb.AppendFormat("\t\tpublic enum {0}Page", kv.Key);
                 sb.AppendLine();
                 sb.AppendLine("\t\t{");
                 foreach (string pageName in kv.Value)
                 {
-                    sb.AppendFormat("\t\t\tPage_{0},", pageName);
+                    sb.AppendFormat("\t\t\t{0},", pageName);
                     sb.AppendLine();
                 }
                 sb.AppendLine("\t\t}");

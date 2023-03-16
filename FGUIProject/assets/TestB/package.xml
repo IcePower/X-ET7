@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<packageDescription id="296l7tjh">
+  <resources>
+    <component id="lobh0" name="TestBPanel.xml" path="/" exported="true"/>
+  </resources>
+  <publish name="" path="../Unity/Assets/Bundles/FUI/TestB" packageCount="2"/>
+</packageDescription>

@@ -3,12 +3,22 @@ using System;
 namespace ET.Client
 {
     [ObjectSystem]
+    public class FUIEventComponentLoadSystem : LoadSystem<FUIEventComponent>
+    {
+        protected override void Load(FUIEventComponent self)
+        {
+            FUIEventComponent.Instance = self;
+            self.Load();
+        }
+    }
+    
+    [ObjectSystem]
     public class FUIEventComponentAwakeSystem : AwakeSystem<FUIEventComponent>
     {
         protected override void Awake(FUIEventComponent self)
         {
             FUIEventComponent.Instance = self;
-            self.Awake();
+            self.Load();
         }
     }
     
@@ -28,9 +38,12 @@ namespace ET.Client
     [FriendOf(typeof(FUIEventComponent))]
     public static class FUIEventComponentSystem
     {
-        public static void Awake(this FUIEventComponent self)
+        public static void Load(this FUIEventComponent self)
         {
             self.UIEventHandlers.Clear();
+            self.PanelIdInfoDict.Clear();
+            self.PanelTypeInfoDict.Clear();
+            
             foreach (Type v in EventSystem.Instance.GetTypes(typeof(FUIEventAttribute)))
             {
                 FUIEventAttribute attr = v.GetCustomAttributes(typeof(FUIEventAttribute), false)[0] as FUIEventAttribute;
