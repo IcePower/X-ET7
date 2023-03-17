@@ -5,18 +5,14 @@ namespace ET.Client
 	[FUIEvent(PanelId.TestAPanel, "TestA", "TestAPanel")]
 	public class TestAEventHandler: IFUIEventHandler
 	{
-		public async ETTask OnAddPackage(FUIComponent fuiComponent)
+		public string GetPackageName()
 		{
-			if (fuiComponent.IsAddPackage("TestA"))
-				return;
-
-			await fuiComponent.AddPackageAsync("TestA");
-			TestABinder.BindAll();
+			return "TestA";
 		}
 
-		public void OnRemovePackage(FUIComponent fuiComponent)
+		public void OnAddPackage()
 		{
-			fuiComponent.RemovePackage("TestA");
+			TestABinder.BindAll();
 		}
 
 		public void OnInitPanelCoreData(FUIEntity fuiEntity)

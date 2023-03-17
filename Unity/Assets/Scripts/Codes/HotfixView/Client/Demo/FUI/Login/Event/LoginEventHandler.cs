@@ -5,18 +5,14 @@ namespace ET.Client
 	[FUIEvent(PanelId.LoginPanel, "Login", "LoginPanel")]
 	public class LoginEventHandler: IFUIEventHandler
 	{
-		public async ETTask OnAddPackage(FUIComponent fuiComponent)
+		public string GetPackageName()
 		{
-			if (fuiComponent.IsAddPackage("Login"))
-				return;
-
-			await fuiComponent.AddPackageAsync("Login");
-			LoginBinder.BindAll();
+			return "Login";
 		}
 
-		public void OnRemovePackage(FUIComponent fuiComponent)
+		public void OnAddPackage()
 		{
-			fuiComponent.RemovePackage("Login");
+			LoginBinder.BindAll();
 		}
 
 		public void OnInitPanelCoreData(FUIEntity fuiEntity)

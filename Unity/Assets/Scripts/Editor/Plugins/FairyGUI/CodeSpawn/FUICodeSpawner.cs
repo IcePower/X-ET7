@@ -428,25 +428,18 @@ namespace FUIEditor
             sb.AppendLine();
             sb.AppendLine("\t{");
             
-            sb.AppendFormat("\t\tpublic async ETTask OnAddPackage(FUIComponent fuiComponent)");
+            sb.AppendFormat("\t\tpublic string GetPackageName()");
             sb.AppendLine();
             sb.AppendLine("\t\t{");
-            sb.AppendFormat("\t\t\tif (fuiComponent.IsAddPackage(\"{0}\"))", packageName);
-            sb.AppendLine();
-            sb.AppendFormat("\t\t\t\treturn;");
-            sb.AppendLine();
-            sb.AppendLine();
-            sb.AppendFormat("\t\t\tawait fuiComponent.AddPackageAsync(\"{0}\");", packageName);
-            sb.AppendLine();
-            sb.AppendFormat("\t\t\t{0}Binder.BindAll();", packageName);
+            sb.AppendFormat("\t\t\treturn \"{0}\";", packageName);
             sb.AppendLine();
             sb.AppendLine("\t\t}");
-            
             sb.AppendLine();
-            sb.AppendFormat("\t\tpublic void OnRemovePackage(FUIComponent fuiComponent)");
+            
+            sb.AppendFormat("\t\tpublic void OnAddPackage()");
             sb.AppendLine();
             sb.AppendLine("\t\t{");
-            sb.AppendFormat("\t\t\tfuiComponent.RemovePackage(\"{0}\");", packageName);
+            sb.AppendFormat("\t\t\t{0}Binder.BindAll();", packageName);
             sb.AppendLine();
             sb.AppendLine("\t\t}");
             

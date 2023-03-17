@@ -2,18 +2,9 @@ namespace ET.Client
 {
     public interface IFUIEventHandler
     {
-        /// <summary>
-        /// 添加FUI的Package
-        /// </summary>
-        /// <param name="fuiComponent"></param>
-        /// <returns></returns>
-        public ETTask OnAddPackage(FUIComponent fuiComponent);
-                
-        /// <summary>
-        /// 移除FUI的Package
-        /// </summary>
-        /// <param name="fuiComponent"></param>
-        void OnRemovePackage(FUIComponent fuiComponent);
+        string GetPackageName();
+        
+         void OnAddPackage();
         
         /// <summary>
         /// UI实体加载后,初始化窗口数据
