@@ -236,13 +236,14 @@ namespace ET.Client
                 return;
             }
 
-            FUIEventComponent.Instance.GetUIEventHandler(id).BeforeUnload(fuiEntity);
+            IFUIEventHandler handler = FUIEventComponent.Instance.GetUIEventHandler(id);
+            handler.BeforeUnload(fuiEntity);
             if (fuiEntity.IsPreLoad)
             {
                 fuiEntity.GComponent.Dispose();
                 fuiEntity.GComponent = null;
                 
-                FUIEventComponent.Instance.GetUIEventHandler(id).OnRemovePackage(self);
+                self.RemovePackage(handler.GetPackageName());
             }
 
             if (isDispose)
@@ -461,7 +462,12 @@ namespace ET.Client
             IFUIEventHandler fuiEventHandler = FUIEventComponent.Instance.GetUIEventHandler(fuiEntity.PanelId);
             
             // 添加Package
-            await fuiEventHandler.OnAddPackage(self);
+            string packageName = fuiEventHandler.GetPackageName();
+            if (!self.IsAddPackage(packageName))
+            {
+                await self.AddPackageAsync(packageName);
+            }
+            fuiEventHandler.OnAddPackage();
 
             // 创建组件
             fuiEntity.GComponent = await self.CreateObjectAsync(panelInfo.PackageName, panelInfo.ComponentName);
