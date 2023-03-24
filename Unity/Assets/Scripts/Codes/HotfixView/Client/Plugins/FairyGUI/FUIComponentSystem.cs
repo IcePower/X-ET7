@@ -39,7 +39,22 @@ namespace ET.Client
         
         public static void Destroy(this FUIComponent self)
         {
-            self.CloseAllPanel();
+            if (self.AllPanelsDic == null)
+            {
+                return;
+            }
+
+            foreach (var kv in self.UIPackageLocations)
+            {
+                self.RemovePackage(kv.Key);
+            }
+
+            self.VisiblePanelsDic.Clear();
+            self.AllPanelsDic.Clear();
+            self.FUIEntitylistCached.Clear();
+            self.VisiblePanelsQueue.Clear();
+            self.HidePanelsStack.Clear();
+            
             self.UIPackageLocations.Clear();
         }
 
@@ -507,7 +522,10 @@ namespace ET.Client
         /// <param name="packageName"></param>
         public static async ETTask AddPackageAsync(this FUIComponent self, string packageName)
         {
-            byte[] descData = await ResComponent.Instance.LoadRawFileDataAsync("{0}{1}".Fmt(packageName, "_fui"));
+            string location = "{0}{1}".Fmt(packageName, "_fui");
+            self.UIPackageLocations.Add(packageName, location);
+            
+            byte[] descData = await ResComponent.Instance.LoadRawFileDataAsync(location);
             UIPackage.AddPackage(descData, packageName, (name, extension, type, item) =>
             {
                 self.InnerLoader(name, extension, type, item).Coroutine();
@@ -519,8 +537,8 @@ namespace ET.Client
             Texture res = await ResComponent.Instance.LoadAssetAsync<Texture>("{0}".Fmt(location));
             item.owner.SetItemAsset(item, res, DestroyMethod.None);
 
-            string pacakgeName = item.owner.name;
-            self.UIPackageLocations.Add(pacakgeName, location);
+            string packageName = item.owner.name;
+            self.UIPackageLocations.Add(packageName, location);
         }
 
         /// <summary>
@@ -530,12 +548,18 @@ namespace ET.Client
         /// <param name="packageName"></param>
         public static void RemovePackage(this FUIComponent self, string packageName)
         {
-            UIPackage.RemovePackage(packageName);
-
-            List<string> list = self.UIPackageLocations[packageName];
-            foreach (string location in list)
+            if (UIPackage.GetByName(packageName) != null)
             {
-                ResComponent.Instance.UnloadAsset(location);
+                UIPackage.RemovePackage(packageName);
+            }
+
+            if (ResComponent.Instance != null && !ResComponent.Instance.IsDisposed)
+            {
+                List<string> list = self.UIPackageLocations[packageName];
+                foreach (string location in list)
+                {
+                    ResComponent.Instance.UnloadAsset(location);
+                }
             }
         }
 

@@ -36,39 +36,21 @@ namespace ET.Client
         {
             ResComponent.Instance = self;
         }
-        
-        public static ETTask InitResourceAsync(this ResComponent self, Scene clientScene)
-        {
-            ETTask task = ETTask.Create(true); 
-            FsmComponent fsmComponent = clientScene.AddComponent<FsmComponent, ETTask>(task);
-            
-            fsmComponent.AddNodeHandler(nameof(FsmResourceInit));
-            fsmComponent.AddNodeHandler(nameof(FsmUpdateStaticVersion));
-            fsmComponent.AddNodeHandler(nameof(FsmUpdateManifest));
-            fsmComponent.AddNodeHandler(nameof(FsmCreateDownloader));
-            fsmComponent.AddNodeHandler(nameof(FsmDonwloadWebFiles));
-            fsmComponent.AddNodeHandler(nameof(FsmPatchDone));
-            
-            fsmComponent.Run(nameof(FsmResourceInit));
-
-            return task;
-        }
 
         public static void Destroy(this ResComponent self)
         {
+            self.ForceUnloadAllAssets();
+
             ResComponent.Instance = null;
             self.PackageVersion = string.Empty;
             self.Downloader = null;
-
-            foreach (var handle in self.AssetsOperationHandles.Values)
-            {
-                handle.Release();
-            }
-
-            foreach (var handle in self.SubAssetsOperationHandles.Values)
-            {
-                handle.Release();
-            }
+            
+            self.AssetsOperationHandles.Clear();
+            self.SubAssetsOperationHandles.Clear();
+            self.SceneOperationHandles.Clear();
+            self.RawFileOperationHandles.Clear();
+            self.HandleProgresses.Clear();
+            self.DoneHandleQueue.Clear();
         }
 
         public static void Update(this ResComponent self)
@@ -153,7 +135,11 @@ namespace ET.Client
             return ErrorCode.ERR_Success;
         }
 
-        public static async ETTask<int> DonwloadWebFilesAsync(this ResComponent self, DownloaderOperation.OnDownloadProgress onDownloadProgress = null, DownloaderOperation.OnDownloadError onDownloadError = null)
+        public static async ETTask<int> DonwloadWebFilesAsync(this ResComponent self, 
+        DownloaderOperation.OnStartDownloadFile onStartDownloadFileCallback = null, 
+        DownloaderOperation.OnDownloadProgress onDownloadProgress = null,
+        DownloaderOperation.OnDownloadError onDownloadError = null,
+        DownloaderOperation.OnDownloadOver onDownloadOver = null)
         {
             if (self.Downloader == null)
             {
@@ -161,8 +147,10 @@ namespace ET.Client
             }
 
             // 注册下载回调
+            self.Downloader.OnStartDownloadFileCallback = onStartDownloadFileCallback;
             self.Downloader.OnDownloadProgressCallback = onDownloadProgress;
             self.Downloader.OnDownloadErrorCallback = onDownloadError;
+            self.Downloader.OnDownloadOverCallback = onDownloadOver;
             self.Downloader.BeginDownload();
             await self.Downloader.GetAwaiter();
 
@@ -193,8 +181,14 @@ namespace ET.Client
 
         public static void UnloadAsset(this ResComponent self, string location)
         {
-            self.AssetsOperationHandles.TryGetValue(location, out AssetOperationHandle handle);
-            handle.Release();
+            if(self.AssetsOperationHandles.TryGetValue(location, out AssetOperationHandle assetOperationHandle))
+                assetOperationHandle.Release();
+            else if(self.RawFileOperationHandles.TryGetValue(location, out RawFileOperationHandle rawFileOperationHandle))
+                rawFileOperationHandle.Release();
+            else if(self.SubAssetsOperationHandles.TryGetValue(location, out SubAssetsOperationHandle subAssetsOperationHandle))
+                subAssetsOperationHandle.Release();
+            else
+                Log.Error($"资源{location}不存在");
         }
 
         #endregion

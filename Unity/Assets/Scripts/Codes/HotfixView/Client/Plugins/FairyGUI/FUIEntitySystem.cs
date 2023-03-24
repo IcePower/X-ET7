@@ -10,6 +10,21 @@ namespace ET.Client
             self.PanelCoreData = self.AddChild<PanelCoreData>();
         }
     }
+    
+    [ObjectSystem]
+    public class FUIEntityDestroySystem : DestroySystem<FUIEntity>
+    {
+        protected override void Destroy(FUIEntity self)
+        {
+            self.PanelCoreData?.Dispose();
+            self.PanelId = PanelId.Invalid;
+            if (self.GComponent != null)
+            {
+                self.GComponent.Dispose();
+                self.GComponent = null;
+            }
+        }
+    }
 
     public static class FUIEntitySystem
     {
