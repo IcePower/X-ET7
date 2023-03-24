@@ -2,17 +2,11 @@
 using System.Collections;
 using CommandLine;
 using UnityEngine;
-using YooAsset;
 
 namespace ET
 {
 	public class Init: MonoBehaviour
 	{
-		// /// <summary>
-		// /// 资源系统运行模式
-		// /// </summary>
-		// public bool IsUseEditorMode = true;
-		public EPlayMode PlayMode;
 		private IEnumerator Start()
 		{
 			DontDestroyOnLoad(gameObject);
@@ -40,14 +34,39 @@ namespace ET
 			
 			ETTask.ExceptionHandler += Log.Error;
 
-			if (!Application.isEditor && PlayMode == EPlayMode.EditorSimulateMode)
-			{
-				PlayMode = EPlayMode.HostPlayMode;
-			}
-			yield return Game.AddSingleton<MonoResComponent>().InitAsync(PlayMode);
+			yield return MonoResComponent.Instance.InitAsync();
 			Game.AddSingleton<CodeLoader>().Start();
 		}
 
+		public async ETTask RestartAsync()
+		{
+			Log.Info("Restart!!!");
+			
+			Game.Close();
+			
+			Debug.Log("Close Done!");
+			
+			Game.AddSingleton<MainThreadSynchronizationContext>();
+			
+			// 命令行参数
+			string[] args = "".Split(" ");
+			Parser.Default.ParseArguments<Options>(args)
+					.WithNotParsed(error => throw new Exception($"命令行格式错误! {error}"))
+					.WithParsed(Game.AddSingleton);
+			
+			Game.AddSingleton<TimeInfo>();
+			Game.AddSingleton<Logger>().ILog = new UnityLogger();
+			Game.AddSingleton<ObjectPool>();
+			Game.AddSingleton<IdGenerater>();
+			Game.AddSingleton<EventSystem>();
+			Game.AddSingleton<TimerComponent>();
+			Game.AddSingleton<CoroutineLockComponent>();
+			
+			Log.Info("Start!!!");
+			Game.AddSingleton<CodeLoader>().Start();
+			Log.Info("Start Done!!!");
+		}
+		
 		private void Update()
 		{
 			Game.Update();

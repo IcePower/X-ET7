@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using FUIEditor;
 using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
+using YooAsset;
 
 namespace ET
 {
@@ -57,8 +54,8 @@ namespace ET
 
         private void OnEnable()
 		{
-			globalConfig = Resources.Load<GlobalConfig>("GlobalConfig");
-			
+			globalConfig = AssetDatabase.LoadAssetAtPath<GlobalConfig>("Assets/Bundles/Config/GlobalConfig/GlobalConfig.asset");
+					
 #if UNITY_ANDROID
 			activePlatform = PlatformType.Android;
 #elif UNITY_IOS
@@ -125,7 +122,21 @@ namespace ET
 			GUILayout.Label("");
 			GUILayout.Label("Code Compile：");
 			
-			this.globalConfig.CodeMode = (CodeMode)EditorGUILayout.EnumPopup("CodeMode: ", this.globalConfig.CodeMode);
+			CodeMode codeMode = (CodeMode)EditorGUILayout.EnumPopup("CodeMode: ", this.globalConfig.CodeMode);
+			if (codeMode != this.globalConfig.CodeMode)
+			{
+				this.globalConfig.CodeMode = codeMode;
+				EditorUtility.SetDirty(this.globalConfig);
+				AssetDatabase.SaveAssets();
+			}
+			
+			EPlayMode playMode = (EPlayMode)EditorGUILayout.EnumPopup("PlayMode: ", this.globalConfig.PlayMode);
+			if (playMode != this.globalConfig.PlayMode)
+			{
+				this.globalConfig.PlayMode = playMode;
+				EditorUtility.SetDirty(this.globalConfig);
+				AssetDatabase.SaveAssets();
+			}
 			
 			if (GUILayout.Button("BuildModelAndHotfix"))
 			{
@@ -141,31 +152,32 @@ namespace ET
 				ShowNotification("Build Model And Hotfix Success!");
 			}
 			
-			if (GUILayout.Button("BuildModel"))
-			{
-				if (Define.EnableCodes)
-				{
-					throw new Exception("now in ENABLE_CODES mode, do not need Build!");
-				}
-				BuildAssembliesHelper.BuildModel(this.codeOptimization, globalConfig);
-
-				AfterCompiling();
-				
-				ShowNotification("Build Model Success!");
-			}
-			
-			if (GUILayout.Button("BuildHotfix"))
-			{
-				if (Define.EnableCodes)
-				{
-					throw new Exception("now in ENABLE_CODES mode, do not need Build!");
-				}
-				BuildAssembliesHelper.BuildHotfix(this.codeOptimization, globalConfig);
-
-				AfterCompiling();
-				
-				ShowNotification("Build Hotfix Success!");
-			}
+			// Model 和 Hotfix 得同时编译，否则热更会有问题，所以把下面的代码注释掉了。
+			// if (GUILayout.Button("BuildModel"))
+			// {
+			// 	if (Define.EnableCodes)
+			// 	{
+			// 		throw new Exception("now in ENABLE_CODES mode, do not need Build!");
+			// 	}
+			// 	BuildAssembliesHelper.BuildModel(this.codeOptimization, globalConfig);
+			//
+			// 	AfterCompiling();
+			// 	
+			// 	ShowNotification("Build Model Success!");
+			// }
+			//
+			// if (GUILayout.Button("BuildHotfix"))
+			// {
+			// 	if (Define.EnableCodes)
+			// 	{
+			// 		throw new Exception("now in ENABLE_CODES mode, do not need Build!");
+			// 	}
+			// 	BuildAssembliesHelper.BuildHotfix(this.codeOptimization, globalConfig);
+			//
+			// 	AfterCompiling();
+			// 	
+			// 	ShowNotification("Build Hotfix Success!");
+			// }
 			
 			EditorGUILayout.BeginHorizontal();
 			{
@@ -175,7 +187,7 @@ namespace ET
 				{
 					ToolsEditor.ExcelExporter(globalConfig.CodeMode, this.configFolder);
 
-					const string clientProtoDir = "../Unity/Assets/Bundles/Config";
+					const string clientProtoDir = "../Unity/Assets/Bundles/Config/GameConfig";
 					if (Directory.Exists(clientProtoDir))
 					{
 						Directory.Delete(clientProtoDir, true);

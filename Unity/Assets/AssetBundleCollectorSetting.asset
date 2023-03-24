@@ -20,18 +20,19 @@ MonoBehaviour:
   - PackageName: DefaultPackage
     PackageDesc: 
     Groups:
-    - GroupName: Config
+    - GroupName: GameConfig
       GroupDesc: 
       AssetTags: 
       ActiveRuleName: EnableGroup
       Collectors:
-      - CollectPath: Assets/Bundles/Config
-        CollectorGUID: fa72a9d3b736d46988407658bca910e1
+      - CollectPath: Assets/Bundles/Config/GameConfig
+        CollectorGUID: bd62e73513d5641b48081bfd70f67106
         CollectorType: 0
         AddressRuleName: AddressByFileName
         PackRuleName: PackDirectory
         FilterRuleName: CollectAll
         AssetTags: 
+        UserData: 
     - GroupName: UI
       GroupDesc: 
       AssetTags: 
@@ -44,6 +45,7 @@ MonoBehaviour:
         PackRuleName: PackDirectory
         FilterRuleName: CollectAtlas
         AssetTags: 
+        UserData: 
       - CollectPath: Assets/Bundles/FUI
         CollectorGUID: 90d4b1892ed984abd872a4e996d78bfb
         CollectorType: 0
@@ -51,6 +53,7 @@ MonoBehaviour:
         PackRuleName: PackRawFile
         FilterRuleName: CollectBytes
         AssetTags: 
+        UserData: 
     - GroupName: Unit
       GroupDesc: 
       AssetTags: 
@@ -63,6 +66,7 @@ MonoBehaviour:
         PackRuleName: PackDirectory
         FilterRuleName: CollectPrefab
         AssetTags: 
+        UserData: 
     - GroupName: Scene
       GroupDesc: 
       AssetTags: 
@@ -75,6 +79,7 @@ MonoBehaviour:
         PackRuleName: PackSeparately
         FilterRuleName: CollectScene
         AssetTags: 
+        UserData: 
     - GroupName: AotCode
       GroupDesc: 
       AssetTags: aotdlls
@@ -87,6 +92,7 @@ MonoBehaviour:
         PackRuleName: PackRawFile
         FilterRuleName: CollectAll
         AssetTags: 
+        UserData: 
     - GroupName: Code
       GroupDesc: 
       AssetTags: 
@@ -99,3 +105,17 @@ MonoBehaviour:
         PackRuleName: PackRawFile
         FilterRuleName: CollectAll
         AssetTags: 
+        UserData: 
+    - GroupName: GlobalConfig
+      GroupDesc: 
+      AssetTags: 
+      ActiveRuleName: EnableGroup
+      Collectors:
+      - CollectPath: Assets/Bundles/Config/GlobalConfig
+        CollectorGUID: a278cf2ad021c4e4c928f3b8c0094b8b
+        CollectorType: 0
+        AddressRuleName: AddressByFileName
+        PackRuleName: PackDirectory
+        FilterRuleName: CollectAll
+        AssetTags: 
+        UserData: 

@@ -7,11 +7,19 @@ using UniFramework.Module;
 using UnityEngine;
 using YooAsset;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace ET
 {
-    public class MonoResComponent: Singleton<MonoResComponent>
+    public class MonoResComponent
     {
-        public IEnumerator InitAsync(EPlayMode playMode)
+        public static MonoResComponent Instance { get; private set; } = new MonoResComponent();
+
+        private AssetsPackage defaultPackage;
+        
+        public IEnumerator InitAsync()
         {
             // 初始化事件系统
             UniEvent.Initalize();
@@ -23,18 +31,33 @@ namespace ET
             YooAssets.Initialize();
             YooAssets.SetOperationSystemMaxTimeSlice(30);
 
-            yield return InitPackage(playMode);
+            yield return InitPackage();
+
+            yield return this.LoadGlobalConfig();
         }
 
-        private IEnumerator InitPackage(EPlayMode playMode)
+        public async ETTask RestartAsync()
         {
+            await this.LoadGlobalConfigAsync();
+        } 
+
+        private IEnumerator InitPackage()
+        {
+            
+#if UNITY_EDITOR
+            GlobalConfig globalConfig = AssetDatabase.LoadAssetAtPath<GlobalConfig>("Assets/Bundles/Config/GlobalConfig/GlobalConfig.asset");
+            EPlayMode playMode = globalConfig.PlayMode;
+#else
+            EPlayMode playMode = EPlayMode.HostPlayMode;
+#endif
+            
             // 创建默认的资源包
             string packageName = "DefaultPackage";
-            var package = YooAssets.TryGetAssetsPackage(packageName);
-            if (package == null)
+            defaultPackage = YooAssets.TryGetAssetsPackage(packageName);
+            if (defaultPackage == null)
             {
-                package = YooAssets.CreateAssetsPackage(packageName);
-                YooAssets.SetDefaultAssetsPackage(package);
+                defaultPackage = YooAssets.CreateAssetsPackage(packageName);
+                YooAssets.SetDefaultAssetsPackage(defaultPackage);
             }
 
             // 编辑器下的模拟模式
@@ -43,11 +66,11 @@ namespace ET
             {
                 var createParameters = new EditorSimulateModeParameters();
                 createParameters.SimulatePatchManifestPath = EditorSimulateModeHelper.SimulateBuild(packageName);
-                initializationOperation = package.InitializeAsync(createParameters);
+                initializationOperation = defaultPackage.InitializeAsync(createParameters);
             }
             else if (playMode == EPlayMode.OfflinePlayMode){
                 var createParameters = new OfflinePlayModeParameters();
-                initializationOperation = package.InitializeAsync(createParameters);
+                initializationOperation = defaultPackage.InitializeAsync(createParameters);
             }
             else if (playMode == EPlayMode.HostPlayMode)
             {
@@ -56,21 +79,51 @@ namespace ET
                 createParameters.QueryServices = new GameQueryServices();
                 createParameters.DefaultHostServer = GetHostServerURL();
                 createParameters.FallbackHostServer = GetHostServerURL();
-                initializationOperation = package.InitializeAsync(createParameters);
+                initializationOperation = defaultPackage.InitializeAsync(createParameters);
             }
 
             yield return initializationOperation;
             
-            if (package.InitializeStatus != EOperationStatus.Succeed)
+            if (defaultPackage.InitializeStatus != EOperationStatus.Succeed)
             {
                 Debug.LogError($"{initializationOperation.Error}");
             }
         }
 
+        private IEnumerator LoadGlobalConfig()
+        {
+            AssetOperationHandle handler = YooAssets.LoadAssetAsync<GlobalConfig>("GlobalConfig");
+            yield return handler;
+            GlobalConfig.Instance = handler.AssetObject as GlobalConfig;
+            handler.Release();
+            defaultPackage.UnloadUnusedAssets();
+        }
+        
+        private async ETTask LoadGlobalConfigAsync()
+        {
+            AssetOperationHandle handler = YooAssets.LoadAssetAsync<GlobalConfig>("GlobalConfig");
+            await handler;
+            GlobalConfig.Instance = handler.AssetObject as GlobalConfig;
+            handler.Release();
+            defaultPackage.UnloadUnusedAssets();
+        }
+        
         public byte[] LoadRawFile(string location)
         {
             RawFileOperationHandle handle = YooAssets.LoadRawFileSync(location);
             return handle.GetRawFileData();
+        }
+        
+        public async ETTask<byte[]> LoadRawFileAsync(string location)
+        {
+            RawFileOperationHandle handle = YooAssets.LoadRawFileAsync(location);
+            await handle;
+            return handle.GetRawFileData();
+        }
+        
+        public AssetOperationHandle LoadAssetAsync<T>(string location)where T: UnityEngine.Object
+        {
+            return YooAssets.LoadAssetAsync<T>(location);
         }
 
         public string[] GetAddressesByTag(string tag)
