@@ -7,8 +7,8 @@ namespace ET.Client.Lobby
 {
 	public partial class FUI_LobbyPanel: GComponent
 	{
-		public GImage bg;
-		public GButton EnterGame;
+		public ET.Client.Common.FUI_CommonBtn TestABtn;
+		public ET.Client.Common.FUI_CommonBtn EnterMap;
 		public const string URL = "ui://ti3ka994t52l0";
 
 		public static FUI_LobbyPanel CreateInstance()
@@ -20,8 +20,7 @@ namespace ET.Client.Lobby
 		{
 			base.ConstructFromXML(xml);
 
-			bg = (GImage)GetChildAt(0);
-			EnterGame = (GButton)GetChildAt(1);
+			EnterMap = (GButton)GetChildAt(0);
 		}
 	}
 }

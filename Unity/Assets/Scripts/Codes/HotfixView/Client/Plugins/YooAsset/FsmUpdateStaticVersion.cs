@@ -5,7 +5,7 @@ namespace ET.Client
     {
         public override async ETTask OnEnter(FsmComponent fsmComponent)
         {
-            int errorCode = await ResComponent.Instance.UpdateStaticVersionAsync();
+            int errorCode = await ResComponent.Instance.UpdateVersionAsync();
             
             if (errorCode != ErrorCode.ERR_Success)
             {

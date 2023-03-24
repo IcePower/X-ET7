@@ -10,18 +10,18 @@ namespace YooAsset.Editor
 		/// <summary>
 		/// 执行资源构建上下文
 		/// </summary>
-		public static BuildMapContext CreateBuildMap(EBuildMode buildMode)
-		{
-			BuildMapContext context = new BuildMapContext();
+		public static BuildMapContext CreateBuildMap(EBuildMode buildMode, string packageName)
+		{	
 			Dictionary<string, BuildAssetInfo> buildAssetDic = new Dictionary<string, BuildAssetInfo>(1000);
 
 			// 1. 检测配置合法性
 			AssetBundleCollectorSettingData.Setting.CheckConfigError();
 
 			// 2. 获取所有收集器收集的资源
-			List<CollectAssetInfo> allCollectAssets = AssetBundleCollectorSettingData.Setting.GetAllCollectAssets(buildMode);
+			var buildResult = AssetBundleCollectorSettingData.Setting.GetPackageAssets(buildMode, packageName);
+			List<CollectAssetInfo> allCollectAssets = buildResult.CollectAssets;
 
-			// 3. 剔除未被引用的依赖资源
+			// 3. 剔除未被引用的依赖项资源
 			List<CollectAssetInfo> removeDependList = new List<CollectAssetInfo>();
 			foreach (var collectAssetInfo in allCollectAssets)
 			{
@@ -41,7 +41,8 @@ namespace YooAsset.Editor
 			{
 				if (buildAssetDic.ContainsKey(collectAssetInfo.AssetPath) == false)
 				{
-					var buildAssetInfo = new BuildAssetInfo(collectAssetInfo.CollectorType, collectAssetInfo.BundleName,
+					var buildAssetInfo = new BuildAssetInfo(
+						collectAssetInfo.CollectorType, collectAssetInfo.BundleName,
 						collectAssetInfo.Address, collectAssetInfo.AssetPath, collectAssetInfo.IsRawAsset);
 					buildAssetInfo.AddAssetTags(collectAssetInfo.AssetTags);
 					buildAssetInfo.AddBundleTags(collectAssetInfo.AssetTags);
@@ -53,28 +54,28 @@ namespace YooAsset.Editor
 				}
 			}
 
-			// 5. 录入相关依赖的资源
+			// 5. 录入所有收集资源的依赖资源
 			foreach (var collectAssetInfo in allCollectAssets)
 			{
+				string collectAssetBundleName = collectAssetInfo.BundleName;
 				foreach (var dependAssetPath in collectAssetInfo.DependAssets)
 				{
 					if (buildAssetDic.ContainsKey(dependAssetPath))
 					{
 						buildAssetDic[dependAssetPath].AddBundleTags(collectAssetInfo.AssetTags);
-						buildAssetDic[dependAssetPath].AddReferenceBundleName(collectAssetInfo.BundleName);
+						buildAssetDic[dependAssetPath].AddReferenceBundleName(collectAssetBundleName);
 					}
 					else
 					{
 						var buildAssetInfo = new BuildAssetInfo(dependAssetPath);
 						buildAssetInfo.AddBundleTags(collectAssetInfo.AssetTags);
-						buildAssetInfo.AddReferenceBundleName(collectAssetInfo.BundleName);
+						buildAssetInfo.AddReferenceBundleName(collectAssetBundleName);
 						buildAssetDic.Add(dependAssetPath, buildAssetInfo);
 					}
 				}
 			}
-			context.AssetFileCount = buildAssetDic.Count;
 
-			// 6. 填充主动收集资源的依赖列表
+			// 6. 填充所有收集资源的依赖列表
 			foreach (var collectAssetInfo in allCollectAssets)
 			{
 				var dependAssetInfos = new List<BuildAssetInfo>(collectAssetInfo.DependAssets.Count);
@@ -88,13 +89,21 @@ namespace YooAsset.Editor
 				buildAssetDic[collectAssetInfo.AssetPath].SetAllDependAssetInfos(dependAssetInfos);
 			}
 
-			// 7. 计算完整的资源包名
+			// 7. 记录关键信息
+			BuildMapContext context = new BuildMapContext();
+			context.AssetFileCount = buildAssetDic.Count;
+			context.EnableAddressable = buildResult.Command.EnableAddressable;
+			context.UniqueBundleName = buildResult.Command.UniqueBundleName;
+			context.ShadersBundleName = buildResult.ShadersBundleName;
+
+			// 8. 计算共享的资源包名
+			var command = buildResult.Command;
 			foreach (KeyValuePair<string, BuildAssetInfo> pair in buildAssetDic)
 			{
-				pair.Value.CalculateFullBundleName();
+				pair.Value.CalculateShareBundleName(command.UniqueBundleName, command.PackageName, buildResult.ShadersBundleName);
 			}
 
-			// 8. 移除不参与构建的资源
+			// 9. 移除不参与构建的资源
 			List<BuildAssetInfo> removeBuildList = new List<BuildAssetInfo>();
 			foreach (KeyValuePair<string, BuildAssetInfo> pair in buildAssetDic)
 			{
@@ -107,7 +116,7 @@ namespace YooAsset.Editor
 				buildAssetDic.Remove(removeValue.AssetPath);
 			}
 
-			// 9. 构建资源包
+			// 10. 构建资源包
 			var allBuildinAssets = buildAssetDic.Values.ToList();
 			if (allBuildinAssets.Count == 0)
 				throw new Exception("构建的资源列表不能为空");
@@ -129,7 +138,7 @@ namespace YooAsset.Editor
 				}
 			}
 
-			BuildRunner.Log($"发现未被依赖的资源并自动移除 : {dependAssetPath}");
+			BuildLogger.Log($"发现未被依赖的资源并自动移除 : {dependAssetPath}");
 			return true;
 		}
 	}

@@ -4,12 +4,22 @@ namespace YooAsset
 	/// <summary>
 	/// 下载文件校验结果
 	/// </summary>
-	public enum EVerifyResult
+	internal enum EVerifyResult
 	{
 		/// <summary>
-		/// 文件不存在
+		/// 未找到缓存信息
 		/// </summary>
-		FileNotExisted = -4,
+		CacheNotFound = -6,
+
+		/// <summary>
+		/// 信息文件不存在
+		/// </summary>
+		InfoFileNotExisted = -5,
+
+		/// <summary>
+		/// 数据文件不存在
+		/// </summary>
+		DataFileNotExisted = -4,
 
 		/// <summary>
 		/// 文件内容不足（小于正常大小）

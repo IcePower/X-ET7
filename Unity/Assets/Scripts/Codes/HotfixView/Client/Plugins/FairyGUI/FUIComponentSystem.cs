@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FairyGUI;
+using UnityEngine;
 
 namespace ET.Client
 {
@@ -90,42 +91,52 @@ namespace ET.Client
             self.ClosePanel(PanelId);
         }
 
-        public static void ShowPanel<T>(this FUIComponent self, ShowPanelData showData = null, PanelId prePanelId = PanelId.Invalid) where T : Entity
+        private static async ETTask ShowPanelStackAsync(this FUIComponent self, PanelId id)
         {
-            PanelId panelId = self.GetPanelIdByGeneric<T>();
-            self.ShowPanel(panelId, showData, prePanelId);
-        }
-
-        /// <summary>
-        /// 现实Id指定的UI窗口
-        /// </summary>
-        /// <OtherParam name="id"></OtherParam>
-        /// <OtherParam name="showData"></OtherParam>
-        public static void ShowPanel(this FUIComponent self, PanelId id, ShowPanelData showData = null, PanelId prePanelId = PanelId.Invalid)
-        {
-            FUIEntity fuiEntity = self.ReadyToShowfuiEntity(id);
-            if (fuiEntity != null)
+            FUIEntity fuiEntity = await self.ShowFUIEntityAsync(id);
+            if (fuiEntity == null)
             {
-                if (showData != null)
-                {
-                    fuiEntity.AddChild(showData);
-                }
-                self.RealShowPanel(fuiEntity, id, showData, prePanelId);
+                return;
             }
-        }
 
-        public static async ETTask ShowPanelAsync(this FUIComponent self, PanelId id, ShowPanelData showData = null, PanelId prePanelId = PanelId.Invalid)
+            self.ShowPanelAsync(id, fuiEntity.ContextData).Coroutine();
+        }
+        
+        /// <summary>
+        /// 显示界面。没有 contextData 的重载
+        /// </summary>
+        public static async ETTask ShowPanelAsync(this FUIComponent self, PanelId id)
         {
             try
             {
                 FUIEntity fuiEntity = await self.ShowFUIEntityAsync(id);
                 if (fuiEntity != null)
                 {
-                    if (showData != null)
+                    self.RealShowPanel(fuiEntity, id);
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e);
+            }
+        }
+        
+        /// <summary>
+        /// 显示界面
+        /// </summary>
+        public static async ETTask ShowPanelAsync<T>(this FUIComponent self, PanelId id, T contextData) where T: Entity
+        {
+            try
+            {
+                FUIEntity fuiEntity = await self.ShowFUIEntityAsync(id);
+                if (fuiEntity != null)
+                {
+                    if (contextData != null)
                     {
-                        fuiEntity.AddChild(showData);
+                        fuiEntity.AddChild(contextData);
+                        fuiEntity.ContextData = contextData;
                     }                  
-                    self.RealShowPanel(fuiEntity, id, showData, prePanelId);
+                    self.RealShowPanel(fuiEntity, id, contextData);
                 }
             }
             catch (Exception e)
@@ -134,51 +145,68 @@ namespace ET.Client
             }
             finally
             {
-                if (showData != null)
+                if (contextData != null)
                 {
-                    showData.Dispose();
+                    contextData.Dispose();
                 }
             }
         }
 
-        public static async ETTask ShowPanelAsync<T>(this FUIComponent self, ShowPanelData showData = null, PanelId prePanelId = PanelId.Invalid) where T : Entity
+        /// <summary>
+        /// 隐藏 hidePanelId 界面，然后显示 showPanelId 界面。并将 hidePanelId 界面压入栈中。
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="hidePanelId">要隐藏的界面Id</param>
+        /// <param name="showPanelId">要显示的界面Id</param>
+        /// <param name="contextData">界面参数</param>
+        public static async ETTask HideAndShowPanelStackAsync(this FUIComponent self, PanelId hidePanelId, PanelId showPanelId, Entity contextData = null)
         {
-            PanelId panelId = self.GetPanelIdByGeneric<T>();
-            await self.ShowPanelAsync(panelId, showData, prePanelId);
-        }
-
-        public static void HideAndShowPanelStack(this FUIComponent self, PanelId hidePanelId, PanelId showPanelId)
-        {
-            self.HidePanel(hidePanelId, true);
-            self.ShowPanel(showPanelId, prePanelId: hidePanelId);
-        }
-
-        public static void HideAndShowPanelStack<T, K>(this FUIComponent self) where T : Entity where K : Entity
-        {
-            PanelId hidePanelId = self.GetPanelIdByGeneric<T>();
-            PanelId showPanelId = self.GetPanelIdByGeneric<K>();
-            self.HideAndShowPanelStack(hidePanelId, showPanelId);
-        }
-
-        public static async ETTask HideAndShowPanelStackAsync(this FUIComponent self, PanelId hidePanelId, PanelId showPanelId)
-        {
-            self.HidePanel(hidePanelId, true);
-            await self.ShowPanelAsync(showPanelId, prePanelId: hidePanelId);
-        }
-
-        public static async ETTask HideAndShowPanelStackAsync<T, K>(this FUIComponent self) where T : Entity where K : Entity
-        {
-            PanelId hidePanelId = self.GetPanelIdByGeneric<T>();
-            PanelId showPanelId = self.GetPanelIdByGeneric<K>();
-            await self.HideAndShowPanelStackAsync(hidePanelId, showPanelId);
+            // 隐藏 hidePanelId
+            if (!self.CheckDirectlyHide(hidePanelId))
+            {
+                Log.Warning($"检测关闭 panelId: {hidePanelId} 失败！");
+            }
+            
+            // 显示 showPanelId
+            await self.ShowPanelAsync(showPanelId, contextData);
+            
+            FUIEntity fuiEntity = self.GetFUIEntity(showPanelId);
+            if (fuiEntity == null)
+            {
+                Log.Error($"界面 {showPanelId} 创建失败！");
+                return;
+            }
+            
+            // 将 hidePanelId 界面压入栈中
+            if (hidePanelId != PanelId.Invalid)
+            {
+                self.HidePanelsStack.Push(hidePanelId);
+                fuiEntity.IsUsingStack = true;
+            }
         }
 
         /// <summary>
-        /// 隐藏ID指定的UI窗口
+        /// 隐藏ID指定的UI窗口。如果之前使用 HideAndShowPanelStackAsync() 显示，则调用 HideAndPopPanelStack()，否则调用 CheckDirectlyHide()。
         /// </summary>
         /// <OtherParam name="id"></OtherParam>
-        /// <OtherParam name="onComplete"></OtherParam>
-        public static void HidePanel(this FUIComponent self, PanelId id, bool isPushToStack = false)
+        public static void HidePanel(this FUIComponent self, PanelId id)
+        {
+            if (!self.VisiblePanelsDic.TryGetValue((int)id, out FUIEntity fuiEntity))
+            {
+                return;
+            }
+
+            if (fuiEntity.IsUsingStack)
+            {
+                self.HideAndPopPanelStack(id);
+            }
+            else
+            {
+                self.CheckDirectlyHide(id);
+            }
+        }
+        
+        private static void HideAndPopPanelStack(this FUIComponent self, PanelId id)
         {
             if (!self.CheckDirectlyHide(id))
             {
@@ -186,31 +214,20 @@ namespace ET.Client
                 return;
             }
 
-            if (isPushToStack)
-            {
-                return;
-            }
-
             if (self.HidePanelsStack.Count <= 0)
             {
                 return;
             }
-
+        
             PanelId prePanelId = self.HidePanelsStack.Pop();
-            self.ShowPanel(prePanelId);
-        }
-
-        public static void HidePanel<T>(this FUIComponent self, bool isPushToStack = false) where T : Entity
-        {
-            PanelId hidePanelId = self.GetPanelIdByGeneric<T>();
-            self.HidePanel(hidePanelId, isPushToStack);
+            self.ShowPanelStackAsync(prePanelId).Coroutine();
         }
 
         /// <summary>
         /// 卸载指定的UI窗口实例
         /// </summary>
         /// <OtherParam name="id"></OtherParam>
-        public static void UnLoadPanel(this FUIComponent self, PanelId id, bool isDispose = true)
+        private static void UnLoadPanel(this FUIComponent self, PanelId id, bool isDispose = true)
         {
             FUIEntity fuiEntity = self.GetFUIEntity(id);
             if (null == fuiEntity)
@@ -219,11 +236,14 @@ namespace ET.Client
                 return;
             }
 
-            FUIEventComponent.Instance.GetUIEventHandler(id).BeforeUnload(fuiEntity);
+            IFUIEventHandler handler = FUIEventComponent.Instance.GetUIEventHandler(id);
+            handler.BeforeUnload(fuiEntity);
             if (fuiEntity.IsPreLoad)
             {
                 fuiEntity.GComponent.Dispose();
                 fuiEntity.GComponent = null;
+                
+                self.RemovePackage(handler.GetPackageName());
             }
 
             if (isDispose)
@@ -233,31 +253,6 @@ namespace ET.Client
                 self.VisiblePanelsQueue.Remove(id);
                 fuiEntity?.Dispose();
             }
-        }
-
-        public static void UnLoadPanel<T>(this FUIComponent self) where T : Entity
-        {
-            PanelId hidePanelId = self.GetPanelIdByGeneric<T>();
-            self.UnLoadPanel(hidePanelId);
-        }
-
-        private static FUIEntity ReadyToShowfuiEntity(this FUIComponent self, PanelId id)
-        {
-            FUIEntity fuiEntity = self.GetFUIEntity(id);
-            // 如果UI不存在开始实例化新的窗口
-            if (null == fuiEntity)
-            {
-                fuiEntity = self.AddChild<FUIEntity>(true);
-                fuiEntity.PanelId = id;
-                self.LoadFUIEntity(fuiEntity);
-            }
-
-            if (!fuiEntity.IsPreLoad)
-            {
-                self.LoadFUIEntity(fuiEntity);
-            }
-
-            return fuiEntity;
         }
 
         private static async ETTask<FUIEntity> ShowFUIEntityAsync(this FUIComponent self, PanelId id)
@@ -296,9 +291,9 @@ namespace ET.Client
 
         private static FUIEntity GetFUIEntity(this FUIComponent self, PanelId id)
         {
-            if (self.AllPanelsDic.ContainsKey((int)id))
+            if (self.AllPanelsDic.TryGetValue((int)id, out FUIEntity fuiEntity))
             {
-                return self.AllPanelsDic[(int)id];
+                return fuiEntity;
             }
 
             return null;
@@ -343,6 +338,11 @@ namespace ET.Client
             return PanelId.Invalid;
         }
 
+        /// <summary>
+        /// 关闭指定的UI窗口，会Unload资源。
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="PanelId"></param>
         public static void ClosePanel(this FUIComponent self, PanelId PanelId)
         {
             if (!self.VisiblePanelsDic.ContainsKey((int)PanelId))
@@ -353,12 +353,6 @@ namespace ET.Client
             self.HidePanel(PanelId);
             self.UnLoadPanel(PanelId);
             Log.Info("<color=magenta>## close panel without Pop ##</color>");
-        }
-
-        public static void ClosePanel<T>(this FUIComponent self) where T : Entity
-        {
-            PanelId hidePanelId = self.GetPanelIdByGeneric<T>();
-            self.ClosePanel(hidePanelId);
         }
 
         public static void CloseAllPanel(this FUIComponent self)
@@ -376,7 +370,7 @@ namespace ET.Client
                     continue;
                 }
 
-                self.HidePanel(fuiEntity.PanelId);
+                self.CheckDirectlyHide(fuiEntity.PanelId);
                 self.UnLoadPanel(fuiEntity.PanelId, false);
                 fuiEntity?.Dispose();
             }
@@ -420,9 +414,8 @@ namespace ET.Client
             self.HidePanelsStack.Clear();
         }
 
-        private static void RealShowPanel(this FUIComponent self, FUIEntity fuiEntity, PanelId id, ShowPanelData showData = null, PanelId prePanelId = PanelId.Invalid)
+        private static void RealShowPanel(this FUIComponent self, FUIEntity fuiEntity, PanelId id, Entity contextData = null)
         {
-            Entity contextData = showData?.ContextData;
             if (fuiEntity.PanelCoreData.panelType == UIPanelType.PopUp)
             {
                 self.VisiblePanelsQueue.Add(id);
@@ -433,22 +426,17 @@ namespace ET.Client
             FUIEventComponent.Instance.GetUIEventHandler(id).OnShow(fuiEntity, contextData);
 
             self.VisiblePanelsDic[(int)id] = fuiEntity;
-            if (prePanelId != PanelId.Invalid)
-            {
-                self.HidePanelsStack.Push(prePanelId);
-            }
 
             Log.Info("<color=magenta>### current Navigation panel </color>{0}".Fmt(fuiEntity.PanelId));
         }
 
         private static bool CheckDirectlyHide(this FUIComponent self, PanelId id)
         {
-            if (!self.VisiblePanelsDic.ContainsKey((int)id))
+            if (!self.VisiblePanelsDic.TryGetValue((int)id, out FUIEntity fuiEntity))
             {
                 return false;
             }
-
-            FUIEntity fuiEntity = self.VisiblePanelsDic[(int)id];
+ 
             if (fuiEntity != null && !fuiEntity.IsDisposed)
             {
                 fuiEntity.GComponent.visible = false;
@@ -461,29 +449,6 @@ namespace ET.Client
         }
 
         /// <summary>
-        /// 同步加载
-        /// </summary>
-        private static void LoadFUIEntity(this FUIComponent self, FUIEntity fuiEntity)
-        {
-            if (!FUIEventComponent.Instance.PanelIdInfoDict.TryGetValue(fuiEntity.PanelId, out PanelInfo panelInfo))
-            {
-                Log.Error($"{fuiEntity.PanelId} panelInfo is not Exist!");
-                return;
-            }
-
-            fuiEntity.GComponent = UIPackage.CreateObject(panelInfo.PackageName, panelInfo.ComponentName).asCom;
-
-            FUIEventComponent.Instance.GetUIEventHandler(fuiEntity.PanelId).OnInitPanelCoreData(fuiEntity);
-
-            fuiEntity.SetRoot(FUIRootHelper.GetTargetRoot(fuiEntity.PanelCoreData.panelType));
-
-            FUIEventComponent.Instance.GetUIEventHandler(fuiEntity.PanelId).OnInitComponent(fuiEntity);
-            FUIEventComponent.Instance.GetUIEventHandler(fuiEntity.PanelId).OnRegisterUIEvent(fuiEntity);
-
-            self.AllPanelsDic[(int)fuiEntity.PanelId] = fuiEntity;
-        }
-
-        /// <summary>
         /// 异步加载
         /// </summary>
         private static async ETTask LoadFUIEntitysAsync(this FUIComponent self, FUIEntity fuiEntity)
@@ -493,17 +458,87 @@ namespace ET.Client
                 Log.Error($"{fuiEntity.PanelId} panelInfo is not Exist!");
                 return;
             }
+            
+            IFUIEventHandler fuiEventHandler = FUIEventComponent.Instance.GetUIEventHandler(fuiEntity.PanelId);
+            
+            // 添加Package
+            string packageName = fuiEventHandler.GetPackageName();
+            if (!self.IsAddPackage(packageName))
+            {
+                await self.AddPackageAsync(packageName);
+            }
+            fuiEventHandler.OnAddPackage();
 
-            fuiEntity.GComponent = await UIPackageHelper.CreateObjectAsync(panelInfo.PackageName, panelInfo.ComponentName);
+            // 创建组件
+            fuiEntity.GComponent = await self.CreateObjectAsync(panelInfo.PackageName, panelInfo.ComponentName);
 
-            FUIEventComponent.Instance.GetUIEventHandler(fuiEntity.PanelId).OnInitPanelCoreData(fuiEntity);
+            fuiEventHandler.OnInitPanelCoreData(fuiEntity);
 
+            // 设置根节点
             fuiEntity.SetRoot(FUIRootHelper.GetTargetRoot(fuiEntity.PanelCoreData.panelType));
 
-            FUIEventComponent.Instance.GetUIEventHandler(fuiEntity.PanelId).OnInitComponent(fuiEntity);
-            FUIEventComponent.Instance.GetUIEventHandler(fuiEntity.PanelId).OnRegisterUIEvent(fuiEntity);
+            fuiEventHandler.OnInitComponent(fuiEntity);
+            fuiEventHandler.OnRegisterUIEvent(fuiEntity);
 
             self.AllPanelsDic[(int)fuiEntity.PanelId] = fuiEntity;
         }
+
+        #region FairyGUI Package
+        
+        public static async ETTask<GComponent> CreateObjectAsync(this FUIComponent self, string packageName, string componentName)
+        {
+            ETTask<GComponent> task = ETTask<GComponent>.Create(true);
+            UIPackage.CreateObjectAsync(packageName, componentName, result =>
+            {
+                task.SetResult(result.asCom);
+            });
+            return await task;
+        }
+
+        public static bool IsAddPackage(this FUIComponent self, string packageName)
+        {
+            return UIPackage.GetByName(packageName) != null;
+        }
+
+        /// <summary>
+        /// 增加 FariyGUI 的 Package
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="packageName"></param>
+        public static async ETTask AddPackageAsync(this FUIComponent self, string packageName)
+        {
+            byte[] descData = await ResComponent.Instance.LoadRawFileDataAsync("{0}{1}".Fmt(packageName, "_fui"));
+            UIPackage.AddPackage(descData, packageName, (name, extension, type, item) =>
+            {
+                self.InnerLoader(name, extension, type, item).Coroutine();
+            });
+        }
+
+        private static async ETTask InnerLoader(this FUIComponent self, string location, string extension, Type type, PackageItem item)
+        {
+            Texture res = await ResComponent.Instance.LoadAssetAsync<Texture>("{0}".Fmt(location));
+            item.owner.SetItemAsset(item, res, DestroyMethod.None);
+
+            string pacakgeName = item.owner.name;
+            self.UIPackageLocations.Add(pacakgeName, location);
+        }
+
+        /// <summary>
+        /// 移除 FariyGUI 的 Package
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="packageName"></param>
+        public static void RemovePackage(this FUIComponent self, string packageName)
+        {
+            UIPackage.RemovePackage(packageName);
+
+            List<string> list = self.UIPackageLocations[packageName];
+            foreach (string location in list)
+            {
+                ResComponent.Instance.UnloadAsset(location);
+            }
+        }
+
+        #endregion
     }
 }

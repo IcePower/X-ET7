@@ -2,6 +2,11 @@ namespace ET.Client
 {
 	public static class LoginPanelSystem
 	{
+		public static void Awake(this LoginPanel self)
+		{
+
+		}
+
 		public static void RegisterUIEvent(this LoginPanel self)
 		{
 			self.FUILoginPanel.LoginBtn.AddListnerAsync(self.Login);
@@ -9,7 +14,8 @@ namespace ET.Client
 
 		public static void OnShow(this LoginPanel self, Entity contextData = null)
 		{
-
+			var context = (LoginPanel_ContextData)contextData;
+			Log.Info(context.Data);
 		}
 
 		public static void OnHide(this LoginPanel self)

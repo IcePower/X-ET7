@@ -32,9 +32,9 @@ public partial class StartZoneConfigCategory: ConfigSingleton<StartZoneConfigCat
         PostInit();
     }
     
-    public StartZoneConfigCategory()
+    public bool Contain(int id)
     {
-        throw new System.NotImplementedException();
+        return _dataMap.ContainsKey(id);
     }
 
     public Dictionary<int, StartZoneConfig> GetAll()

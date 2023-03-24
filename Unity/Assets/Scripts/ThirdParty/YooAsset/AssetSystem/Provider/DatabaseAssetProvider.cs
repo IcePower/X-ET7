@@ -6,18 +6,7 @@ namespace YooAsset
 {
 	internal sealed class DatabaseAssetProvider : ProviderBase
 	{
-		public override float Progress
-		{
-			get
-			{
-				if (IsDone)
-					return 1f;
-				else
-					return 0;
-			}
-		}
-
-		public DatabaseAssetProvider(string providerGUID, AssetInfo assetInfo) : base(providerGUID, assetInfo)
+		public DatabaseAssetProvider(AssetSystemImpl impl, string providerGUID, AssetInfo assetInfo) : base(impl, providerGUID, assetInfo)
 		{
 		}
 		public override void Update()
@@ -32,7 +21,7 @@ namespace YooAsset
 				string guid = UnityEditor.AssetDatabase.AssetPathToGUID(MainAssetInfo.AssetPath);
 				if (string.IsNullOrEmpty(guid))
 				{
-					Status = EStatus.Fail;
+					Status = EStatus.Failed;
 					LastError = $"Not found asset : {MainAssetInfo.AssetPath}";
 					YooLogger.Error(LastError);
 					InvokeCompletion();
@@ -59,8 +48,8 @@ namespace YooAsset
 			// 2. 检测加载结果
 			if (Status == EStatus.Checking)
 			{
-				Status = AssetObject == null ? EStatus.Fail : EStatus.Success;
-				if (Status == EStatus.Fail)
+				Status = AssetObject == null ? EStatus.Failed : EStatus.Succeed;
+				if (Status == EStatus.Failed)
 				{
 					if (MainAssetInfo.AssetType == null)
 						LastError = $"Failed to load asset object : {MainAssetInfo.AssetPath} AssetType : null";

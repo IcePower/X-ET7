@@ -14,9 +14,10 @@ namespace ET
     {
         
     }
-    
-    public abstract class ConfigSingleton<T>: IConfigSingleton where T: ConfigSingleton<T>, new()
+    public abstract class ConfigSingleton<T>: IConfigSingleton where T: ConfigSingleton<T>
     {
+        private bool isDisposed;
+
         [StaticField]
         private static T instance;
 
@@ -39,6 +40,12 @@ namespace ET
 
         void ISingleton.Destroy()
         {
+            if (this.isDisposed)
+            {
+                return;
+            }
+            this.isDisposed = true;
+            
             T t = instance;
             instance = null;
             t.Dispose();
@@ -46,7 +53,7 @@ namespace ET
 
         bool ISingleton.IsDisposed()
         {
-            throw new NotImplementedException();
+            return this.isDisposed;
         }
 
         public virtual void Dispose()

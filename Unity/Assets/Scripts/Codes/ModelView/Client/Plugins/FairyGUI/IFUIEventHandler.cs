@@ -2,6 +2,10 @@ namespace ET.Client
 {
     public interface IFUIEventHandler
     {
+        string GetPackageName();
+        
+         void OnAddPackage();
+        
         /// <summary>
         /// UI实体加载后,初始化窗口数据
         /// </summary>

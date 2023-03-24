@@ -5,6 +5,16 @@ namespace ET.Client
 	[FUIEvent(PanelId.LoginPanel, "Login", "LoginPanel")]
 	public class LoginEventHandler: IFUIEventHandler
 	{
+		public string GetPackageName()
+		{
+			return "Login";
+		}
+
+		public void OnAddPackage()
+		{
+			LoginBinder.BindAll();
+		}
+
 		public void OnInitPanelCoreData(FUIEntity fuiEntity)
 		{
 			fuiEntity.PanelCoreData.panelType = UIPanelType.Normal;
@@ -12,7 +22,8 @@ namespace ET.Client
 
 		public void OnInitComponent(FUIEntity fuiEntity)
 		{
-			fuiEntity.AddComponent<LoginPanel>();
+			LoginPanel panel = fuiEntity.AddComponent<LoginPanel>();
+			panel.Awake();
 		}
 
 		public void OnRegisterUIEvent(FUIEntity fuiEntity)

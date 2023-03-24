@@ -13,14 +13,19 @@ namespace YooAsset
 			CheckBundle,
 			Loading,
 			Checking,
-			Success,
-			Fail,
+			Succeed,
+			Failed,
 		}
 
 		/// <summary>
 		/// 资源提供者唯一标识符
 		/// </summary>
 		public string ProviderGUID { private set; get; }
+
+		/// <summary>
+		/// 所属资源系统
+		/// </summary>
+		public AssetSystemImpl Impl { private set; get; }
 
 		/// <summary>
 		/// 资源信息
@@ -42,6 +47,11 @@ namespace YooAsset
 		/// </summary>
 		public UnityEngine.SceneManagement.Scene SceneObject { protected set; get; }
 
+		/// <summary>
+		/// 原生文件路径
+		/// </summary>
+		public string RawFilePath { protected set; get; }
+
 
 		/// <summary>
 		/// 当前的加载状态
@@ -52,6 +62,11 @@ namespace YooAsset
 		/// 最近的错误信息
 		/// </summary>
 		public string LastError { protected set; get; } = string.Empty;
+
+		/// <summary>
+		/// 加载进度
+		/// </summary>
+		public float Progress { protected set; get; } = 0f;
 
 		/// <summary>
 		/// 引用计数
@@ -70,18 +85,7 @@ namespace YooAsset
 		{
 			get
 			{
-				return Status == EStatus.Success || Status == EStatus.Fail;
-			}
-		}
-
-		/// <summary>
-		/// 加载进度
-		/// </summary>
-		public virtual float Progress
-		{
-			get
-			{
-				return 0;
+				return Status == EStatus.Succeed || Status == EStatus.Failed;
 			}
 		}
 
@@ -90,8 +94,9 @@ namespace YooAsset
 		private readonly List<OperationHandleBase> _handles = new List<OperationHandleBase>();
 
 
-		public ProviderBase(string providerGUID, AssetInfo assetInfo)
+		public ProviderBase(AssetSystemImpl impl, string providerGUID, AssetInfo assetInfo)
 		{
+			Impl = impl;
 			ProviderGUID = providerGUID;
 			MainAssetInfo = assetInfo;
 		}
@@ -107,6 +112,14 @@ namespace YooAsset
 		public virtual void Destroy()
 		{
 			IsDestroyed = true;
+		}
+
+		/// <summary>
+		/// 获取下载进度
+		/// </summary>
+		public virtual DownloadReport GetDownloadReport()
+		{
+			return DownloadReport.CreateDefaultReport();
 		}
 
 		/// <summary>
@@ -146,6 +159,8 @@ namespace YooAsset
 				handle = new SceneOperationHandle(this);
 			else if (typeof(T) == typeof(SubAssetsOperationHandle))
 				handle = new SubAssetsOperationHandle(this);
+			else if (typeof(T) == typeof(RawFileOperationHandle))
+				handle = new RawFileOperationHandle(this);
 			else
 				throw new System.NotImplementedException();
 
@@ -206,6 +221,11 @@ namespace YooAsset
 		private TaskCompletionSource<object> _taskCompletionSource;
 		protected void InvokeCompletion()
 		{
+			DebugEndRecording();
+
+			// 进度百分百完成
+			Progress = 1f;
+
 			// 注意：创建临时列表是为了防止外部逻辑在回调函数内创建或者释放资源句柄。
 			List<OperationHandleBase> tempers = new List<OperationHandleBase>(_handles);
 			foreach (var hande in tempers)
@@ -232,6 +252,14 @@ namespace YooAsset
 		/// </summary>
 		public string SpawnTime = string.Empty;
 
+		/// <summary>
+		/// 加载耗时（单位：毫秒）
+		/// </summary>
+		public long LoadingTime { protected set; get; }
+
+		// 加载耗时统计
+		private Stopwatch _watch = null;
+
 		[Conditional("DEBUG")]
 		public void InitSpawnDebugInfo()
 		{
@@ -244,6 +272,25 @@ namespace YooAsset
 			float m = UnityEngine.Mathf.FloorToInt(spawnTime / 60f - h * 60f);
 			float s = UnityEngine.Mathf.FloorToInt(spawnTime - m * 60f - h * 3600f);
 			return h.ToString("00") + ":" + m.ToString("00") + ":" + s.ToString("00");
+		}
+
+		[Conditional("DEBUG")]
+		protected void DebugBeginRecording()
+		{
+			if (_watch == null)
+			{
+				_watch = Stopwatch.StartNew();
+			}
+		}
+
+		[Conditional("DEBUG")]
+		private void DebugEndRecording()
+		{
+			if (_watch != null)
+			{
+				LoadingTime = _watch.ElapsedMilliseconds;
+				_watch = null;
+			}
 		}
 		#endregion
 	}

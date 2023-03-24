@@ -5,6 +5,16 @@ namespace ET.Client
 	[FUIEvent(PanelId.LobbyPanel, "Lobby", "LobbyPanel")]
 	public class LobbyEventHandler: IFUIEventHandler
 	{
+		public string GetPackageName()
+		{
+			return "Lobby";
+		}
+
+		public void OnAddPackage()
+		{
+			LobbyBinder.BindAll();
+		}
+
 		public void OnInitPanelCoreData(FUIEntity fuiEntity)
 		{
 			fuiEntity.PanelCoreData.panelType = UIPanelType.Normal;
@@ -12,7 +22,8 @@ namespace ET.Client
 
 		public void OnInitComponent(FUIEntity fuiEntity)
 		{
-			fuiEntity.AddComponent<LobbyPanel>();
+			LobbyPanel panel = fuiEntity.AddComponent<LobbyPanel>();
+			panel.Awake();
 		}
 
 		public void OnRegisterUIEvent(FUIEntity fuiEntity)

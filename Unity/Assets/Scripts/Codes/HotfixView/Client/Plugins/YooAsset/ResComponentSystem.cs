@@ -57,7 +57,7 @@ namespace ET.Client
         public static void Destroy(this ResComponent self)
         {
             ResComponent.Instance = null;
-            self.ResourceVersion = 0;
+            self.PackageVersion = string.Empty;
             self.Downloader = null;
 
             foreach (var handle in self.AssetsOperationHandles.Values)
@@ -104,9 +104,11 @@ namespace ET.Client
 
         #region 热更相关
 
-        public static async ETTask<int> UpdateStaticVersionAsync(this ResComponent self, int timeout = 30)
+        public static async ETTask<int> UpdateVersionAsync(this ResComponent self, int timeout = 30)
         {
-            UpdateStaticVersionOperation operation = YooAssets.UpdateStaticVersionAsync(timeout);
+            var package = YooAssets.GetAssetsPackage("DefaultPackage");
+            var operation = package.UpdatePackageVersionAsync();
+            
             await operation.GetAwaiter();
 
             if (operation.Status != EOperationStatus.Succeed)
@@ -114,13 +116,15 @@ namespace ET.Client
                 return ErrorCode.ERR_ResourceUpdateVersionError;
             }
 
-            self.ResourceVersion = operation.ResourceVersion;
+            self.PackageVersion = operation.PackageVersion;
             return ErrorCode.ERR_Success;
         }
 
         public static async ETTask<int> UpdateManifestAsync(this ResComponent self)
         {
-            UpdateManifestOperation operation = YooAssets.UpdateManifestAsync(self.ResourceVersion, 30);
+             var package = YooAssets.GetAssetsPackage("DefaultPackage");
+            var operation = package.UpdatePackageManifestAsync(self.PackageVersion);
+                        
             await operation.GetAwaiter();
 
             if (operation.Status != EOperationStatus.Succeed)
@@ -177,12 +181,14 @@ namespace ET.Client
 
         public static void UnloadUnusedAssets(this ResComponent self)
         {
-            YooAssets.UnloadUnusedAssets();
+            AssetsPackage package = YooAssets.GetAssetsPackage("DefaultPackage");
+            package.UnloadUnusedAssets();
         }
 
         public static void ForceUnloadAllAssets(this ResComponent self)
         {
-            YooAssets.ForceUnloadAllAssets();
+            AssetsPackage package = YooAssets.GetAssetsPackage("DefaultPackage");
+            package.ForceUnloadAllAssets();
         }
 
         public static void UnloadAsset(this ResComponent self, string location)
@@ -241,18 +247,30 @@ namespace ET.Client
             return handle.SceneObject;
         }
 
-        public static async ETTask<byte[]> LoadRawFileDataAsync(this ResComponent self, string location, string copyPath = null)
+        public static async ETTask<byte[]> LoadRawFileDataAsync(this ResComponent self, string location)
         {
-            RawFileOperation handle = YooAssets.GetRawFileAsync(location, copyPath);
+            if (!self.RawFileOperationHandles.TryGetValue(location, out RawFileOperationHandle handle))
+            {
+                handle = YooAssets.LoadRawFileAsync(location);
+                self.RawFileOperationHandles[location] = handle;
+            }
+            
             await handle;
-            return handle.LoadFileData();
+            
+            return handle.GetRawFileData();
         }
 
-        public static async ETTask<string> LoadRawFileTextAsync(this ResComponent self, string location, string copyPath)
+        public static async ETTask<string> LoadRawFileTextAsync(this ResComponent self, string location)
         {
-            RawFileOperation handle = YooAssets.GetRawFileAsync(location, copyPath);
+            if (!self.RawFileOperationHandles.TryGetValue(location, out RawFileOperationHandle handle))
+            {
+                handle = YooAssets.LoadRawFileAsync(location);
+                self.RawFileOperationHandles[location] = handle;
+            }
+            
             await handle;
-            return handle.LoadFileText();
+            
+            return handle.GetRawFileText();
         }
 
         #endregion

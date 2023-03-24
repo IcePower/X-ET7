@@ -71,8 +71,17 @@ namespace ET
                 {
                     this.status &= ~EntityStatus.IsRegister;
                 }
-
-                EventSystem.Instance.RegisterSystem(this, value);
+				
+				
+                if (!value)
+                {
+                    Root.Instance.Remove(this.InstanceId);
+                }
+                else
+                {
+                    Root.Instance.Add(this);
+                    EventSystem.Instance.RegisterSystem(this);
+                }
                 
 #if ENABLE_VIEW && UNITY_EDITOR
                 if (value)
@@ -193,6 +202,20 @@ namespace ET
                 this.IsComponent = false;
                 this.parent.AddToChildren(this);
                 this.Domain = this.parent.domain;
+
+#if ENABLE_VIEW && UNITY_EDITOR
+                this.viewGO.GetComponent<ComponentView>().Component = this;
+                this.viewGO.transform.SetParent(this.Parent == null ?
+                        UnityEngine.GameObject.Find("Global").transform : this.Parent.viewGO.transform);
+                foreach (var child in this.Children.Values)
+                {
+                    child.viewGO.transform.SetParent(this.viewGO.transform);
+                }
+                foreach (var comp in this.Components.Values)
+                {
+                    comp.viewGO.transform.SetParent(this.viewGO.transform);
+                }
+#endif
             }
         }
 

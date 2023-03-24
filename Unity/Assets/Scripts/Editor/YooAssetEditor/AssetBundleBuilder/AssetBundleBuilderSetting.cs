@@ -6,11 +6,6 @@ namespace YooAsset.Editor
 	public class AssetBundleBuilderSetting : ScriptableObject
 	{
 		/// <summary>
-		/// 构建版本号
-		/// </summary>
-		public int BuildVersion = 0;
-
-		/// <summary>
 		/// 构建管线
 		/// </summary>
 		public EBuildPipeline BuildPipeline = EBuildPipeline.BuiltinBuildPipeline;
@@ -21,9 +16,9 @@ namespace YooAsset.Editor
 		public EBuildMode BuildMode = EBuildMode.ForceRebuild;
 
 		/// <summary>
-		/// 内置资源标签（首包资源标签）
+		/// 构建的包裹名称
 		/// </summary>
-		public string BuildTags = string.Empty;
+		public string BuildPackage = string.Empty;
 
 		/// <summary>
 		/// 压缩方式
@@ -34,6 +29,16 @@ namespace YooAsset.Editor
 		/// 输出文件名称样式
 		/// </summary>
 		public EOutputNameStyle OutputNameStyle = EOutputNameStyle.HashName;
+
+		/// <summary>
+		/// 首包资源文件的拷贝方式
+		/// </summary>
+		public ECopyBuildinFileOption CopyBuildinFileOption = ECopyBuildinFileOption.None;
+
+		/// <summary>
+		/// 首包资源文件的标签集合
+		/// </summary>
+		public string CopyBuildinFileTags = string.Empty;
 
 		/// <summary>
 		/// 加密类名称

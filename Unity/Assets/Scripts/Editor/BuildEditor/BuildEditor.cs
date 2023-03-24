@@ -16,8 +16,17 @@ namespace ET
 		None,
 		Android,
 		IOS,
-		PC,
+		Windows,
 		MacOS,
+		Linux
+	}
+	
+	public enum ConfigFolder
+	{
+		Localhost,
+		Release,
+		RouterTest,
+		Benchmark
 	}
 	
 	public enum BuildType
@@ -30,6 +39,7 @@ namespace ET
 	{
 		private PlatformType activePlatform;
 		private PlatformType platformType;
+		private ConfigFolder configFolder;
 		private bool clearFolder;
 		private bool isBuildExe;
 		private bool isContainAB;
@@ -54,9 +64,11 @@ namespace ET
 #elif UNITY_IOS
 			activePlatform = PlatformType.IOS;
 #elif UNITY_STANDALONE_WIN
-			activePlatform = PlatformType.PC;
+			activePlatform = PlatformType.Windows;
 #elif UNITY_STANDALONE_OSX
 			activePlatform = PlatformType.MacOS;
+#elif UNITY_STANDALONE_LINUX
+			activePlatform = PlatformType.Linux;
 #else
 			activePlatform = PlatformType.None;
 #endif
@@ -155,19 +167,25 @@ namespace ET
 				ShowNotification("Build Hotfix Success!");
 			}
 			
-			if (GUILayout.Button("ExcelExporter"))
+			EditorGUILayout.BeginHorizontal();
 			{
-				ToolsEditor.ExcelExporter();
+				this.configFolder = (ConfigFolder)EditorGUILayout.EnumPopup(this.configFolder, GUILayout.Width(200f));
 
-				const string clientProtoDir = "../Unity/Assets/Bundles/Config";
-				if (Directory.Exists(clientProtoDir))
+				if (GUILayout.Button("ExcelExporter"))
 				{
-					Directory.Delete(clientProtoDir, true);
-				}
-				FileHelper.CopyDirectory("../Config/Excel/c", clientProtoDir);
+					ToolsEditor.ExcelExporter(globalConfig.CodeMode, this.configFolder);
+
+					const string clientProtoDir = "../Unity/Assets/Bundles/Config";
+					if (Directory.Exists(clientProtoDir))
+					{
+						Directory.Delete(clientProtoDir, true);
+					}
+					FileHelper.CopyDirectory("../Config/Excel/c", clientProtoDir);
 				
-				AssetDatabase.Refresh();
+					AssetDatabase.Refresh();
+				}
 			}
+			EditorGUILayout.EndHorizontal();
 			
 			if (GUILayout.Button("Proto2CS"))
 			{

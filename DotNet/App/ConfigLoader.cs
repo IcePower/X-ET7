@@ -28,7 +28,7 @@ namespace ET.Server
                 }
                 else
                 {
-                    configFilePath = $"../Config/Excel/s/{configType.Name}.bytes";
+                    configFilePath = $"../Config/Excel/s/GameConfig/{configType.Name}.bytes";
                 }
                 output[configType] = new ByteBuf(File.ReadAllBytes(configFilePath));
             }

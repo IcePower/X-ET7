@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="1080,1920">
+  <displayList>
+    <text id="n1_lobh" name="n1" xy="362,50" size="356,112" fontSize="50" align="center" vAlign="middle" autoSize="none" text="TestA"/>
+    <component id="n2_lobh" name="HideBtn" src="lobhq" fileName="Components/CommonBtn.xml" pkg="f2boiu4i" xy="323,613" size="434,110">
+      <Button title="HideTestA"/>
+      <property target="image" propertyId="1" value="ui://f2boiu4iab9e4"/>
+    </component>
+    <component id="n0_lobh" name="OpenTestBBtn" src="lobhq" fileName="Components/CommonBtn.xml" pkg="f2boiu4i" xy="323,774" size="434,110">
+      <Button title="OpenTestB"/>
+      <property target="image" propertyId="1" value="ui://f2boiu4iab9e4"/>
+    </component>
+  </displayList>
+</component>

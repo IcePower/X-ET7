@@ -15,6 +15,21 @@ namespace YooAsset.Editor
 		public int AssetFileCount;
 
 		/// <summary>
+		/// 是否启用可寻址资源定位
+		/// </summary>
+		public bool EnableAddressable;
+
+		/// <summary>
+		/// 资源包名唯一化
+		/// </summary>
+		public bool UniqueBundleName;
+
+		/// <summary>
+		/// 着色器统一的全名称
+		/// </summary>
+		public string ShadersBundleName;
+
+		/// <summary>
 		/// 资源包列表
 		/// </summary>
 		public readonly List<BuildBundleInfo> BundleInfos = new List<BuildBundleInfo>(1000);
@@ -25,7 +40,7 @@ namespace YooAsset.Editor
 		/// </summary>
 		public void PackAsset(BuildAssetInfo assetInfo)
 		{
-			string bundleName = assetInfo.GetBundleName();
+			string bundleName = assetInfo.BundleName;
 			if (string.IsNullOrEmpty(bundleName))
 				throw new Exception("Should never get here !");
 
@@ -52,18 +67,6 @@ namespace YooAsset.Editor
 				result.AddRange(bundleInfo.BuildinAssets);
 			}
 			return result;
-		}
-
-		/// <summary>
-		/// 获取资源包的分类标签列表
-		/// </summary>
-		public string[] GetBundleTags(string bundleName)
-		{
-			if (TryGetBundleInfo(bundleName, out BuildBundleInfo bundleInfo))
-			{
-				return bundleInfo.GetBundleTags();
-			}
-			throw new Exception($"Not found {nameof(BuildBundleInfo)} : {bundleName}");
 		}
 
 		/// <summary>

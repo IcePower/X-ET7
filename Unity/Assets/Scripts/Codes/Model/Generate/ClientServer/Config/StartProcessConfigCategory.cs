@@ -32,9 +32,9 @@ public partial class StartProcessConfigCategory: ConfigSingleton<StartProcessCon
         PostInit();
     }
     
-    public StartProcessConfigCategory()
+    public bool Contain(int id)
     {
-        throw new System.NotImplementedException();
+        return _dataMap.ContainsKey(id);
     }
 
     public Dictionary<int, StartProcessConfig> GetAll()

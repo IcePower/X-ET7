@@ -7,17 +7,17 @@ namespace ET.Client.Login
 {
 	public partial class FUI_LoginPanel: GComponent
 	{
-		public enum c1_Page
+		public enum c1Page
 		{
-			Page_State1,
-			Page_State2,
+			State1,
+			State2,
 		}
 
 		public Controller c1;
 		public Controller c2;
-		public GButton LoginBtn;
 		public ET.Client.Common.FUI_InputField1 AccountInput;
 		public ET.Client.Common.FUI_InputField1 PasswordInput;
+		public ET.Client.Common.FUI_CommonBtn LoginBtn;
 		public const string URL = "ui://rgfb0w498omm0";
 
 		public static FUI_LoginPanel CreateInstance()
@@ -31,9 +31,9 @@ namespace ET.Client.Login
 
 			c1 = GetControllerAt(0);
 			c2 = GetControllerAt(1);
-			LoginBtn = (GButton)GetChildAt(1);
-			AccountInput = (ET.Client.Common.FUI_InputField1)GetChildAt(2);
-			PasswordInput = (ET.Client.Common.FUI_InputField1)GetChildAt(3);
+			AccountInput = (ET.Client.Common.FUI_InputField1)GetChildAt(1);
+			PasswordInput = (ET.Client.Common.FUI_InputField1)GetChildAt(2);
+			LoginBtn = (ET.Client.Common.FUI_CommonBtn)GetChildAt(3);
 		}
 	}
 }

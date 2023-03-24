@@ -12,7 +12,7 @@ namespace ET.Client
     }
     
     [ComponentOf(typeof(Scene))]
-    public class FUIEventComponent : Entity, IAwake, IDestroy
+    public class FUIEventComponent : Entity, ILoad, IAwake, IDestroy
     {
         public static FUIEventComponent Instance { get; set; }
         public readonly Dictionary<PanelId, IFUIEventHandler> UIEventHandlers = new Dictionary<PanelId, IFUIEventHandler>();

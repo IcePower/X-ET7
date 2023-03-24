@@ -32,9 +32,9 @@ public partial class StartSceneConfigCategory: ConfigSingleton<StartSceneConfigC
         PostInit();
     }
     
-    public StartSceneConfigCategory()
+    public bool Contain(int id)
     {
-        throw new System.NotImplementedException();
+        return _dataMap.ContainsKey(id);
     }
 
     public Dictionary<int, StartSceneConfig> GetAll()

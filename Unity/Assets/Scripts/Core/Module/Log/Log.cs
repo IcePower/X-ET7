@@ -34,45 +34,46 @@ namespace ET
             Logger.Instance.Error(msg);
         }
 
-        public static void Error(Exception e)
+        public static void Error(Exception msg)
         {
-            Logger.Instance.Error(e);
+            Logger.Instance.Error(msg);
         }
 
-        public static void Trace(string message, params object[] args)
+        public static void Console(string msg)
         {
-            Logger.Instance.Trace(message, args);
-        }
-
-        public static void Warning(string message, params object[] args)
-        {
-            Logger.Instance.Warning(string.Format(message, args));
-        }
-
-        public static void Info(string message, params object[] args)
-        {
-            Logger.Instance.Info(string.Format(message, args));
-        }
-
-        public static void Debug(string message, params object[] args)
-        {
-            Logger.Instance.Debug(string.Format(message, args));
-
-        }
-
-        public static void Error(string message, params object[] args)
-        {
-            Logger.Instance.Error(message, args);
+            Logger.Instance.Console(msg);
         }
         
-        public static void Console(string message)
+#if DOTNET
+        public static void Trace(ref System.Runtime.CompilerServices.DefaultInterpolatedStringHandler message)
         {
-            Logger.Instance.Console(message);
+            Logger.Instance.Trace(message.ToStringAndClear());
+        }
+
+        public static void Warning(ref System.Runtime.CompilerServices.DefaultInterpolatedStringHandler message)
+        {
+            Logger.Instance.Warning(message.ToStringAndClear());
+        }
+
+        public static void Info(ref System.Runtime.CompilerServices.DefaultInterpolatedStringHandler message)
+        {
+            Logger.Instance.Info(message.ToStringAndClear());
+        }
+
+        public static void Debug(ref System.Runtime.CompilerServices.DefaultInterpolatedStringHandler message)
+        {
+            Logger.Instance.Debug(message.ToStringAndClear());
+        }
+
+        public static void Error(ref System.Runtime.CompilerServices.DefaultInterpolatedStringHandler message)
+        {
+            Logger.Instance.Error(message.ToStringAndClear());
         }
         
-        public static void Console(string message, params object[] args)
+        public static void Console(ref System.Runtime.CompilerServices.DefaultInterpolatedStringHandler message)
         {
-            Logger.Instance.Console(message, args);
+            Logger.Instance.Console(message.ToStringAndClear());
         }
+#endif
     }
 }

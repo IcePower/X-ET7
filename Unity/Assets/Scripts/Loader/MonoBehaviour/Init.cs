@@ -1,13 +1,19 @@
 ﻿using System;
-using System.Threading;
+using System.Collections;
 using CommandLine;
 using UnityEngine;
+using YooAsset;
 
 namespace ET
 {
 	public class Init: MonoBehaviour
 	{
-		private async ETTask Start()
+		// /// <summary>
+		// /// 资源系统运行模式
+		// /// </summary>
+		// public bool IsUseEditorMode = true;
+		public EPlayMode PlayMode;
+		private IEnumerator Start()
 		{
 			DontDestroyOnLoad(gameObject);
 			
@@ -34,7 +40,11 @@ namespace ET
 			
 			ETTask.ExceptionHandler += Log.Error;
 
-			await Game.AddSingleton<MonoResComponent>().InitAsync();
+			if (!Application.isEditor && PlayMode == EPlayMode.EditorSimulateMode)
+			{
+				PlayMode = EPlayMode.HostPlayMode;
+			}
+			yield return Game.AddSingleton<MonoResComponent>().InitAsync(PlayMode);
 			Game.AddSingleton<CodeLoader>().Start();
 		}
 
