@@ -40,6 +40,15 @@ namespace YooAsset.Editor
 				throw new Exception($"构建过程中发生错误 : {exitCode}");
 			}
 
+			// 创建着色器信息
+			// 说明：解决因为着色器资源包导致验证失败。
+			// 例如：当项目里没有着色器，如果有依赖内置着色器就会验证失败。
+			string shadersBundleName = buildMapContext.ShadersBundleName;
+			if (buildResults.BundleInfos.ContainsKey(shadersBundleName))
+			{
+				buildMapContext.CreateShadersBundleInfo(shadersBundleName);
+			}
+
 			BuildLogger.Log("Unity引擎打包成功！");
 			BuildResultContext buildResultContext = new BuildResultContext();
 			buildResultContext.Results = buildResults;

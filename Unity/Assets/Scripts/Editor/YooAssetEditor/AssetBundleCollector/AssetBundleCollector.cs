@@ -217,7 +217,7 @@ namespace YooAsset.Editor
 
 		private CollectAssetInfo CreateCollectAssetInfo(CollectCommand command, AssetBundleCollectorGroup group, string assetPath, bool isRawFilePackRule)
 		{
-			string address = GetAddress(group, assetPath);
+			string address = GetAddress(command, group, assetPath);
 			string bundleName = GetBundleName(command, group, assetPath);
 			List<string> assetTags = GetAssetTags(group);
 			CollectAssetInfo collectAssetInfo = new CollectAssetInfo(CollectorType, bundleName, address, assetPath, isRawFilePackRule, assetTags);
@@ -226,7 +226,7 @@ namespace YooAsset.Editor
 			if (command.BuildMode == EBuildMode.SimulateBuild)
 				collectAssetInfo.DependAssets = new List<string>();
 			else
-				collectAssetInfo.DependAssets = GetAllDependencies(assetPath, isRawFilePackRule);
+				collectAssetInfo.DependAssets = GetAllDependencies(assetPath);
 
 			return collectAssetInfo;
 		}
@@ -280,19 +280,10 @@ namespace YooAsset.Editor
 			}
 
 			string fileExtension = System.IO.Path.GetExtension(assetPath);
-			if (IsIgnoreFile(fileExtension))
+			if (DefaultFilterRule.IsIgnoreFile(fileExtension))
 				return false;
 
 			return true;
-		}
-		private bool IsIgnoreFile(string fileExtension)
-		{
-			foreach (var extension in DefaultFilterRule.IgnoreFileExtensions)
-			{
-				if (extension == fileExtension)
-					return true;
-			}
-			return false;
 		}
 		private bool IsCollectAsset(string assetPath)
 		{
@@ -304,8 +295,11 @@ namespace YooAsset.Editor
 			IFilterRule filterRuleInstance = AssetBundleCollectorSettingData.GetFilterRuleInstance(FilterRuleName);
 			return filterRuleInstance.IsCollectAsset(new FilterRuleData(assetPath));
 		}
-		private string GetAddress(AssetBundleCollectorGroup group, string assetPath)
+		private string GetAddress(CollectCommand command, AssetBundleCollectorGroup group, string assetPath)
 		{
+			if (command.EnableAddressable == false)
+				return string.Empty;
+
 			if (CollectorType != ECollectorType.MainAssetCollector)
 				return string.Empty;
 
@@ -337,13 +331,13 @@ namespace YooAsset.Editor
 			tags.AddRange(temper);
 			return tags;
 		}
-		private List<string> GetAllDependencies(string mainAssetPath, bool isRawFilePackRule)
+		private List<string> GetAllDependencies(string mainAssetPath)
 		{
-			List<string> result = new List<string>();
 			string[] depends = AssetDatabase.GetDependencies(mainAssetPath, true);
+			List<string> result = new List<string>(depends.Length);
 			foreach (string assetPath in depends)
 			{
-				if (IsValidateAsset(assetPath, isRawFilePackRule))
+				if (IsValidateAsset(assetPath, false))
 				{
 					// 注意：排除主资源对象
 					if (assetPath != mainAssetPath)

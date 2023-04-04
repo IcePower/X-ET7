@@ -10,7 +10,7 @@ namespace YooAsset.Editor
 {
 	public class AssetBundleCollectorConfig
 	{
-		public const string ConfigVersion = "2.3";
+		public const string ConfigVersion = "2.4";
 
 		public const string XmlVersion = "Version";
 		public const string XmlCommon = "Common";
@@ -24,6 +24,7 @@ namespace YooAsset.Editor
 		public const string XmlPackageDesc = "PackageDesc";
 
 		public const string XmlGroup = "Group";
+		public const string XmlGroupActiveRule = "GroupActiveRule";
 		public const string XmlGroupName = "GroupName";
 		public const string XmlGroupDesc = "GroupDesc";
 
@@ -108,6 +109,8 @@ namespace YooAsset.Editor
 				foreach (var groupNode in groupNodeList)
 				{
 					XmlElement groupElement = groupNode as XmlElement;
+					if (groupElement.HasAttribute(XmlGroupActiveRule) == false)
+						throw new Exception($"Not found attribute {XmlGroupActiveRule} in {XmlGroup}");
 					if (groupElement.HasAttribute(XmlGroupName) == false)
 						throw new Exception($"Not found attribute {XmlGroupName} in {XmlGroup}");
 					if (groupElement.HasAttribute(XmlGroupDesc) == false)
@@ -116,6 +119,7 @@ namespace YooAsset.Editor
 						throw new Exception($"Not found attribute {XmlAssetTags} in {XmlGroup}");
 
 					AssetBundleCollectorGroup group = new AssetBundleCollectorGroup();
+					group.ActiveRuleName = groupElement.GetAttribute(XmlGroupActiveRule);
 					group.GroupName = groupElement.GetAttribute(XmlGroupName);
 					group.GroupDesc = groupElement.GetAttribute(XmlGroupDesc);
 					group.AssetTags = groupElement.GetAttribute(XmlAssetTags);
@@ -155,6 +159,12 @@ namespace YooAsset.Editor
 						group.Collectors.Add(collector);
 					}
 				}
+			}
+
+			// 检测配置错误
+			foreach(var package in packages)
+			{
+				package.CheckConfigError();
 			}
 
 			// 保存配置数据
@@ -208,6 +218,7 @@ namespace YooAsset.Editor
 				foreach (var group in package.Groups)
 				{
 					var groupElement = xmlDoc.CreateElement(XmlGroup);
+					groupElement.SetAttribute(XmlGroupActiveRule, group.ActiveRuleName);
 					groupElement.SetAttribute(XmlGroupName, group.GroupName);
 					groupElement.SetAttribute(XmlGroupDesc, group.GroupDesc);
 					groupElement.SetAttribute(XmlAssetTags, group.AssetTags);
@@ -344,6 +355,23 @@ namespace YooAsset.Editor
 
 				// 更新版本
 				root.SetAttribute(XmlVersion, "2.3");
+				return UpdateXmlConfig(xmlDoc);
+			}
+
+			// 2.3 -> 2.4
+			if(configVersion == "2.3")
+			{
+				// 获取所有分组元素
+				var groupNodeList = root.GetElementsByTagName(XmlGroup);
+				foreach (var groupNode in groupNodeList)
+				{
+					XmlElement groupElement = groupNode as XmlElement;
+					if(groupElement.HasAttribute(XmlGroupActiveRule) == false)
+						groupElement.SetAttribute(XmlGroupActiveRule, $"{nameof(EnableGroup)}");
+				}
+
+				// 更新版本
+				root.SetAttribute(XmlVersion, "2.4");
 				return UpdateXmlConfig(xmlDoc);
 			}
 

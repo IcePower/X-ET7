@@ -81,7 +81,7 @@ namespace YooAsset
 			// 1. 从服务器下载
 			if (_steps == ESteps.Download)
 			{
-				int failedTryAgain = int.MaxValue;
+				int failedTryAgain = Impl.DownloadFailedTryAgain;
 				_downloader = DownloadSystem.BeginDownload(MainBundleInfo, failedTryAgain);
 				_steps = ESteps.CheckDownload;
 			}
@@ -110,7 +110,7 @@ namespace YooAsset
 			if (_steps == ESteps.Unpack)
 			{
 				int failedTryAgain = 1;
-				var bundleInfo = PatchManifestTools.GetUnpackInfo(MainBundleInfo.Bundle);
+				var bundleInfo = ManifestTools.GetUnpackInfo(MainBundleInfo.Bundle);
 				_unpacker = DownloadSystem.BeginDownload(bundleInfo, failedTryAgain);
 				_steps = ESteps.CheckUnpack;
 			}
@@ -286,10 +286,12 @@ namespace YooAsset
 				// 文件解压
 				if (_unpacker != null)
 				{
-					_unpacker.WaitForAsyncComplete = true;
-					_unpacker.Update();
 					if (_unpacker.IsDone() == false)
+					{
+						_unpacker.WaitForAsyncComplete = true;
+						_unpacker.Update();
 						continue;
+					}
 				}
 
 				// 保险机制

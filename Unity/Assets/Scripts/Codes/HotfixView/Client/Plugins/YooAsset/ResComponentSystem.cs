@@ -88,7 +88,7 @@ namespace ET.Client
 
         public static async ETTask<int> UpdateVersionAsync(this ResComponent self, int timeout = 30)
         {
-            var package = YooAssets.GetAssetsPackage("DefaultPackage");
+            var package = YooAssets.GetPackage("DefaultPackage");
             var operation = package.UpdatePackageVersionAsync();
             
             await operation.GetAwaiter();
@@ -104,7 +104,7 @@ namespace ET.Client
 
         public static async ETTask<int> UpdateManifestAsync(this ResComponent self)
         {
-             var package = YooAssets.GetAssetsPackage("DefaultPackage");
+             var package = YooAssets.GetPackage("DefaultPackage");
             var operation = package.UpdatePackageManifestAsync(self.PackageVersion);
                         
             await operation.GetAwaiter();
@@ -121,7 +121,7 @@ namespace ET.Client
         {
             int downloadingMaxNum = 10;
             int failedTryAgain = 3;
-            PatchDownloaderOperation downloader = YooAssets.CreatePatchDownloader(downloadingMaxNum, failedTryAgain);
+            ResourceDownloaderOperation downloader = YooAssets.CreateResourceDownloader(downloadingMaxNum, failedTryAgain);
             if (downloader.TotalDownloadCount == 0)
             {
                 Log.Info("没有发现需要下载的资源");
@@ -169,13 +169,13 @@ namespace ET.Client
 
         public static void UnloadUnusedAssets(this ResComponent self)
         {
-            AssetsPackage package = YooAssets.GetAssetsPackage("DefaultPackage");
+            ResourcePackage package = YooAssets.GetPackage("DefaultPackage");
             package.UnloadUnusedAssets();
         }
 
         public static void ForceUnloadAllAssets(this ResComponent self)
         {
-            AssetsPackage package = YooAssets.GetAssetsPackage("DefaultPackage");
+            ResourcePackage package = YooAssets.GetPackage("DefaultPackage");
             package.ForceUnloadAllAssets();
         }
 

@@ -61,7 +61,7 @@ namespace YooAsset
 			// 1. 下载远端文件
 			if (_steps == ESteps.Download)
 			{
-				int failedTryAgain = int.MaxValue;
+				int failedTryAgain = Impl.DownloadFailedTryAgain;
 				_downloader = DownloadSystem.BeginDownload(MainBundleInfo, failedTryAgain);
 				_steps = ESteps.CheckDownload;
 			}
@@ -90,7 +90,7 @@ namespace YooAsset
 			if (_steps == ESteps.Website)
 			{
 				int failedTryAgain = 1;
-				var bundleInfo = PatchManifestTools.GetUnpackInfo(MainBundleInfo.Bundle);
+				var bundleInfo = ManifestTools.GetUnpackInfo(MainBundleInfo.Bundle);
 				_website = DownloadSystem.BeginDownload(bundleInfo, failedTryAgain);
 				_steps = ESteps.CheckWebsite;
 			}

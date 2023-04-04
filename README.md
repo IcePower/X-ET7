@@ -32,7 +32,7 @@
 
 # Reference
 1. ET: 更新至[a0dd93c5](https://github.com/egametang/ET/commit/a0dd93c58ac7ea240c1880dc77cf0734800ce3e1)
-2. YooAsset: 更新至[8ff666d](https://github.com/tuyoogame/YooAsset/commit/8ff666d5e2403072a6076107f4f3165194a1354f)
+2. YooAsset: 更新至1.4.9[e278883](https://github.com/tuyoogame/YooAsset/commit/e2788839586876da483729377580aa5cb8d06408)
 3. Luban: https://github.com/focus-creative-games/luban
 4. ET-EUI: https://github.com/zzjfengqing/ET-EUI
 5. FairyGUI: https://www.fairygui.com/

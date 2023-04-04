@@ -27,15 +27,15 @@ namespace YooAsset.Editor
 		private void CopyRawBundle(BuildMapContext buildMapContext, BuildParametersContext buildParametersContext)
 		{
 			string pipelineOutputDirectory = buildParametersContext.GetPipelineOutputDirectory();
-			foreach (var bundleInfo in buildMapContext.BundleInfos)
+			foreach (var bundleInfo in buildMapContext.Collection)
 			{
 				if (bundleInfo.IsRawFile)
 				{
 					string dest = $"{pipelineOutputDirectory}/{bundleInfo.BundleName}";
-					foreach (var buildAsset in bundleInfo.BuildinAssets)
+					foreach (var assetInfo in bundleInfo.AllMainAssets)
 					{
-						if (buildAsset.IsRawAsset)
-							EditorTools.CopyFile(buildAsset.AssetPath, dest, true);
+						if (assetInfo.IsRawAsset)
+							EditorTools.CopyFile(assetInfo.AssetPath, dest, true);
 					}
 				}
 			}

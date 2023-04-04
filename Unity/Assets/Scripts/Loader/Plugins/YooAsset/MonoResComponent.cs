@@ -1,9 +1,6 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using UniFramework.Event;
-using UniFramework.Module;
 using UnityEngine;
 using YooAsset;
 
@@ -17,16 +14,10 @@ namespace ET
     {
         public static MonoResComponent Instance { get; private set; } = new MonoResComponent();
 
-        private AssetsPackage defaultPackage;
+        private ResourcePackage defaultPackage;
         
         public IEnumerator InitAsync()
         {
-            // 初始化事件系统
-            UniEvent.Initalize();
-
-            // 初始化管理系统
-            UniModule.Initialize();
-
             // 初始化资源系统
             YooAssets.Initialize();
             YooAssets.SetOperationSystemMaxTimeSlice(30);
@@ -53,11 +44,11 @@ namespace ET
             
             // 创建默认的资源包
             string packageName = "DefaultPackage";
-            defaultPackage = YooAssets.TryGetAssetsPackage(packageName);
+            defaultPackage = YooAssets.TryGetPackage(packageName);
             if (defaultPackage == null)
             {
-                defaultPackage = YooAssets.CreateAssetsPackage(packageName);
-                YooAssets.SetDefaultAssetsPackage(defaultPackage);
+                defaultPackage = YooAssets.CreatePackage(packageName);
+                YooAssets.SetDefaultPackage(defaultPackage);
             }
 
             // 编辑器下的模拟模式
@@ -65,7 +56,7 @@ namespace ET
             if (playMode == EPlayMode.EditorSimulateMode)
             {
                 var createParameters = new EditorSimulateModeParameters();
-                createParameters.SimulatePatchManifestPath = EditorSimulateModeHelper.SimulateBuild(packageName);
+                createParameters.SimulateManifestFilePath = EditorSimulateModeHelper.SimulateBuild(packageName);
                 initializationOperation = defaultPackage.InitializeAsync(createParameters);
             }
             else if (playMode == EPlayMode.OfflinePlayMode){

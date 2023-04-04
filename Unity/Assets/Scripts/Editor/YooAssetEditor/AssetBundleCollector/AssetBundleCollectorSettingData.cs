@@ -43,7 +43,7 @@ namespace YooAsset.Editor
 		/// </summary>
 		private static void LoadSettingData()
 		{
-			_setting = EditorHelper.LoadSettingData<AssetBundleCollectorSetting>();
+			_setting = SettingLoader.LoadSettingData<AssetBundleCollectorSetting>();
 
 			// IPackRule
 			{
@@ -108,6 +108,7 @@ namespace YooAsset.Editor
 				List<Type> types = new List<Type>(100)
 				{
 					typeof(AddressByFileName),
+					typeof(AddressByFilePath),
 					typeof(AddressByFolderAndFileName),
 					typeof(AddressByGroupAndFileName)
 				};
@@ -243,7 +244,7 @@ namespace YooAsset.Editor
 		}
 		private static string GetRuleDisplayName(string name, Type type)
 		{
-			var attribute = EditorAttribute.GetAttribute<DisplayNameAttribute>(type);
+			var attribute = DisplayNameAttributeHelper.GetAttribute<DisplayNameAttribute>(type);
 			if (attribute != null && string.IsNullOrEmpty(attribute.DisplayName) == false)
 				return attribute.DisplayName;
 			else

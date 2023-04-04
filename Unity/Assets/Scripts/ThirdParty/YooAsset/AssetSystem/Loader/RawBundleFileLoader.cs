@@ -63,7 +63,7 @@ namespace YooAsset
 			// 1. 下载远端文件
 			if (_steps == ESteps.Download)
 			{
-				int failedTryAgain = int.MaxValue;
+				int failedTryAgain = Impl.DownloadFailedTryAgain;
 				_downloader = DownloadSystem.BeginDownload(MainBundleInfo, failedTryAgain);
 				_steps = ESteps.CheckDownload;
 			}
@@ -92,7 +92,7 @@ namespace YooAsset
 			if (_steps == ESteps.Unpack)
 			{
 				int failedTryAgain = 1;
-				var bundleInfo = PatchManifestTools.GetUnpackInfo(MainBundleInfo.Bundle);
+				var bundleInfo = ManifestTools.GetUnpackInfo(MainBundleInfo.Bundle);
 				_unpacker = DownloadSystem.BeginDownload(bundleInfo, failedTryAgain);
 				_steps = ESteps.CheckUnpack;
 			}
@@ -124,13 +124,14 @@ namespace YooAsset
 				DownloadProgress = 1f;
 				DownloadedBytes = (ulong)MainBundleInfo.Bundle.FileSize;
 
-				_steps = ESteps.Done;
 				if (File.Exists(FileLoadPath))
 				{
+					_steps = ESteps.Done;
 					Status = EStatus.Succeed;
 				}
 				else
 				{
+					_steps = ESteps.Done;
 					Status = EStatus.Failed;
 					LastError = $"Raw file not found : {FileLoadPath}";
 				}
@@ -148,10 +149,12 @@ namespace YooAsset
 				// 文件解压
 				if (_unpacker != null)
 				{
-					_unpacker.WaitForAsyncComplete = true;
-					_unpacker.Update();
 					if (_unpacker.IsDone() == false)
+					{
+						_unpacker.WaitForAsyncComplete = true;
+						_unpacker.Update();
 						continue;
+					}
 				}
 
 				// 保险机制

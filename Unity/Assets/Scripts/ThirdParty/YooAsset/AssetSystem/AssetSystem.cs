@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -20,22 +21,37 @@ namespace YooAsset
 		private bool _isUnloadSafe = true;
 		private string _packageName;
 		private bool _simulationOnEditor;
-		private int _loadingMaxNumber;
+		private long _loadingMaxTimeSlice;
+		public int DownloadFailedTryAgain { private set; get; }
 		public IDecryptionServices DecryptionServices { private set; get; }
 		public IBundleServices BundleServices { private set; get; }
+
+		// 计时器相关
+		private Stopwatch _watch;
+		private long _frameTime;
+		private bool IsBusy
+		{
+			get
+			{
+				return _watch.ElapsedMilliseconds - _frameTime >= _loadingMaxTimeSlice;
+			}
+		}
 
 
 		/// <summary>
 		/// 初始化
 		/// 注意：在使用AssetSystem之前需要初始化
 		/// </summary>
-		public void Initialize(string packageName, bool simulationOnEditor, int loadingMaxNumber, IDecryptionServices decryptionServices, IBundleServices bundleServices)
+		public void Initialize(string packageName, bool simulationOnEditor, long loadingMaxTimeSlice, int downloadFailedTryAgain,
+			IDecryptionServices decryptionServices, IBundleServices bundleServices)
 		{
 			_packageName = packageName;
 			_simulationOnEditor = simulationOnEditor;
-			_loadingMaxNumber = loadingMaxNumber;
+			_loadingMaxTimeSlice = loadingMaxTimeSlice;
+			DownloadFailedTryAgain = downloadFailedTryAgain;
 			DecryptionServices = decryptionServices;
 			BundleServices = bundleServices;
+			_watch = Stopwatch.StartNew();
 		}
 
 		/// <summary>
@@ -43,6 +59,8 @@ namespace YooAsset
 		/// </summary>
 		public void Update()
 		{
+			_frameTime = _watch.ElapsedMilliseconds;
+
 			// 更新加载器	
 			foreach (var loader in _loaderList)
 			{
@@ -51,24 +69,12 @@ namespace YooAsset
 
 			// 更新资源提供者
 			// 注意：循环更新的时候，可能会扩展列表
-			// 注意：不能限制场景对象的加载
 			_isUnloadSafe = false;
-			int loadingCount = 0;
 			for (int i = 0; i < _providerList.Count; i++)
 			{
-				var provider = _providerList[i];
-				if (provider.IsSceneProvider())
-				{
-					provider.Update();
-				}
-				else
-				{
-					if (loadingCount < _loadingMaxNumber)
-						provider.Update();
-
-					if (provider.IsDone == false)
-						loadingCount++;
-				}
+				if (IsBusy)
+					break;
+				_providerList[i].Update();
 			}
 			_isUnloadSafe = true;
 		}
@@ -117,36 +123,21 @@ namespace YooAsset
 		}
 		private void UnloadUnusedAssetsInternal()
 		{
-			if (_simulationOnEditor)
+			for (int i = _loaderList.Count - 1; i >= 0; i--)
 			{
-				for (int i = _providerList.Count - 1; i >= 0; i--)
-				{
-					var provider = _providerList[i];
-					if (provider.CanDestroy())
-					{
-						provider.Destroy();
-						_providerList.RemoveAt(i);
-						_providerDic.Remove(provider.ProviderGUID);
-					}
-				}
+				BundleLoaderBase loader = _loaderList[i];
+				loader.TryDestroyAllProviders();
 			}
-			else
+
+			for (int i = _loaderList.Count - 1; i >= 0; i--)
 			{
-				for (int i = _loaderList.Count - 1; i >= 0; i--)
+				BundleLoaderBase loader = _loaderList[i];
+				if (loader.CanDestroy())
 				{
-					BundleLoaderBase loader = _loaderList[i];
-					loader.TryDestroyAllProviders();
-				}
-				for (int i = _loaderList.Count - 1; i >= 0; i--)
-				{
-					BundleLoaderBase loader = _loaderList[i];
-					if (loader.CanDestroy())
-					{
-						string bundleName = loader.MainBundleInfo.Bundle.BundleName;
-						loader.Destroy(false);
-						_loaderList.RemoveAt(i);
-						_loaderDic.Remove(bundleName);
-					}
+					string bundleName = loader.MainBundleInfo.Bundle.BundleName;
+					loader.Destroy(false);
+					_loaderList.RemoveAt(i);
+					_loaderDic.Remove(bundleName);
 				}
 			}
 		}
@@ -385,17 +376,24 @@ namespace YooAsset
 				return loader;
 
 			// 新增下载需求
+			if (_simulationOnEditor)
+			{
+				loader = new VirtualBundleFileLoader(this, bundleInfo);
+			}
+			else
+			{
 #if UNITY_WEBGL
 			if (bundleInfo.Bundle.IsRawFile)
 				loader = new RawBundleWebLoader(this, bundleInfo);
 			else
 				loader = new AssetBundleWebLoader(this, bundleInfo);
 #else
-			if (bundleInfo.Bundle.IsRawFile)
-				loader = new RawBundleFileLoader(this, bundleInfo);
-			else
-				loader = new AssetBundleFileLoader(this, bundleInfo);
+				if (bundleInfo.Bundle.IsRawFile)
+					loader = new RawBundleFileLoader(this, bundleInfo);
+				else
+					loader = new AssetBundleFileLoader(this, bundleInfo);
 #endif
+			}
 
 			_loaderList.Add(loader);
 			_loaderDic.Add(bundleName, loader);
@@ -430,13 +428,8 @@ namespace YooAsset
 				providerInfo.RefCount = provider.RefCount;
 				providerInfo.Status = provider.Status.ToString();
 				providerInfo.DependBundleInfos = new List<DebugBundleInfo>();
+				provider.GetBundleDebugInfos(providerInfo.DependBundleInfos);
 				result.Add(providerInfo);
-
-				if (provider is BundledProvider)
-				{
-					BundledProvider temp = provider as BundledProvider;
-					temp.GetBundleDebugInfos(providerInfo.DependBundleInfos);
-				}
 			}
 			return result;
 		}

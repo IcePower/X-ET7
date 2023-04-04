@@ -11,6 +11,15 @@ namespace YooAsset.Editor
 		}
 	}
 
+	[DisplayName("定位地址: 文件路径")]
+	public class AddressByFilePath : IAddressRule
+	{
+		string IAddressRule.GetAssetAddress(AddressRuleData data)
+		{
+			return data.AssetPath;
+		}
+	}
+
 	[DisplayName("定位地址: 分组名+文件名")]
 	public class AddressByGroupAndFileName : IAddressRule
 	{
@@ -27,8 +36,8 @@ namespace YooAsset.Editor
 		string IAddressRule.GetAssetAddress(AddressRuleData data)
 		{
 			string fileName = Path.GetFileNameWithoutExtension(data.AssetPath);
-			string collectorName = Path.GetFileNameWithoutExtension(data.CollectPath);
-			return $"{collectorName}_{fileName}";
+			FileInfo fileInfo = new FileInfo(data.AssetPath);
+			return $"{fileInfo.Directory.Name}_{fileName}";
 		}
 	}
 }
