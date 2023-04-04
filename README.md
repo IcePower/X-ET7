@@ -1,5 +1,10 @@
 # X-ET 是一个融合了 ET, FairyGUI, luban, YooAsset 的缝合怪。
 
+# HybridCLR
+1. 下载补丁的流程在热更层里，下载完DLL后会调用Game.Close()，然后重新走初始化流程载入新的DLL。旧的DLL无法卸载。
+2. Build的DLL增加了编号，这是因为HybridCLR不能重新载入同名的DLL，而且Unity编辑器里重复载入同名的DLL也会有问题。编号记录在 GlobalConfig 里。
+3. 增加了一个热更新界面。热更新界面也可以热更，在下次启动后生效。
+
 # FairyGUI
 ### 代码生成
 使用 C# 实现了 FairyGUI 代码生成功能，和原 FairyGUI 编辑器代码生成相比有以下优点：
@@ -21,9 +26,9 @@
 
 # YooAsset
 1. 在 YooAssetHelper 里用 ETTask 对 YooAsset 的异步操作做了扩展。
-2. 在 MonoResComponent 里初始化。这是因为 YooAsset 的初始化是异步的，在热更层没有找到合适的地方。
+2. 在 MonoResComponent 里初始化。
 3. 在 ResComponentSystem 里调用了 YooAsset 加载的接口。对 Handle 做了缓存。
-4. 通过 Define.IsAsync 来切换 EditorSimulateMode 和 HostPlayMode。
+4. 在 BuildEditor 里切换 PlayMode。
 
 # Reference
 1. ET: 更新至[a0dd93c5](https://github.com/egametang/ET/commit/a0dd93c58ac7ea240c1880dc77cf0734800ce3e1)

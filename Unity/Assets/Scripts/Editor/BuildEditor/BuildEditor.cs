@@ -192,7 +192,7 @@ namespace ET
 					{
 						Directory.Delete(clientProtoDir, true);
 					}
-					FileHelper.CopyDirectory("../Config/Excel/c", clientProtoDir);
+					FileHelper.CopyDirectory("../Config/Excel/c/GameConfig", clientProtoDir);
 				
 					AssetDatabase.Refresh();
 				}

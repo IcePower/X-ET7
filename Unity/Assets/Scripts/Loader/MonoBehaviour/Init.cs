@@ -38,13 +38,11 @@ namespace ET
 			Game.AddSingleton<CodeLoader>().Start();
 		}
 
-		public async ETTask RestartAsync()
+		public void RestartAsync()
 		{
-			Log.Info("Restart!!!");
+			Log.Info("Restart!");
 			
 			Game.Close();
-			
-			Debug.Log("Close Done!");
 			
 			Game.AddSingleton<MainThreadSynchronizationContext>();
 			
@@ -62,9 +60,7 @@ namespace ET
 			Game.AddSingleton<TimerComponent>();
 			Game.AddSingleton<CoroutineLockComponent>();
 			
-			Log.Info("Start!!!");
 			Game.AddSingleton<CodeLoader>().Start();
-			Log.Info("Start Done!!!");
 		}
 		
 		private void Update()

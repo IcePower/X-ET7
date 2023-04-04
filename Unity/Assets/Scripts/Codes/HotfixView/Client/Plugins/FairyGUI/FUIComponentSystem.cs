@@ -438,9 +438,9 @@ namespace ET.Client
 
             fuiEntity.GComponent.visible = true;
 
-            FUIEventComponent.Instance.GetUIEventHandler(id).OnShow(fuiEntity, contextData);
-
             self.VisiblePanelsDic[(int)id] = fuiEntity;
+
+            FUIEventComponent.Instance.GetUIEventHandler(id).OnShow(fuiEntity, contextData);
 
             Log.Info("<color=magenta>### current Navigation panel </color>{0}".Fmt(fuiEntity.PanelId));
         }
