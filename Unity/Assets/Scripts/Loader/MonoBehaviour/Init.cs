@@ -38,7 +38,7 @@ namespace ET
 			Game.AddSingleton<CodeLoader>().Start();
 		}
 
-		public void RestartAsync()
+		public void Restart()
 		{
 			Log.Info("Restart!");
 			

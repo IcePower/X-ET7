@@ -119,7 +119,7 @@ namespace ET.Client
             if (modelChanged || hotfixChanged)
             {
                 // 如果dll文件有更新，则需要重启。
-                GameObject.Find("Global").GetComponent<Init>().RestartAsync();
+                GameObject.Find("Global").GetComponent<Init>().Restart();
             }
             else
             {
