@@ -31,8 +31,8 @@
 4. 在 BuildEditor 里切换 PlayMode。
 
 # Reference
-1. ET: 更新至[a0dd93c5](https://github.com/egametang/ET/commit/a0dd93c58ac7ea240c1880dc77cf0734800ce3e1)
-2. YooAsset: 更新至1.4.9[e278883](https://github.com/tuyoogame/YooAsset/commit/e2788839586876da483729377580aa5cb8d06408)
+1. ET: 更新至[dad13ae](https://github.com/egametang/ET/commit/dad13aea3675a1e87a7c33d1e513e249feceff56)
+2. YooAsset: 更新至[1.4.9](https://github.com/tuyoogame/YooAsset/commit/e2788839586876da483729377580aa5cb8d06408)
 3. Luban: https://github.com/focus-creative-games/luban
 4. ET-EUI: https://github.com/zzjfengqing/ET-EUI
 5. FairyGUI: https://www.fairygui.com/
