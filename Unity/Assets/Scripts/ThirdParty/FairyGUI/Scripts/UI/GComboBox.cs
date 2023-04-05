@@ -19,11 +19,28 @@ namespace FairyGUI
         /// 
         /// </summary>
         public GComponent dropdown;
+        private NAudioClip _sound;
 
         /// <summary>
         /// Play sound when button is clicked.
         /// </summary>
-        public NAudioClip sound;
+        public NAudioClip sound
+        {
+            get => _sound;
+            set
+            {
+                if (_sound == value)
+                    return;
+
+                if (_sound != null)
+                    _sound.ReleaseRef();
+                
+                _sound = value;
+                
+                if (_sound != null)
+                    _sound.AddRef();
+            }
+        }
 
         /// <summary>
         /// Volume of the click sound. (0-1)
@@ -402,6 +419,7 @@ namespace FairyGUI
 
         public override void Dispose()
         {
+            _sound = null;
             if (dropdown != null)
             {
                 dropdown.Dispose();

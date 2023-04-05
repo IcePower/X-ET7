@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using FairyGUI.Dynamic;
 
 namespace ET.Client
 {
@@ -8,7 +9,6 @@ namespace ET.Client
     }
     
     [ComponentOf(typeof(Scene))]
-    [ChildOf(typeof(FUIEntity))]
     public class FUIComponent : Entity,IAwake,IDestroy
     {
         // public HashSet<PanelId> LoadingPanels = new HashSet<PanelId>();
@@ -22,8 +22,5 @@ namespace ET.Client
         public Dictionary<int, FUIEntity> VisiblePanelsDic = new Dictionary<int, FUIEntity>(10);
         
         public Stack<PanelId> HidePanelsStack = new Stack<PanelId>(10);
-
-        // 每个 UIPakcage 对应的 Asset 地址。
-        public MultiMap<string, string> UIPackageLocations = new MultiMap<string, string>();
     }
 }

@@ -121,7 +121,10 @@ namespace FairyGUI
                 obj = NewObject(pi.objectType);
 
             if (obj != null)
+            {
                 obj.packageItem = pi;
+                pi.Acquire(obj.resourceURL);
+            }
 
             return obj;
         }

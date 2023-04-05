@@ -29,7 +29,7 @@ namespace ET.Client
         {
             FUIComponent fuiComponent = clientScene.GetComponent<FUIComponent>();
 
-            await fuiComponent.AddPackageAsync("Common");
+            // await fuiComponent.AddPackageAsync("Common");
             
             CommonBinder.BindAll();
         }

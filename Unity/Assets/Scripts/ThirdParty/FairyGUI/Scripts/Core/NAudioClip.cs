@@ -23,6 +23,16 @@ namespace FairyGUI
         /// <summary>
         /// 
         /// </summary>
+        public int refCount;
+
+        /// <summary>
+        /// This event will trigger when ref count is zero.
+        /// </summary>
+        public event Action<NAudioClip> onRelease;
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="audioClip"></param>
         public NAudioClip(AudioClip audioClip)
         {
@@ -62,6 +72,21 @@ namespace FairyGUI
                 Unload();
 
             nativeClip = audioClip;
+        }
+
+        public void AddRef()
+        {
+            refCount++;
+        }
+
+        public void ReleaseRef()
+        {
+            refCount--;
+
+            if (refCount != 0) 
+                return;
+
+            onRelease?.Invoke(this);
         }
     }
 }

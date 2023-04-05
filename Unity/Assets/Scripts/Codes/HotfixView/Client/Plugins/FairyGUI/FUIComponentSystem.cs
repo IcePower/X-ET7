@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FairyGUI;
+using FairyGUI.Dynamic;
 using UnityEngine;
 
 namespace ET.Client
@@ -39,23 +40,7 @@ namespace ET.Client
         
         public static void Destroy(this FUIComponent self)
         {
-            if (self.AllPanelsDic == null)
-            {
-                return;
-            }
-
-            foreach (var kv in self.UIPackageLocations)
-            {
-                self.RemovePackage(kv.Key);
-            }
-
-            self.VisiblePanelsDic.Clear();
-            self.AllPanelsDic.Clear();
-            self.FUIEntitylistCached.Clear();
-            self.VisiblePanelsQueue.Clear();
-            self.HidePanelsStack.Clear();
-            
-            self.UIPackageLocations.Clear();
+            self.CloseAllPanel();
         }
 
         /// <summary>
@@ -257,8 +242,6 @@ namespace ET.Client
             {
                 fuiEntity.GComponent.Dispose();
                 fuiEntity.GComponent = null;
-                
-                self.RemovePackage(handler.GetPackageName());
             }
 
             if (isDispose)
@@ -478,10 +461,15 @@ namespace ET.Client
             
             // 添加Package
             string packageName = fuiEventHandler.GetPackageName();
-            if (!self.IsAddPackage(packageName))
+
+            UIPackage package = await self.ClientScene().GetComponent<FUIAssetComponent>().LoadUIPackageAsync(packageName);
+
+            if (package == null)
             {
-                await self.AddPackageAsync(packageName);
+                Log.Error($"UIPackage {packageName} load failed!");
+                return;
             }
+            
             fuiEventHandler.OnAddPackage();
 
             // 创建组件
@@ -508,59 +496,6 @@ namespace ET.Client
                 task.SetResult(result.asCom);
             });
             return await task;
-        }
-
-        public static bool IsAddPackage(this FUIComponent self, string packageName)
-        {
-            return UIPackage.GetByName(packageName) != null;
-        }
-
-        /// <summary>
-        /// 增加 FariyGUI 的 Package
-        /// </summary>
-        /// <param name="self"></param>
-        /// <param name="packageName"></param>
-        public static async ETTask AddPackageAsync(this FUIComponent self, string packageName)
-        {
-            string location = "{0}{1}".Fmt(packageName, "_fui");
-            self.UIPackageLocations.Add(packageName, location);
-            
-            byte[] descData = await ResComponent.Instance.LoadRawFileDataAsync(location);
-            UIPackage.AddPackage(descData, packageName, (name, extension, type, item) =>
-            {
-                self.InnerLoader(name, extension, type, item).Coroutine();
-            });
-        }
-
-        private static async ETTask InnerLoader(this FUIComponent self, string location, string extension, Type type, PackageItem item)
-        {
-            Texture res = await ResComponent.Instance.LoadAssetAsync<Texture>("{0}".Fmt(location));
-            item.owner.SetItemAsset(item, res, DestroyMethod.None);
-
-            string packageName = item.owner.name;
-            self.UIPackageLocations.Add(packageName, location);
-        }
-
-        /// <summary>
-        /// 移除 FariyGUI 的 Package
-        /// </summary>
-        /// <param name="self"></param>
-        /// <param name="packageName"></param>
-        public static void RemovePackage(this FUIComponent self, string packageName)
-        {
-            if (UIPackage.GetByName(packageName) != null)
-            {
-                UIPackage.RemovePackage(packageName);
-            }
-
-            if (ResComponent.Instance != null && !ResComponent.Instance.IsDisposed)
-            {
-                List<string> list = self.UIPackageLocations[packageName];
-                foreach (string location in list)
-                {
-                    ResComponent.Instance.UnloadAsset(location);
-                }
-            }
         }
 
         #endregion

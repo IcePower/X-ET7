@@ -8,10 +8,28 @@ namespace FairyGUI
     /// </summary>
     public class GButton : GComponent, IColorGear
     {
+        private NAudioClip _sound;
+
         /// <summary>
         /// Play sound when button is clicked.
         /// </summary>
-        public NAudioClip sound;
+        public NAudioClip sound
+        {
+            get => _sound;
+            set
+            {
+                if (_sound == value)
+                    return;
+
+                if (_sound != null)
+                    _sound.ReleaseRef();
+                
+                _sound = value;
+                
+                if (_sound != null)
+                    _sound.AddRef();
+            }
+        }
 
         /// <summary>
         /// Volume of the click sound. (0-1)
@@ -314,6 +332,12 @@ namespace FairyGUI
             {
                 _relatedPageId = value;
             }
+        }
+
+        public override void Dispose()
+        {
+            sound = null;
+            base.Dispose();
         }
 
         /// <summary>

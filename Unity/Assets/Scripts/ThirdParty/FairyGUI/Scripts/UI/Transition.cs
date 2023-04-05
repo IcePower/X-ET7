@@ -387,6 +387,8 @@ namespace FairyGUI
                 item.hook = null;
                 if (item.tweenConfig != null)
                     item.tweenConfig.endHook = null;
+
+                item.Dispose();
             }
 
             _playing = false;
@@ -1377,6 +1379,9 @@ namespace FairyGUI
                                 value.audioClip = UIPackage.GetItemAssetByURL(value.sound) as NAudioClip;
                             else
                                 value.audioClip = UIConfig.soundLoader(value.sound);
+
+                            if (value.audioClip != null)
+                                value.audioClip.AddRef();
                         }
 
                         if (value.audioClip != null && value.audioClip.nativeClip != null)
@@ -1580,7 +1585,7 @@ namespace FairyGUI
         }
     }
 
-    class TransitionItem
+    class TransitionItem : IDisposable
     {
         public float time;
         public string targetId;
@@ -1639,6 +1644,12 @@ namespace FairyGUI
                     break;
             }
         }
+
+        public void Dispose()
+        {
+            if (value is IDisposable disposable)
+                disposable.Dispose();
+        }
     }
 
     class TweenConfig
@@ -1679,11 +1690,16 @@ namespace FairyGUI
         public string skinName;
     }
 
-    class TValue_Sound
+    class TValue_Sound : IDisposable
     {
         public string sound;
         public float volume;
         public NAudioClip audioClip;
+        public void Dispose()
+        {
+            audioClip?.ReleaseRef();
+            audioClip = null;
+        }
     }
 
     class TValue_Transition
