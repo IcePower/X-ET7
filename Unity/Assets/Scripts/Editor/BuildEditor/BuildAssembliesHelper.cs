@@ -15,16 +15,22 @@ namespace ET
 
         public static void BuildModel(CodeOptimization codeOptimization, GlobalConfig globalConfig)
         {
-            string[] logicFiles = Directory.GetFiles(Define.BuildOutputDir, "Model_*");
-            foreach (string file in logicFiles)
+            if (Directory.Exists(Define.BuildOutputDir))
             {
-                File.Delete(file);
+                string[] logicFiles = Directory.GetFiles(Define.BuildOutputDir, "Model_*");
+                foreach (string file in logicFiles)
+                {
+                    File.Delete(file);
+                }
             }
-            
-            logicFiles = Directory.GetFiles(CodeDir, "Model_*");
-            foreach (string modelFile in logicFiles)
+
+            if (Directory.Exists(CodeDir))
             {
-                File.Delete(modelFile);
+                var logicFiles = Directory.GetFiles(CodeDir, "Model_*");
+                foreach (string modelFile in logicFiles)
+                {
+                    File.Delete(modelFile);
+                }
             }
             
             List<string> codes;
@@ -75,16 +81,22 @@ namespace ET
 
         public static void BuildHotfix(CodeOptimization codeOptimization, GlobalConfig globalConfig)
         {
-            string[] logicFiles = Directory.GetFiles(Define.BuildOutputDir, "Hotfix_*");
-            foreach (string file in logicFiles)
+            if (Directory.Exists(Define.BuildOutputDir))
             {
-                File.Delete(file);
+                string[] logicFiles = Directory.GetFiles(Define.BuildOutputDir, "Hotfix_*");
+                foreach (string file in logicFiles)
+                {
+                    File.Delete(file);
+                }
             }
-            
-            logicFiles = Directory.GetFiles(CodeDir, "Hotfix_*");
-            foreach (string modelFile in logicFiles)
+
+            if (Directory.Exists(CodeDir))
             {
-                File.Delete(modelFile);
+                var logicFiles = Directory.GetFiles(CodeDir, "Hotfix_*");
+                foreach (string modelFile in logicFiles)
+                {
+                    File.Delete(modelFile);
+                }
             }
 
             List<string> codes;
