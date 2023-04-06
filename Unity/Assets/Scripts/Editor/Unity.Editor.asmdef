@@ -9,7 +9,8 @@
         "YooAsset.Editor",
         "Unity.Loader",
         "HybridCLR.Runtime",
-        "HybridCLR.Editor"
+        "HybridCLR.Editor",
+        "ToolbarExtender.Editor"
     ],
     "includePlatforms": [
         "Editor"

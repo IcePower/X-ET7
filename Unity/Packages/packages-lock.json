@@ -7,6 +7,12 @@
       "dependencies": {},
       "hash": "00cedc166f7ca58cfb9a9ad645bd4a0ffc9b8fc9"
     },
+    "com.marijnzwemmer.unity-toolbar-extender": {
+      "version": "file:unity-toolbar-extender-master",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.unity.burst": {
       "version": "1.7.3",
       "depth": 1,

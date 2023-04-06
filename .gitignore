@@ -94,3 +94,4 @@ YooAsset.Editor.csproj
 /Unity/Assets/Bundles/AotDlls/*.bytes.meta
 /Unity/HybridCLRData
 /Unity/Assembly-CSharp-firstpass.csproj
+Unity/ToolbarExtender.Editor.csproj
