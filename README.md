@@ -34,6 +34,10 @@
 3. 在 ResComponentSystem 里调用了 YooAsset 加载的接口。对 Handle 做了缓存。
 4. 在 BuildEditor 里切换 PlayMode。
 
+# uTools(额外工具，非必须)
+
+借助uTools工具快捷生成Proto和配置表文件，详细说明请参考[文档](uTools/uTools_README.md)
+
 # Reference
 1. ET: 更新至[dad13ae](https://github.com/egametang/ET/commit/dad13aea3675a1e87a7c33d1e513e249feceff56)
 2. YooAsset: 更新至[1.4.9](https://github.com/tuyoogame/YooAsset/commit/e2788839586876da483729377580aa5cb8d06408)
