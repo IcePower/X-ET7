@@ -2,7 +2,7 @@
 WORKSPACE=../..
 
 GEN_CLIENT=Luban.ClientServer/Luban.ClientServer.dll
-CONF_ROOT=${WORKSPACE}/Unity/Assets/Config/Excel
+CONF_ROOT=${WORKSPACE}/Excel
 OUTPUT_CODE_DIR=${WORKSPACE}/Unity/Assets/Scripts/Codes/Model/Generate
 OUTPUT_DATA_DIR=${WORKSPACE}/Config/Excel
 OUTPUT_JSON_DIR=${WORKSPACE}/Config/Json
