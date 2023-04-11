@@ -78,7 +78,7 @@ namespace ET.Client
             }
         }
         
-        private static async Task DownloadPatch(Scene clientScene)
+        private static async ETTask DownloadPatch(Scene clientScene)
         {
             // 下载资源
             Log.Info("Count: {0}, Bytes: {1}".Fmt(ResComponent.Instance.Downloader.TotalDownloadCount, ResComponent.Instance.Downloader.TotalDownloadBytes));
