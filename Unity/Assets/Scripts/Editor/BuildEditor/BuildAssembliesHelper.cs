@@ -26,11 +26,11 @@ namespace ET
 
             if (Directory.Exists(CodeDir))
             {
-                var logicFiles = Directory.GetFiles(CodeDir, "Model_*");
+                string[] logicFiles = Directory.GetFiles(CodeDir, "Model_*");
                 foreach (string modelFile in logicFiles)
                 {
                     File.Delete(modelFile);
-                }
+                } 
             }
             
             List<string> codes;
@@ -92,12 +92,13 @@ namespace ET
 
             if (Directory.Exists(CodeDir))
             {
-                var logicFiles = Directory.GetFiles(CodeDir, "Hotfix_*");
+                string[] logicFiles = Directory.GetFiles(CodeDir, "Hotfix_*");
                 foreach (string modelFile in logicFiles)
                 {
                     File.Delete(modelFile);
                 }
             }
+           
 
             List<string> codes;
             switch (globalConfig.CodeMode)
@@ -133,7 +134,7 @@ namespace ET
             EditorUtility.SetDirty(globalConfig);
             AssetDatabase.SaveAssets();
 
-            BuildAssembliesHelper.BuildMuteAssembly(assemblyName, codes, new[] { Path.Combine(Define.BuildOutputDir, $"Model_{globalConfig.ModelVersion}.dll") }, codeOptimization,
+            BuildAssembliesHelper.BuildMuteAssembly(assemblyName, codes, new[] { Path.Combine(CodeDir, $"Model_{globalConfig.ModelVersion}.dll.bytes") }, codeOptimization,
                 globalConfig.CodeMode);
 
             File.Copy(Path.Combine(Define.BuildOutputDir, $"{assemblyName}.dll"), Path.Combine(CodeDir, $"{assemblyName}.dll.bytes"), true);

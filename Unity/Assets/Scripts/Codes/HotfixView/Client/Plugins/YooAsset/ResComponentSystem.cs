@@ -114,6 +114,7 @@ namespace ET.Client
                 return ErrorCode.ERR_ResourceUpdateManifestError;
             }
 
+            operation.SavePackageVersion();
             return ErrorCode.ERR_Success;
         }
 
