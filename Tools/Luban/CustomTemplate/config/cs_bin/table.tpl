@@ -37,7 +37,7 @@ public partial class {{name}}: ConfigSingleton<{{name}}>
         PostInit();
     }
     
-    public bool Contain(int id)
+    public bool Contain({{cs_define_type key_type}} id)
     {
         return _dataMap.ContainsKey(id);
     }

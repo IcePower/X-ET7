@@ -1679,6 +1679,7 @@ namespace FairyGUI
                 displayObject.Dispose();
             }
             data = null;
+            packageItem?.Release(resourceURL);
         }
 
         /// <summary>

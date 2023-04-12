@@ -90,7 +90,7 @@ YooAsset.Editor.csproj
 /Unity/Unity.GenerateClient.csproj
 /Unity/Unity.GenerateServer.csproj
 
-/Unity/Assets/Bundles/AotDlls
-/Unity/Assets/Bundles/AotDlls.meta
+/Unity/Assets/Bundles/AotDlls/*.bytes
+/Unity/Assets/Bundles/AotDlls/*.bytes.meta
 /Unity/HybridCLRData
 /Unity/Assembly-CSharp-firstpass.csproj

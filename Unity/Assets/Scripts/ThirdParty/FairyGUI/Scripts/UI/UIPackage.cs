@@ -109,6 +109,9 @@ namespace FairyGUI
             return Resources.Load(name, type);
         };
 
+        public static event Action<UIPackage, string> OnPackageAcquire;
+        public static event Action<UIPackage, string> OnPackageRelease;
+
         public UIPackage()
         {
             _items = new List<PackageItem>();
@@ -1261,6 +1264,16 @@ namespace FairyGUI
             }
         }
 
+        public void Acquire(string objectName)
+        {
+            OnPackageAcquire?.Invoke(this, objectName);
+        }
+
+        public void Release(string objectName)
+        {
+            OnPackageRelease?.Invoke(this, objectName);
+        }
+
         void LoadAtlas(PackageItem item)
         {
             string ext = Path.GetExtension(item.file);
@@ -1270,8 +1283,10 @@ namespace FairyGUI
             {
                 _loadAsyncFunc(fileName, ext, typeof(Texture), item);
                 if (item.texture == null)
-                    item.texture = new NTexture(null, new Rect(0, 0, item.width, item.height));
-                item.texture.destroyMethod = DestroyMethod.None;
+                {
+					item.texture = new NTexture(null, new Rect(0, 0, item.width, item.height));	
+	                item.texture.destroyMethod = DestroyMethod.None;
+				}
             }
             else
             {
@@ -1362,8 +1377,10 @@ namespace FairyGUI
             {
                 _loadAsyncFunc(fileName, ext, typeof(AudioClip), item);
                 if (item.audioClip == null)
-                    item.audioClip = new NAudioClip(null);
-                item.audioClip.destroyMethod = DestroyMethod.None;
+                {
+					item.audioClip = new NAudioClip(null);
+                	item.audioClip.destroyMethod = DestroyMethod.None;
+				}	
             }
             else
             {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FairyGUI;
+using FairyGUI.Dynamic;
 
 namespace ET.Client
 {
@@ -245,6 +246,5 @@ namespace ET.Client
         }
 
         #endregion
-        
     }
 }

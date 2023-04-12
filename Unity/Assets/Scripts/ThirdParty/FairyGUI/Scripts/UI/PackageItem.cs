@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using FairyGUI.Utils;
 
 namespace FairyGUI
@@ -49,6 +50,15 @@ namespace FairyGUI
         //spine/dragonbones
         public Vector2 skeletonAnchor;
         public object skeletonAsset;
+        public void Acquire(string objectName)
+        {
+            owner.Acquire(objectName);
+        }
+
+        public void Release(string objectName)
+        {
+            owner.Release(objectName);
+        }
 
         public object Load()
         {

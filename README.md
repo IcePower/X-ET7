@@ -18,7 +18,11 @@
 
 ### 使用方式
 1. FairyGUI 编辑器里只生成配置和图片，不生成代码。
-2. 在 ET - BuildTool里，点击"FUI代码生成"按钮，来生成代码。
+2. 在ET - BuildTool里，点击"FUI代码生成"按钮，来生成代码。
+
+### UIPackage动态管理
+基于[FairyGUI-Dynamic](https://github.com/SunHowe/FairyGUI-Dynamic.git)模块，为FairyGUI静态跨包依赖的情况提供了支持，该模块内对UIPackage提供了统一的加载与卸载功能
+静态跨包依赖指的是在FairyGUI编辑器中，PackageA内的组件1直接引用了PackageB内的组件2或图片3的情况，该模块内部会在加载PackageA时，自动加载其依赖的PackageB，并在PackageA被卸载时，检测PackageB是否还有其他依赖，若没有的话将自动卸载PackageB
 
 # Luban
 1. 已将 ET 自带的配置表全部修改为 Luban 的格式，配置表加载流程也做了修改。
@@ -36,3 +40,4 @@
 3. Luban: 更新至[8e68ab0](https://github.com/focus-creative-games/luban)
 4. ET-EUI: https://github.com/zzjfengqing/ET-EUI
 5. FairyGUI: https://www.fairygui.com/
+6. FairyGUI-Dynamic: https://github.com/SunHowe/FairyGUI-Dynamic

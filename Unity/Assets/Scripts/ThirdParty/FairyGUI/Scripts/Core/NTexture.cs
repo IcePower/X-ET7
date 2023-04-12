@@ -25,7 +25,7 @@ namespace FairyGUI
         /// <summary>
         /// This event will trigger when a texture is destroying if its destroyMethod is Custom
         /// </summary>
-        public static event Action<Texture> CustomDestroyMethod;
+        public static Action<Texture> CustomDestroyMethod;
 
         /// <summary>
         /// 

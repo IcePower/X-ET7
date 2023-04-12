@@ -18,6 +18,8 @@ namespace FairyGUI
         FitHeightAndSetCenter
     }
 
+    public delegate void GetPackageHandler(string packagePath, string packageName, Action<UIPackage> onComplete);
+
     /// <summary>
     /// 
     /// </summary>
@@ -25,6 +27,43 @@ namespace FairyGUI
     [AddComponentMenu("FairyGUI/UI Panel")]
     public class UIPanel : MonoBehaviour, EMRenderTarget
     {
+        public static GetPackageHandler GetPackageFunc = GetPackageSync;
+
+        public static void GetPackageSync(string packagePath, string packageName, Action<UIPackage> onComplete)
+        {
+            var package = UIPackage.GetByName(packageName);
+
+            if (package != null)
+            {
+                onComplete?.Invoke(package);
+                return;
+            }
+
+            package = !string.IsNullOrEmpty(packagePath) ? UIPackage.AddPackage(packagePath) : null;
+            onComplete?.Invoke(package);
+        }
+
+        public void AddUICreatedObserver(Action<GComponent> observer)
+        {
+            if (observer == null)
+                return;
+
+            OnCreated += observer;
+
+            if (_created)
+                observer.Invoke(_ui);
+        }
+
+        public void RemoveUICreatedObserver(Action<GComponent> observer)
+        {
+            if (observer == null)
+                return;
+
+            OnCreated -= observer;
+        }
+
+        private event Action<GComponent> OnCreated;
+
         /// <summary>
         /// 
         /// </summary>
@@ -52,33 +91,45 @@ namespace FairyGUI
 
         [SerializeField]
         string packagePath;
+
         [SerializeField]
         RenderMode renderMode = RenderMode.ScreenSpaceOverlay;
+
         [SerializeField]
         Camera renderCamera = null;
+
         [SerializeField]
         Vector3 position;
+
         [SerializeField]
         Vector3 scale = new Vector3(1, 1, 1);
+
         [SerializeField]
         Vector3 rotation = new Vector3(0, 0, 0);
+
         [SerializeField]
         bool fairyBatching = false;
+
         [SerializeField]
         bool touchDisabled = false;
+
         [SerializeField]
         Vector2 cachedUISize;
+
         [SerializeField]
         HitTestMode hitTestMode = HitTestMode.Default;
+
         [SerializeField]
         bool setNativeChildrenOrder = false;
 
         [System.NonSerialized]
         int screenSizeVer;
+
         [System.NonSerialized]
         Rect uiBounds; //Track bounds even when UI is not created, edit mode
 
         GComponent _ui;
+
         [NonSerialized]
         bool _created;
 
@@ -92,15 +143,14 @@ namespace FairyGUI
                 {
                     CreateContainer();
 
-                    if (!string.IsNullOrEmpty(packagePath) && UIPackage.GetByName(packageName) == null)
-                        UIPackage.AddPackage(packagePath);
+                    GetPackageFunc(packagePath, packageName, null);
                 }
             }
             else
             {
                 //不在播放状态时我们不在OnEnable创建，因为Prefab也会调用OnEnable，延迟到Update里创建（Prefab不调用Update)
                 //每次播放前都会disable/enable一次。。。
-                if (container != null)//如果不为null，可能是因为Prefab revert， 而不是因为Assembly reload，
+                if (container != null) //如果不为null，可能是因为Prefab revert， 而不是因为Assembly reload，
                     OnDestroy();
 
                 EMRenderSupport.Add(this);
@@ -167,6 +217,7 @@ namespace FairyGUI
 #endif
                         UnityEngine.Object.DestroyImmediate(go);
                     }
+
                     cnt--;
                 }
             }
@@ -209,21 +260,7 @@ namespace FairyGUI
         /// <summary>
         /// 
         /// </summary>
-        public GComponent ui
-        {
-            get
-            {
-                if (!_created && Application.isPlaying)
-                {
-                    if (!string.IsNullOrEmpty(packagePath) && UIPackage.GetByName(packageName) == null)
-                        UIPackage.AddPackage(packagePath);
-
-                    CreateUI_PlayMode();
-                }
-
-                return _ui;
-            }
-        }
+        public GComponent ui => _ui;
 
         /// <summary>
         /// 
@@ -232,8 +269,11 @@ namespace FairyGUI
         {
             if (_ui != null)
             {
-                _ui.Dispose();
+                if (!_ui.isDisposed)
+                    _ui.Dispose();
+                
                 _ui = null;
+                _created = false;
             }
 
             CreateUI_PlayMode();
@@ -316,10 +356,20 @@ namespace FairyGUI
 
         void CreateUI_PlayMode()
         {
-            _created = true;
-
             if (string.IsNullOrEmpty(packageName) || string.IsNullOrEmpty(componentName))
                 return;
+
+            GetPackageFunc(packagePath, packageName, OnGetUIPackage);
+        }
+
+        private void OnGetUIPackage(UIPackage obj)
+        {
+            if (_created)
+            {
+                return;
+            }
+
+            _created = true;
 
             _ui = (GComponent)UIPackage.CreateObject(packageName, componentName);
             if (_ui != null)
@@ -336,12 +386,15 @@ namespace FairyGUI
                     _ui.onSizeChanged.Add(UpdateHitArea);
                     _ui.onPositionChanged.Add(UpdateHitArea);
                 }
+
                 this.container.AddChildAt(_ui.displayObject, 0);
 
                 HandleScreenSizeChanged();
             }
             else
                 Debug.LogError("Create " + packageName + "/" + componentName + " failed!");
+
+            OnCreated?.Invoke(_ui);
         }
 
         void UpdateHitArea()
@@ -368,6 +421,7 @@ namespace FairyGUI
                 Debug.LogWarning("Not a GComponnet: " + packageName + "/" + componentName);
                 return;
             }
+
             _ui = (GComponent)obj;
 
             if (_ui != null)
@@ -500,6 +554,7 @@ namespace FairyGUI
                     else
                         EMRenderSupport.orderChanged = true;
                 }
+
                 container.fairyBatching = fairyBatching;
             }
 
@@ -513,9 +568,10 @@ namespace FairyGUI
                 _ui.rotationY = rotation.y;
                 _ui.rotation = rotation.z;
             }
+
             if (fitScreen == FitScreen.None)
                 uiBounds.position = position;
-            screenSizeVer = 0;//force HandleScreenSizeChanged be called
+            screenSizeVer = 0; //force HandleScreenSizeChanged be called
 
             if (fitScreenChanged && this.fitScreen == FitScreen.None)
             {
