@@ -182,14 +182,25 @@ namespace ET.Client
 
         public static void UnloadAsset(this ResComponent self, string location)
         {
-            if(self.AssetsOperationHandles.TryGetValue(location, out AssetOperationHandle assetOperationHandle))
+            if (self.AssetsOperationHandles.TryGetValue(location, out AssetOperationHandle assetOperationHandle))
+            {
                 assetOperationHandle.Release();
-            else if(self.RawFileOperationHandles.TryGetValue(location, out RawFileOperationHandle rawFileOperationHandle))
+                self.AssetsOperationHandles.Remove(location);
+            }
+            else if (self.RawFileOperationHandles.TryGetValue(location, out RawFileOperationHandle rawFileOperationHandle))
+            {
                 rawFileOperationHandle.Release();
-            else if(self.SubAssetsOperationHandles.TryGetValue(location, out SubAssetsOperationHandle subAssetsOperationHandle))
+                self.RawFileOperationHandles.Remove(location);
+            }
+            else if (self.SubAssetsOperationHandles.TryGetValue(location, out SubAssetsOperationHandle subAssetsOperationHandle))
+            {
                 subAssetsOperationHandle.Release();
+                self.SubAssetsOperationHandles.Remove(location);
+            }
             else
+            {
                 Log.Error($"资源{location}不存在");
+            }
         }
 
         #endregion
