@@ -36,11 +36,20 @@ namespace ET.Client
             self.VisiblePanelsDic?.Clear();
             self.VisiblePanelsQueue?.Clear();
             self.HidePanelsStack?.Clear();
+
+            FUIBinder.BindAll();
         }
         
         public static void Destroy(this FUIComponent self)
         {
             self.CloseAllPanel();
+        }
+        
+        public static void Restart(this FUIComponent self)
+        {
+            self.CloseAllPanel();
+            
+            FUIBinder.BindAll();
         }
 
         /// <summary>
@@ -470,8 +479,6 @@ namespace ET.Client
                 return;
             }
             
-            fuiEventHandler.OnAddPackage();
-
             // 创建组件
             fuiEntity.GComponent = await self.CreateObjectAsync(panelInfo.PackageName, panelInfo.ComponentName);
 

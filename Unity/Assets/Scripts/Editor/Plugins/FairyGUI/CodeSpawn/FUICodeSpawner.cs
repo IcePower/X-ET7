@@ -198,6 +198,7 @@ namespace FUIEditor
             }
 
             SpawnCodeForPanelId();
+            FUIBinderSpawner.SpawnCode();
 
             foreach (PackageInfo packageInfo in PackageInfos.Values)
             {
@@ -240,7 +241,7 @@ namespace FUIEditor
             sb.AppendLine("\t}"); 
             sb.AppendLine("}");
             
-            string filePath = "{0}/PanelId.cs".Fmt(ModelViewCodeDir);
+            string filePath = "{0}/PanelId.cs".Fmt(FUIAutoGenDir);
             using FileStream fs = new FileStream(filePath, FileMode.Create);
             using StreamWriter sw = new StreamWriter(fs);
             sw.Write(sb.ToString());
@@ -408,12 +409,6 @@ namespace FUIEditor
             }
             
             string filePath = "{0}/{1}EventHandler.cs".Fmt(fileDir, packageName);
-            if (File.Exists(filePath))
-            {
-                Debug.Log("{0} 已经存在".Fmt(filePath));
-                return;
-            }
-            
             Debug.Log("Spawn EventHandler {0}".Fmt(filePath));
 
             StringBuilder sb = new StringBuilder();
@@ -434,15 +429,7 @@ namespace FUIEditor
             sb.AppendFormat("\t\t\treturn \"{0}\";", packageName);
             sb.AppendLine();
             sb.AppendLine("\t\t}");
-            sb.AppendLine();
-            
-            sb.AppendFormat("\t\tpublic void OnAddPackage()");
-            sb.AppendLine();
-            sb.AppendLine("\t\t{");
-            sb.AppendFormat("\t\t\t{0}Binder.BindAll();", packageName);
-            sb.AppendLine();
-            sb.AppendLine("\t\t}");
-            
+
             sb.AppendLine();
             sb.AppendFormat("\t\tpublic void OnInitPanelCoreData(FUIEntity fuiEntity)");
             sb.AppendLine();

@@ -10,11 +10,6 @@ namespace ET.Client
 			return "Lobby";
 		}
 
-		public void OnAddPackage()
-		{
-			LobbyBinder.BindAll();
-		}
-
 		public void OnInitPanelCoreData(FUIEntity fuiEntity)
 		{
 			fuiEntity.PanelCoreData.panelType = UIPanelType.Normal;

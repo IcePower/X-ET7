@@ -10,11 +10,6 @@ namespace ET.Client
 			return "TestA";
 		}
 
-		public void OnAddPackage()
-		{
-			TestABinder.BindAll();
-		}
-
 		public void OnInitPanelCoreData(FUIEntity fuiEntity)
 		{
 			fuiEntity.PanelCoreData.panelType = UIPanelType.Normal;

@@ -10,11 +10,6 @@ namespace ET.Client
 			return "HotUpdate";
 		}
 
-		public void OnAddPackage()
-		{
-			HotUpdateBinder.BindAll();
-		}
-
 		public void OnInitPanelCoreData(FUIEntity fuiEntity)
 		{
 			fuiEntity.PanelCoreData.panelType = UIPanelType.Normal;

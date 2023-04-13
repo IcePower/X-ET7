@@ -10,11 +10,6 @@ namespace ET.Client
 			return "Login";
 		}
 
-		public void OnAddPackage()
-		{
-			LoginBinder.BindAll();
-		}
-
 		public void OnInitPanelCoreData(FUIEntity fuiEntity)
 		{
 			fuiEntity.PanelCoreData.panelType = UIPanelType.Normal;

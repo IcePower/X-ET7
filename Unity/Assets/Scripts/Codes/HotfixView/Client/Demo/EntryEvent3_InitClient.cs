@@ -14,35 +14,20 @@ namespace ET.Client
 
             Scene clientScene = await SceneFactory.CreateClientScene(1, "Game");
 
-            // 预加载Packages
-            await PreloadPackagesAsync(clientScene);
-
             // 热更流程
             await HotUpdateAsync(clientScene);
         }
-        
-        /// <summary>
-        /// 预加载Packages
-        /// </summary>
-        /// <param name="fuiComponent"></param>
-        private static async ETTask PreloadPackagesAsync(Scene clientScene)
-        {
-            FUIComponent fuiComponent = clientScene.GetComponent<FUIComponent>();
-
-            // await fuiComponent.AddPackageAsync("Common");
-            
-            CommonBinder.BindAll();
-        }
-
+  
         private static async ETTask HotUpdateAsync(Scene clientScene)
         {
+            CommonBinder.BindAll();
+            HotUpdateBinder.BindAll();
+            
             FUIComponent fuiComponent = clientScene.GetComponent<FUIComponent>();
 
             // 打开热更界面
             await fuiComponent.ShowPanelAsync(PanelId.HotUpdatePanel);
 
-            // await TimerComponent.Instance.WaitAsync(3000);
-            
             // 更新版本号
             int errorCode = await ResComponent.Instance.UpdateVersionAsync();
             if (errorCode != ErrorCode.ERR_Success)
@@ -130,9 +115,8 @@ namespace ET.Client
         
         private static async ETTask EnterGame(FUIComponent fuiComponent)
         {
-            // 关闭热更界面
-            fuiComponent.ClosePanel(PanelId.HotUpdatePanel);
-
+            fuiComponent.Restart();
+            
             // 打开登陆界面
             LoginPanel_ContextData contextData = fuiComponent.AddChild<LoginPanel_ContextData>();
             contextData.Data = "界面参数测试";
