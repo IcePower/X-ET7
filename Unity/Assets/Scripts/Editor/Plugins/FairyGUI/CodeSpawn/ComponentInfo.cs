@@ -8,48 +8,52 @@ namespace FUIEditor
 {
     public class VariableInfo
     {
-        public string TypeName;
+        public string TypeName { get; set; }
+
+        public string VariableName { get; set; }
         
-        public string VariableName;
+        // 是否是默认的名称，比如 n0, n1
+        public bool IsDefaultName { get; set; }
         
-        public bool IsDefaultName;
+        // 是否是内部指定的名称，比如 title, icon
+        public bool IsAppointName { get; set; }
         
-        public XML displayXML;
+        public XML displayXML { get; set; }
     }
     
     public class ComponentInfo
     {
-        public string NameSpace = "";
+        public string NameSpace { get; private set; } = "";
+
+        public string PackageId { get; set; }
+
+        public string Id { get; set; }
+
+        public string Name { get; set; }
         
-        public string PackageId;
+        public string ComponentTypeName { get; private set; }
 
-        public string Id;
-
-        public string Name;
+        public string NameWithoutExtension { get; set; }
         
-        public string ComponentTypeName;
+        public ComponentType ComponentType { get; set; }
 
-        public string NameWithoutExtension;
-        
-        public ComponentType ComponentType;
+        public string ComponentClassName { get; private set; }
 
-        public string ComponentClassName;
-
-        public string Url;
+        public string Url { get; set; }
         
         // 编辑器里设置为导出
-        public bool Exported;
+        public bool Exported { get; set; }
 
-        public XMLList ControllerList = new XMLList();
+        public XMLList ControllerList  { get; set; } = new XMLList();
         
-        public XMLList DisplayList;
+        public XMLList DisplayList { get; set; }
 
         // 最终是否需要导出类
-        public bool NeedExportClass;
+        public bool NeedExportClass { get; private set; }
         
-        public List<VariableInfo> VariableInfos = new List<VariableInfo>();
+        public List<VariableInfo> VariableInfos { get; set; } = new List<VariableInfo>();
         
-        public bool HasCustomVariableName;
+        private bool HasCustomVariableName;
         
         private static readonly Dictionary<ObjectType, string> ObjectTypeToClassType = new Dictionary<ObjectType, string>()
         {
@@ -115,22 +119,20 @@ namespace FUIEditor
 
         public void SetVariableInfoTypeName()
         {
-            foreach (var variableInfo in VariableInfos)
+            for (int index = 0; index < this.VariableInfos.Count; index++)
             {
-                variableInfo.TypeName = GetTypeNameByDisplayXML(PackageId, variableInfo.displayXML);
+                VariableInfo variableInfo = this.VariableInfos[index];
+                variableInfo.TypeName = GetTypeNameByDisplayXML(this.PackageId, variableInfo.displayXML);
             }
         }
         
-        public void GatherVariable()
+        private void GatherVariable()
         {
             foreach (XML displayXML in DisplayList)
             {
                 string variableName = displayXML.GetAttribute("name");
 
-                if (IsAppointName(variableName, ComponentType))
-                {
-                    continue;
-                }
+                bool isAppointName = IsAppointName(variableName, ComponentType);
 
                 bool isDefaultName = displayXML.GetAttribute("id").StartsWith(variableName);
 
@@ -138,17 +140,18 @@ namespace FUIEditor
                 {
                     VariableName = variableName,
                     IsDefaultName = isDefaultName,
+                    IsAppointName = isAppointName,
                     displayXML = displayXML
                 });
 
-                if (!isDefaultName)
+                if (!isDefaultName && !isAppointName)
                 {
                     HasCustomVariableName = true;
                 }
             }
         }
         
-        private bool IsAppointName(string variableName, ComponentType componentType)
+        private static bool IsAppointName(string variableName, ComponentType componentType)
         {
             if (variableName == "icon" || variableName == "text")
             {
@@ -159,10 +162,10 @@ namespace FUIEditor
             {
                 case ComponentType.Component:
                     return false;
-                case ComponentType.Button:
+                case ComponentType.Button: 
                 case ComponentType.ComboBox:
                 case ComponentType.Label:
-                    if (variableName == "title")
+                    if (variableName == "title" || variableName == "dragArea" || variableName == "closeButton")
                     {
                         return true;
                     }

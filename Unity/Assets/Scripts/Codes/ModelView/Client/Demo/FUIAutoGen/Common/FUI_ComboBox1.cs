@@ -19,7 +19,7 @@ namespace ET.Client.Common
 		{
 			base.ConstructFromXML(xml);
 
-			TestLoader = (GLoader)GetChildAt(3);
+			TestLoader = (GLoader)GetChildAt(4);
 		}
 	}
 }

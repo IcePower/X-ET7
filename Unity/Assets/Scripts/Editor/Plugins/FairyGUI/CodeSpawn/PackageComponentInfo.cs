@@ -2,12 +2,12 @@ namespace FUIEditor
 {
     public class PackageComponentInfo
     {
-        public string Id;
+        public string Id { get; set; }
 
-        public string Name;
+        public string Name { get; set; }
 
-        public string Path;
+        public string Path { get; set; }
 
-        public bool Exported;
+        public bool Exported { get; set; }
     }
 }
