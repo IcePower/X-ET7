@@ -836,7 +836,7 @@ PlayerSettings:
   scriptingDefineSymbols:
     Android: NETSTANDARD2_0;UNITY
     Server: NETSTANDARD2_0;UNITY
-    Standalone: NETSTANDARD2_0;UNITY;ENABLE_VIEW
+    Standalone: UNITY;ENABLE_VIEW;ENABLE_CODES
     WebGL: NETSTANDARD2_0;UNITY
     iPhone: NETSTANDARD2_0;UNITY
   additionalCompilerArguments: {}
