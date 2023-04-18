@@ -469,13 +469,11 @@ namespace ET.Client
             IFUIEventHandler fuiEventHandler = FUIEventComponent.Instance.GetUIEventHandler(fuiEntity.PanelId);
             
             // 添加Package
-            string packageName = fuiEventHandler.GetPackageName();
-
-            UIPackage package = await self.ClientScene().GetComponent<FUIAssetComponent>().LoadUIPackageAsync(packageName);
+            UIPackage package = await self.ClientScene().GetComponent<FUIAssetComponent>().LoadUIPackageAsync(panelInfo.PackageName);
 
             if (package == null)
             {
-                Log.Error($"UIPackage {packageName} load failed!");
+                Log.Error($"UIPackage {panelInfo.PackageName} load failed!");
                 return;
             }
             

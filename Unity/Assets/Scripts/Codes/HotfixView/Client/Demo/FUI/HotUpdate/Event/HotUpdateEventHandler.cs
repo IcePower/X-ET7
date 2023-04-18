@@ -5,11 +5,6 @@ namespace ET.Client
 	[FUIEvent(PanelId.HotUpdatePanel, "HotUpdate", "HotUpdatePanel")]
 	public class HotUpdateEventHandler: IFUIEventHandler
 	{
-		public string GetPackageName()
-		{
-			return "HotUpdate";
-		}
-
 		public void OnInitPanelCoreData(FUIEntity fuiEntity)
 		{
 			fuiEntity.PanelCoreData.panelType = UIPanelType.Normal;

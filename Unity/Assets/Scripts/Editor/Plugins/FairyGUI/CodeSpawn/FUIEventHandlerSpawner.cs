@@ -31,15 +31,7 @@ namespace FUIEditor
             sb.AppendFormat("\tpublic class {0}EventHandler: IFUIEventHandler", packageName);
             sb.AppendLine();
             sb.AppendLine("\t{");
-            
-            sb.AppendFormat("\t\tpublic string GetPackageName()");
-            sb.AppendLine();
-            sb.AppendLine("\t\t{");
-            sb.AppendFormat("\t\t\treturn \"{0}\";", packageName);
-            sb.AppendLine();
-            sb.AppendLine("\t\t}");
 
-            sb.AppendLine();
             sb.AppendFormat("\t\tpublic void OnInitPanelCoreData(FUIEntity fuiEntity)");
             sb.AppendLine();
             sb.AppendLine("\t\t{");

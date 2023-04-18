@@ -5,11 +5,6 @@ namespace ET.Client
 	[FUIEvent(PanelId.LoginPanel, "Login", "LoginPanel")]
 	public class LoginEventHandler: IFUIEventHandler
 	{
-		public string GetPackageName()
-		{
-			return "Login";
-		}
-
 		public void OnInitPanelCoreData(FUIEntity fuiEntity)
 		{
 			fuiEntity.PanelCoreData.panelType = UIPanelType.Normal;
