@@ -1,7 +1,6 @@
 using System.IO;
 using System.Text;
 using ET;
-using UnityEngine;
 
 namespace FUIEditor
 {
@@ -21,6 +20,9 @@ namespace FUIEditor
             // Debug.Log("Spawn EventHandler {0}".Fmt(filePath));
 
             StringBuilder sb = new StringBuilder();
+            sb.AppendLine("using System;");
+            sb.AppendLine("using UnityEngine;");
+            sb.AppendLine();
             sb.AppendFormat("namespace {0}", FUICodeSpawner.NameSpace);
             sb.AppendLine();
             sb.AppendLine("{");
@@ -53,6 +55,12 @@ namespace FUIEditor
             sb.AppendLine("\t\t{");
             sb.AppendFormat("\t\t\tfuiEntity.GetComponent<{0}>().RegisterUIEvent();", panelName);
             sb.AppendLine();
+            sb.AppendLine("\t\t}");
+
+            sb.AppendLine();
+            sb.AppendLine("\t\tpublic void TranslateText(FUIEntity fuiEntity, SystemLanguage systemLanguage, Func<string, string, string> translator)");
+            sb.AppendLine("\t\t{");
+            sb.AppendLine($"\t\t\tfuiEntity.GetComponent<{panelName}>().TranslateText(systemLanguage, translator);");
             sb.AppendLine("\t\t}");
             
             sb.AppendLine();

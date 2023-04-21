@@ -65,6 +65,18 @@ public partial class StartProcessConfigCategory: ConfigSingleton<StartProcessCon
         }
     }
     
+    public override void TrimExcess()
+    {
+        _dataMap.TrimExcess();
+        _dataList.TrimExcess();
+    }
+    
+    
+    public override string ConfigName()
+    {
+        return typeof(StartProcessConfig).Name;
+    }
+    
     partial void PostInit();
     partial void PostResolve();
 }

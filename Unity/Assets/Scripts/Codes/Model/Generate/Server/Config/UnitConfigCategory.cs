@@ -65,6 +65,18 @@ public partial class UnitConfigCategory: ConfigSingleton<UnitConfigCategory>
         }
     }
     
+    public override void TrimExcess()
+    {
+        _dataMap.TrimExcess();
+        _dataList.TrimExcess();
+    }
+    
+    
+    public override string ConfigName()
+    {
+        return typeof(UnitConfig).Name;
+    }
+    
     partial void PostInit();
     partial void PostResolve();
 }

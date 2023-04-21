@@ -1,0 +1,62 @@
+[
+  {
+    "key": "2f8jqefflobh0-n0_lobh",
+    "TextEN": "HotUpdate"
+  },
+  {
+    "key": "ti3ka994t52l0-n2_lobh",
+    "TextEN": "OpenTestA"
+  },
+  {
+    "key": "ti3ka994t52l0-n3_lobh",
+    "TextEN": "EnterMap"
+  },
+  {
+    "key": "rgfb0w498omm0-n27_lobh",
+    "TextEN": "EnterMap"
+  },
+  {
+    "key": "2kcjlx6nlobh1-n1_lobh",
+    "TextEN": "TestA"
+  },
+  {
+    "key": "2kcjlx6nlobh1-n2_lobh",
+    "TextEN": "HideTestA"
+  },
+  {
+    "key": "2kcjlx6nlobh1-n0_lobh",
+    "TextEN": "OpenTestB"
+  },
+  {
+    "key": "2kcjlx6nlobh1-n6_lbin",
+    "TextEN": "SwitchLanguage"
+  },
+  {
+    "key": "2kcjlx6nlobh1-n7_lbin",
+    "TextEN": "Label"
+  },
+  {
+    "key": "2kcjlx6nlobh1-n9_lbin",
+    "TextEN": "Test\\nLineFeed"
+  },
+  {
+    "key": "2kcjlx6nlobh1-n12_lbin",
+    "TextEN": ""
+  },
+  {
+    "key": "2kcjlx6nlobh1-n13_lbin",
+    "TextEN": ""
+  },
+  {
+    "key": "2kcjlx6nlobh1-n14_lbin",
+    "TextEN": "Test\\nLineFeed"
+  },
+  {
+    "key": "296l7tjhlobh0-n0_lobh",
+    "TextEN": "TestB"
+  },
+  {
+    "key": "296l7tjhlobh0-n1_lobh",
+    "TextEN": "CloseTestB"
+  }
+]

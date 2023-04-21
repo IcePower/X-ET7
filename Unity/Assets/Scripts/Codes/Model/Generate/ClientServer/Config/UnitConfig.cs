@@ -18,7 +18,7 @@ public sealed partial class UnitConfig: Bright.Config.BeanBase
     {
         Id = _buf.ReadInt();
         Type = _buf.ReadInt();
-        Name = _buf.ReadString();
+        Name_l10n_key = _buf.ReadString(); Name = _buf.ReadString();
         Position = _buf.ReadInt();
         Height = _buf.ReadInt();
         Weight = _buf.ReadInt();
@@ -42,6 +42,7 @@ public sealed partial class UnitConfig: Bright.Config.BeanBase
     /// 名字
     /// </summary>
     public string Name { get; private set; }
+    public string Name_l10n_key { get; }
     /// <summary>
     /// 位置
     /// </summary>
@@ -60,11 +61,12 @@ public sealed partial class UnitConfig: Bright.Config.BeanBase
 
     public  void Resolve(Dictionary<string, IConfigSingleton> _tables)
     {
-        PostResolve();
+        PostResolve(); 
     }
 
     public  void TranslateText(System.Func<string, string, string> translator)
     {
+        Name = translator(Name_l10n_key, Name);
     }
 
     public override string ToString()

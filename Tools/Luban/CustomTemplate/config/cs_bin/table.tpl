@@ -73,6 +73,13 @@ public partial class {{name}}: ConfigSingleton<{{name}}>
             v.TranslateText(translator);
         }
     }
+    
+    public override void TrimExcess()
+    {
+        _dataMap.TrimExcess();
+        _dataList.TrimExcess();
+    }
+    
         {{~else if x.is_list_table ~}}
     private readonly List<{{cs_define_type value_type}}> _dataList;
 
@@ -140,6 +147,12 @@ public partial class {{name}}: ConfigSingleton<{{name}}>
             v.TranslateText(translator);
         }
     }
+    
+    public override void TrimExcess()
+    {
+        _dataList.TrimExcess();
+    }
+        
     {{~else~}}
 
      private readonly {{cs_define_type value_type}} _data;
@@ -173,6 +186,11 @@ public partial class {{name}}: ConfigSingleton<{{name}}>
     }
 
     {{~end~}}
+    
+    public override string ConfigName()
+    {
+        return typeof({{cs_define_type value_type}}).Name;
+    }
     
     partial void PostInit();
     partial void PostResolve();

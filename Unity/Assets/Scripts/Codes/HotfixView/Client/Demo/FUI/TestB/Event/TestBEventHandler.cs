@@ -1,3 +1,6 @@
+using System;
+using UnityEngine;
+
 namespace ET.Client
 {
 	[FriendOf(typeof(PanelCoreData))]
@@ -19,6 +22,11 @@ namespace ET.Client
 		public void OnRegisterUIEvent(FUIEntity fuiEntity)
 		{
 			fuiEntity.GetComponent<TestBPanel>().RegisterUIEvent();
+		}
+
+		public void TranslateText(FUIEntity fuiEntity, SystemLanguage systemLanguage, Func<string, string, string> translator)
+		{
+			fuiEntity.GetComponent<TestBPanel>().TranslateText(systemLanguage, translator);
 		}
 
 		public void OnShow(FUIEntity fuiEntity, Entity contextData = null)

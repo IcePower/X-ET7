@@ -8,7 +8,7 @@
   "jpegQuality": 80,
   "compressPNG": false,
   "codeGeneration": {
-    "allowGenCode": false,
+    "allowGenCode": true,
     "codePath": "",
     "classNamePrefix": "FUI_",
     "memberNamePrefix": "",

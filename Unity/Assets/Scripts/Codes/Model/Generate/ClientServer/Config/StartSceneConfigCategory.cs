@@ -65,6 +65,18 @@ public partial class StartSceneConfigCategory: ConfigSingleton<StartSceneConfigC
         }
     }
     
+    public override void TrimExcess()
+    {
+        _dataMap.TrimExcess();
+        _dataList.TrimExcess();
+    }
+    
+    
+    public override string ConfigName()
+    {
+        return typeof(StartSceneConfig).Name;
+    }
+    
     partial void PostInit();
     partial void PostResolve();
 }

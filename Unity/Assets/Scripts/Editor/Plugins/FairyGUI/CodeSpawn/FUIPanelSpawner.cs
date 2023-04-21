@@ -37,6 +37,8 @@ namespace FUIEditor
             sb.AppendFormat("\tpublic class {0}: Entity, IAwake", panelName);
             sb.AppendLine();
             sb.AppendLine("\t{");
+            sb.AppendLine("\t\tpublic SystemLanguage Language {get; set;}");
+            sb.AppendLine();
             sb.AppendLine("\t\tprivate FUI_{0} _fui{0};".Fmt(panelName));
             sb.AppendLine();
             sb.AppendLine("\t\tpublic FUI_{0} FUI{0}".Fmt(panelName));

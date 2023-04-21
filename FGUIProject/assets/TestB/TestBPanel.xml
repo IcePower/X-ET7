@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="1080,1920">
   <displayList>
-    <text id="n0_lobh" name="n0" xy="362,107" size="356,112" fontSize="50" align="center" vAlign="middle" autoSize="none" text="TestB"/>
+    <text id="n0_lobh" name="n0" xy="362,107" size="356,112" fontSize="50" align="center" vAlign="middle" autoSize="none" text="测试B"/>
     <component id="n1_lobh" name="CloseBtn" src="lobhq" fileName="Components/CommonBtn.xml" pkg="f2boiu4i" xy="323,613" size="434,110">
-      <Button title="CloseTestB"/>
+      <Button title="关闭测试B界面"/>
       <property target="image" propertyId="1" value="ui://f2boiu4iab9e4"/>
     </component>
   </displayList>

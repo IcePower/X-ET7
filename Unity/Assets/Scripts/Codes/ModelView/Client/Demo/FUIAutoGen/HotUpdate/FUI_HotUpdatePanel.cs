@@ -7,7 +7,8 @@ namespace ET.Client.HotUpdate
 {
 	public partial class FUI_HotUpdatePanel: GComponent
 	{
-		public GProgressBar ProgressBar;
+		public GTextField n0;
+		public ET.Client.HotUpdate.FUI_ProgressBar1 ProgressBar;
 		public const string URL = "ui://2f8jqefflobh0";
 
 		public static FUI_HotUpdatePanel CreateInstance()
@@ -19,7 +20,8 @@ namespace ET.Client.HotUpdate
 		{
 			base.ConstructFromXML(xml);
 
-			ProgressBar = (GProgressBar)GetChildAt(1);
+			n0 = (GTextField)GetChildAt(0);
+			ProgressBar = (ET.Client.HotUpdate.FUI_ProgressBar1)GetChildAt(1);
 		}
 	}
 }

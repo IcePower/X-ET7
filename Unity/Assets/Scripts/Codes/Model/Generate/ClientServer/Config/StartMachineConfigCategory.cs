@@ -65,6 +65,18 @@ public partial class StartMachineConfigCategory: ConfigSingleton<StartMachineCon
         }
     }
     
+    public override void TrimExcess()
+    {
+        _dataMap.TrimExcess();
+        _dataList.TrimExcess();
+    }
+    
+    
+    public override string ConfigName()
+    {
+        return typeof(StartMachineConfig).Name;
+    }
+    
     partial void PostInit();
     partial void PostResolve();
 }

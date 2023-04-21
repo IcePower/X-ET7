@@ -65,6 +65,18 @@ public partial class AIConfigCategory: ConfigSingleton<AIConfigCategory>
         }
     }
     
+    public override void TrimExcess()
+    {
+        _dataMap.TrimExcess();
+        _dataList.TrimExcess();
+    }
+    
+    
+    public override string ConfigName()
+    {
+        return typeof(AIConfig).Name;
+    }
+    
     partial void PostInit();
     partial void PostResolve();
 }

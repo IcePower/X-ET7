@@ -7,6 +7,7 @@ namespace ET.Client.Common
 {
 	public partial class FUI_ComboBox1_popup: GComponent
 	{
+		public GGraph n0;
 		public GList list;
 		public const string URL = "ui://f2boiu4iab9ei";
 
@@ -19,6 +20,7 @@ namespace ET.Client.Common
 		{
 			base.ConstructFromXML(xml);
 
+			n0 = (GGraph)GetChildAt(0);
 			list = (GList)GetChildAt(1);
 		}
 	}

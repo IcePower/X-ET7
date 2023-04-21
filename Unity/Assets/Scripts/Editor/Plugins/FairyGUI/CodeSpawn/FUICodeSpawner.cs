@@ -53,7 +53,7 @@ namespace FUIEditor
         public const string HotfixViewCodeDir = "../Unity/Assets/Scripts/Codes/HotfixView/Client/Demo/FUI";
 
         // 不生成使用默认名称的成员
-        public static readonly bool IgnoreDefaultVariableName = true;
+        public static readonly bool IgnoreDefaultVariableName = false;
         
         public static readonly Dictionary<string, PackageInfo> PackageInfos = new Dictionary<string, PackageInfo>();
 
@@ -66,6 +66,8 @@ namespace FUIEditor
         public static void FUICodeSpawn()
         {
             ParseAndSpawnCode();
+            
+            FUILocalizeHandler.Localize();
 
             AssetDatabase.Refresh();
         }
@@ -230,7 +232,7 @@ namespace FUIEditor
                     if (ComponentInfos.TryGetValue(componentId, out var componentInfo))
                     {
                         FUIPanelSpawner.SpawnPanel(packageInfo.Name, componentInfo.NameSpace);
-                        FUIPanelSystemSpawner.SpawnPanelSystem(packageInfo.Name);
+                        FUIPanelSystemSpawner.SpawnPanelSystem(packageInfo.Name, componentInfo);
                         FUIEventHandlerSpawner.SpawnEventHandler(packageInfo.Name);
                     }
                 }

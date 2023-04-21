@@ -338,6 +338,15 @@ namespace FairyGUI.Utils
                     else
                         lastOpenNode = null;
                 }
+                else if (XMLIterator.tagType == XMLTagType.Comment)
+                {
+                    XML childNode = new XML();
+                    childNode.text = XMLIterator.GetTagSource();
+                    
+                    if (lastOpenNode._children == null)
+                        lastOpenNode._children = new XMLList();
+                    lastOpenNode._children.Add(childNode);
+                }
             }
         }
 

@@ -1,14 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component size="1080,1920">
   <displayList>
-    <text id="n1_lobh" name="n1" xy="362,50" size="356,112" fontSize="50" align="center" vAlign="middle" autoSize="none" text="TestA"/>
-    <component id="n2_lobh" name="HideBtn" src="lobhq" fileName="Components/CommonBtn.xml" pkg="f2boiu4i" xy="323,613" size="434,110">
-      <Button title="HideTestA"/>
+    <text id="n1_lobh" name="n1" xy="362,50" size="356,112" fontSize="50" align="center" vAlign="middle" autoSize="none" text="多语言测试"/>
+    <component id="n2_lobh" name="HideBtn" src="lobhq" fileName="Components/CommonBtn.xml" pkg="f2boiu4i" xy="325,446" size="434,110">
+      <Button title="隐藏测试A界面"/>
       <property target="image" propertyId="1" value="ui://f2boiu4iab9e4"/>
     </component>
-    <component id="n0_lobh" name="OpenTestBBtn" src="lobhq" fileName="Components/CommonBtn.xml" pkg="f2boiu4i" xy="323,774" size="434,110">
-      <Button title="OpenTestB"/>
+    <component id="n0_lobh" name="OpenTestBBtn" src="lobhq" fileName="Components/CommonBtn.xml" pkg="f2boiu4i" xy="325,607" size="434,110">
+      <Button title="打开测试B界面"/>
       <property target="image" propertyId="1" value="ui://f2boiu4iab9e4"/>
     </component>
+    <component id="n6_lbin" name="LanguageCombo" src="ab9ej" fileName="Components/ComboBox1.xml" pkg="f2boiu4i" xy="369,249" size="354,86">
+      <ComboBox title="切换语言" visibleItemCount="10"/>
+    </component>
+    <component id="n7_lbin" name="n7" src="ab9e8" fileName="Components/Label1.xml" pkg="f2boiu4i" xy="455,1475" size="170,80">
+      <Label title="标签"/>
+    </component>
+    <component id="n8_lbin" name="n8" src="lbinv" fileName="Components/ProgressBar1.xml" pkg="f2boiu4i" xy="63,1574">
+      <ProgressBar value="50" max="100"/>
+    </component>
+    <text id="n9_lbin" name="n9" xy="81,1170" size="312,144" fontSize="50" align="center" vAlign="middle" ubb="true" autoSize="none" text="测试&#xA;换行"/>
+    <text id="n10_lbin" name="n10" xy="82,1366" size="312,144" fontSize="50" align="center" vAlign="middle" autoSize="none" autoClearText="true" text="发布时清除"/>
+    <text id="n12_lbin" name="n12" xy="80,972" size="312,144" fontSize="50" align="center" vAlign="middle" ubb="true" autoSize="none" text="&quot;引&apos;号&quot;,&quot;逗号，测&apos;试&quot;"/>
+    <text id="n13_lbin" name="n13" xy="450,964" size="312,144" fontSize="50" align="center" vAlign="middle" ubb="true" autoSize="none" text="制表符&#x9;测试"/>
+    <text id="n14_lbin" name="n14" xy="448,1180" size="312,144" fontSize="50" align="center" vAlign="middle" ubb="true" autoSize="none" text="测试\n换行"/>
   </displayList>
 </component>

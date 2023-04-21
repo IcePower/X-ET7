@@ -487,12 +487,15 @@ namespace ET.Client
 
             fuiEventHandler.OnInitComponent(fuiEntity);
             fuiEventHandler.OnRegisterUIEvent(fuiEntity);
+            
+            // 翻译打开的界面
+            var (_, translateFUI) = self.ClientScene().GetComponent<LocalizeComponent>().GetCurrentTranslator();
+            SystemLanguage currentLanguage = self.ClientScene().GetComponent<LocalizeComponent>().CurrentLanguage;
+            fuiEventHandler.TranslateText(fuiEntity, currentLanguage, translateFUI);
 
             self.AllPanelsDic[(int)fuiEntity.PanelId] = fuiEntity;
         }
 
-        #region FairyGUI Package
-        
         public static async ETTask<GComponent> CreateObjectAsync(this FUIComponent self, string packageName, string componentName)
         {
             ETTask<GComponent> task = ETTask<GComponent>.Create(true);
@@ -503,6 +506,19 @@ namespace ET.Client
             return await task;
         }
 
-        #endregion
+        public static void TranslateText(this FUIComponent self, SystemLanguage currentLanguage, Func<string, string, string> translator)
+        {
+            foreach (KeyValuePair<int, FUIEntity> panel in self.AllPanelsDic)
+            {
+                FUIEntity fuiEntity = panel.Value;
+                if (fuiEntity == null || fuiEntity.IsDisposed)
+                {
+                    continue;
+                }
+
+                IFUIEventHandler fuiEventHandler = FUIEventComponent.Instance.GetUIEventHandler(fuiEntity.PanelId);
+                fuiEventHandler.TranslateText(fuiEntity, currentLanguage, translator);
+            }
+        }
     }
 }

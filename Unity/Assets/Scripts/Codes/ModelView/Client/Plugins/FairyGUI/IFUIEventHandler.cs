@@ -1,3 +1,6 @@
+using System;
+using UnityEngine;
+
 namespace ET.Client
 {
     public interface IFUIEventHandler
@@ -38,5 +41,10 @@ namespace ET.Client
         /// </summary>
         /// <param name="fuiEntity"></param>
         void BeforeUnload(FUIEntity fuiEntity);
+
+        void TranslateText(FUIEntity fuiEntity, SystemLanguage systemLanguage, Func<string, string, string> translator)
+        {
+            
+        }
     }
 }

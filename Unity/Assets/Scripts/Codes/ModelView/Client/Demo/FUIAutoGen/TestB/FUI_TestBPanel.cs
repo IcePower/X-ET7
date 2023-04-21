@@ -7,6 +7,7 @@ namespace ET.Client.TestB
 {
 	public partial class FUI_TestBPanel: GComponent
 	{
+		public GTextField n0;
 		public ET.Client.Common.FUI_CommonBtn CloseBtn;
 		public const string URL = "ui://296l7tjhlobh0";
 
@@ -19,6 +20,7 @@ namespace ET.Client.TestB
 		{
 			base.ConstructFromXML(xml);
 
+			n0 = (GTextField)GetChildAt(0);
 			CloseBtn = (ET.Client.Common.FUI_CommonBtn)GetChildAt(1);
 		}
 	}

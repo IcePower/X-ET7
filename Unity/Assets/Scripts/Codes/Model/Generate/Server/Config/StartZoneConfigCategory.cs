@@ -65,6 +65,18 @@ public partial class StartZoneConfigCategory: ConfigSingleton<StartZoneConfigCat
         }
     }
     
+    public override void TrimExcess()
+    {
+        _dataMap.TrimExcess();
+        _dataList.TrimExcess();
+    }
+    
+    
+    public override string ConfigName()
+    {
+        return typeof(StartZoneConfig).Name;
+    }
+    
     partial void PostInit();
     partial void PostResolve();
 }

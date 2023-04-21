@@ -9,6 +9,8 @@ namespace FUIEditor
     public class VariableInfo
     {
         public string TypeName { get; set; }
+        
+        public string RealTypeName { get; set; }
 
         public string VariableName { get; set; }
         
@@ -17,7 +19,9 @@ namespace FUIEditor
         
         // 是否是内部指定的名称，比如 title, icon
         public bool IsAppointName { get; set; }
-        
+
+        public string LanguageKey { get; set; }
+
         public XML displayXML { get; set; }
     }
     
@@ -122,7 +126,17 @@ namespace FUIEditor
             for (int index = 0; index < this.VariableInfos.Count; index++)
             {
                 VariableInfo variableInfo = this.VariableInfos[index];
-                variableInfo.TypeName = GetTypeNameByDisplayXML(this.PackageId, variableInfo.displayXML);
+                (variableInfo.TypeName, variableInfo.RealTypeName) = GetTypeNameByDisplayXML(this.PackageId, variableInfo.displayXML);
+
+                // 自动清除的话不需要多语言
+                if (variableInfo.displayXML.GetAttribute("autoClearText") != "true")
+                {
+                    // 这些类型的元件有 title 对象，需要设置 LanguageKey。
+                    if (variableInfo.RealTypeName is "GTextField" or "GRichTextField" or "GButton" or "GComboBox" or "GLabel")
+                    {
+                        variableInfo.LanguageKey = $"{this.PackageId}{Id}-{variableInfo.displayXML.GetAttribute("id")}";
+                    }
+                }
             }
         }
         
@@ -195,9 +209,10 @@ namespace FUIEditor
             return false;
         }
         
-        private static string GetTypeNameByDisplayXML(string parentPackageId, XML displayXML)
+        private static (string, string) GetTypeNameByDisplayXML(string parentPackageId, XML displayXML)
         {
             string typeName = string.Empty;
+            string realTypeName = string.Empty;
 
             if (displayXML.name == "component")
             {
@@ -221,23 +236,26 @@ namespace FUIEditor
                 else
                 {
                     typeName = "{0}.{1}".Fmt(displayComponentInfo.NameSpace, displayComponentInfo.ComponentTypeName);
-
                 }
+                
+                realTypeName = displayComponentInfo.ComponentClassName;
             }
             else if (displayXML.name == "text")
             {
                 ObjectType objectType = displayXML.GetAttribute("input") == "true" ? ObjectType.textinput : ObjectType.textfield;
                 typeName = ObjectTypeToClassType[objectType];
+                realTypeName = typeName;
             }
             else if (displayXML.name == "group") 
             {
                 if (displayXML.GetAttribute("advanced") != "true")
                 {
-                    return typeName;
+                    return (typeName, realTypeName);
                 }
 
                 ObjectType objectType = EnumHelper.FromString<ObjectType>(displayXML.name);
                 typeName = ObjectTypeToClassType[objectType];
+                realTypeName = typeName;
             }
             else
             {
@@ -246,6 +264,7 @@ namespace FUIEditor
                 try
                 {
                     typeName = ObjectTypeToClassType[objectType];
+                    realTypeName = typeName;
                 }
                 catch (Exception e)
                 {
@@ -254,7 +273,7 @@ namespace FUIEditor
                 }
             }
 
-            return typeName;
+            return (typeName, realTypeName);
         }
     }
 }

@@ -59,6 +59,15 @@ namespace ET
         public virtual void Dispose()
         {
         }
+        
+        public virtual void TrimExcess()
+        {
+        }
+    
+        public virtual string ConfigName()
+        {
+            return string.Empty;
+        }
 
         public abstract void Resolve(Dictionary<string, IConfigSingleton> _tables);
 
