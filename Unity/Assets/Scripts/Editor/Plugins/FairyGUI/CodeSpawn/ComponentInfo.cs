@@ -101,7 +101,8 @@ namespace FUIEditor
                 needExportClass = false;
             }
 
-            if (!HasCustomVariableName && IgnoreDefaultVariableName)
+            // 如果没有控制器，且忽略默认变量名，且没有自定义变量名，那么不需要导出类
+            if (ControllerList.Count == 0 && IgnoreDefaultVariableName && !HasCustomVariableName)
             {
                 needExportClass = false;
             }
