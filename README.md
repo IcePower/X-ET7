@@ -5,7 +5,7 @@
 有3种开发模式可以选择。先在菜单里选择 ET - BuildTool 打开 ET.BuildEditor 界面，然后选择对应的模式。
 1. CodeMode 选择 Client Server, PlayMode 选择 Editor Simulate Mode。菜单里选择 ET - ChangeDefine - Add ENABLE_CODES。
    这种模式比较简单，不用 Build DLL, 不用构建资源，只能在编辑器里使用。
-2. CodeMode 选择 Client, PlayMode 选择 Editor Simulate Mode。菜单里选择 ET - ChangeDefine - Add ENABLE_CODES。
+2. CodeMode 选择 Client, PlayMode 选择 Editor Simulate Mode。菜单里选择 ET - ChangeDefine - Remove ENABLE_CODES。
    这种模式下，改了代码后需要点击 BuildModelAndHotfix, 不用构建资源，只能在编辑器里使用。
 3. CodeMode 选择 Client, PlayMode 选择 Host Play Mode, 菜单里选择 ET - ChangeDefine - Remove ENABLE_CODES。
    这种模式下，改了代码后需要点击 BuildModelAndHotfix，然后在菜单里选择 YooAsset - AssetBundle Builder 构建资源。改了资源后也需要构建资源。
