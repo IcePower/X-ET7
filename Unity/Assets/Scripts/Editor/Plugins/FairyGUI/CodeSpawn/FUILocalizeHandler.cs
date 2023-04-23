@@ -16,9 +16,6 @@ namespace FUIEditor
         // 本工具导出的 CSV 文件路径
         private static readonly string CSVPath = $"{Application.dataPath}/Config/Excel/Datas/LocalizeConfig_FUI.csv";
 
-        // FairyGUI 导出的多语言文件路径
-        private static readonly string I18nJsonPath = $"{Application.dataPath }/../../FGUIProject/settings/i18n.json";
-
         // 增加语言的话，在这里 new LanguageConfig。
         private static readonly LanguageConfig[] LanguageConfigs = new[]
         {
@@ -56,49 +53,14 @@ namespace FUIEditor
             }
         }
         
-        public static void Localize()
+        public static void Localize(string xmlPath)
         {
-            // 解析 FairyGUI 导出的多语言文件
-            I18N i18N = ParseJson();
-
             // 解析旧的csv文件，防止已翻译的内容被覆盖。
-            Dictionary<string, I18NItem> oldI18NItemDict = null;
-            oldI18NItemDict = ParseCSV(CSVPath);
+            Dictionary<string, I18NItem> oldI18NItemDict = ParseCSV(CSVPath);
 
-            XmlToCSV(i18N.langFiles[0].path, oldI18NItemDict);
-        }
-
-        [Serializable]
-        public class LangFile
-        {
-            public string name;
-            public string path;
-            public string fontName;
+            XmlToCSV(xmlPath, oldI18NItemDict);
         }
         
-        private class I18N
-        {
-            public LangFile[] langFiles;
-        }
-        
-        private static I18N ParseJson()
-        {
-            if (!File.Exists(I18nJsonPath))
-            {
-                Log.Error("FairyGUI 没有导出多语言文件!");
-                return null;
-            }
-
-            I18N i18N = JsonUtility.FromJson<I18N>(File.ReadAllText(I18nJsonPath));
-            if (i18N.langFiles == null || i18N.langFiles.Length == 0)
-            {
-                Log.Error("多语言文件解析出错!");
-                return null;
-            }
-
-            return i18N;
-        }
-
         /// <summary>
         /// 解析旧的csv文件
         /// </summary>

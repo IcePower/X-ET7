@@ -40,6 +40,8 @@ namespace ET
 		private bool clearFolder;
 		private bool isBuildExe;
 		private bool isContainAB;
+		private bool isExportFUIMultiLang;
+		private string fairyGUIXMLPath;
 		private CodeOptimization codeOptimization = CodeOptimization.Debug;
 		private BuildOptions buildOptions;
 		private BuildAssetBundleOptions buildAssetBundleOptions = BuildAssetBundleOptions.None;
@@ -179,6 +181,11 @@ namespace ET
 			// 	ShowNotification("Build Hotfix Success!");
 			// }
 			
+			if (GUILayout.Button("Proto2CS"))
+			{
+				ToolsEditor.Proto2CS();
+			}
+			
 			EditorGUILayout.BeginHorizontal();
 			{
 				this.configFolder = (ConfigFolder)EditorGUILayout.EnumPopup(this.configFolder, GUILayout.Width(200f));
@@ -199,14 +206,30 @@ namespace ET
 			}
 			EditorGUILayout.EndHorizontal();
 			
-			if (GUILayout.Button("Proto2CS"))
+			GUILayout.Label("");
+			GUILayout.Label("FairyGUI");
+			isExportFUIMultiLang = EditorGUILayout.Toggle("是否导出 FairyGUI 多语言", this.isExportFUIMultiLang, GUILayout.Width(200f));
+
+			if (isExportFUIMultiLang)
 			{
-				ToolsEditor.Proto2CS();
+				EditorGUILayout.BeginHorizontal();
+				{
+					GUIContent guiContent = new GUIContent("FairyGUI语言文件XML路径：", "在 FairyGUI 里生成");
+					
+					EditorGUI.BeginChangeCheck();
+					string xmlPath = EditorGUILayout.TextField(guiContent, fairyGUIXMLPath);
+					if (EditorGUI.EndChangeCheck())
+					{
+						fairyGUIXMLPath = xmlPath;
+					}
+
+				}
+				EditorGUILayout.EndHorizontal();
 			}
 			
 			if (GUILayout.Button("FUI代码生成"))
 			{
-				FUICodeSpawner.FUICodeSpawn();
+				FUICodeSpawner.FUICodeSpawn(isExportFUIMultiLang, fairyGUIXMLPath);
 			}
 
 			GUILayout.Space(5);
