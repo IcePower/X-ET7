@@ -5,7 +5,7 @@ using UnityEngine;
 namespace ET.Client
 {
 	[Event(SceneType.Client)]
-	public class OnPatchDownloadProgressEvent: AEvent<OnPatchDownloadProgress>
+	public class OnPatchDownloadProgressEvent: AEvent<Scene, OnPatchDownloadProgress>
 	{
 		protected override async ETTask Run(Scene scene, OnPatchDownloadProgress a)
 		{
@@ -17,7 +17,7 @@ namespace ET.Client
 	}
 	
 	[Event(SceneType.Client)]
-	public class OnPatchDownlodFailedEvent: AEvent<OnPatchDownlodFailed>
+	public class OnPatchDownlodFailedEvent: AEvent<Scene, OnPatchDownlodFailed>
 	{
 		protected override async ETTask Run(Scene scene, OnPatchDownlodFailed a)
 		{
