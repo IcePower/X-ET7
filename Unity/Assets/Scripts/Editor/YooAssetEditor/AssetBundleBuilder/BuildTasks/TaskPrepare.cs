@@ -40,6 +40,20 @@ namespace YooAsset.Editor
 						throw new Exception("首包资源标签不能为空！");
 				}
 
+				// 检测共享资源打包规则
+				if (buildParameters.ShareAssetPackRule == null)
+					throw new Exception("共享资源打包规则不能为空！");
+
+#if UNITY_WEBGL
+				if (buildParameters.EncryptionServices != null)
+				{
+					if (buildParameters.EncryptionServices.GetType() != typeof(EncryptionNone))
+					{
+						throw new Exception("WebGL平台不支持加密！");
+					}
+				}
+#endif
+
 				// 检测包裹输出目录是否存在
 				string packageOutputDirectory = buildParametersContext.GetPackageOutputDirectory();
 				if (Directory.Exists(packageOutputDirectory))

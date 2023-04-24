@@ -99,6 +99,7 @@ namespace YooAsset
 			if (HasPackage(packageName))
 				throw new Exception($"Package {packageName} already existed !");
 
+			YooLogger.Log($"Create resource package : {packageName}");
 			ResourcePackage package = new ResourcePackage(packageName);
 			_packages.Add(package);
 			return package;
@@ -134,6 +135,21 @@ namespace YooAsset
 					return package;
 			}
 			return null;
+		}
+
+		/// <summary>
+		/// 销毁资源包
+		/// </summary>
+		/// <param name="packageName">资源包名称</param>
+		public static void DestroyPackage(string packageName)
+		{
+			ResourcePackage package = GetPackage(packageName);
+			if (package == null)
+				return;
+
+			YooLogger.Log($"Destroy resource package : {packageName}");
+			_packages.Remove(package);
+			package.DestroyPackage();
 		}
 
 		/// <summary>
@@ -235,10 +251,11 @@ namespace YooAsset
 		}
 
 		/// <summary>
-		/// 清空沙盒目录
+		/// 清空沙盒目录（需要重启APP）
 		/// </summary>
 		public static void ClearSandbox()
 		{
+			YooLogger.Warning("Clear sandbox folder files, Finally, restart the application !");
 			PersistentHelper.DeleteSandbox();
 		}
 		#endregion
