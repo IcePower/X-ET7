@@ -9,6 +9,7 @@ namespace ET.Client
             scene.AddComponent<FUIAssetComponent>();
             scene.AddComponent<FUIComponent>();
             scene.AddComponent<LocalizeComponent>();
+            await ETTask.CompletedTask;
         }
     }
 }

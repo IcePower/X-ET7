@@ -15,7 +15,7 @@
 ,2kcjlx6nlobh1-n6_lbin,LanguageCombo,切换语言,切換語言,SwitchLanguage
 ,2kcjlx6nlobh1-n7_lbin,n7,标签,標簽,Label
 ,2kcjlx6nlobh1-n9_lbin,n9,测试\n换行,測試\n換行,Test\nLineFeed
-,2kcjlx6nlobh1-n12_lbin,n12,"""引'号"",""逗号，测'试""","逗号，测'试""""""",
+,2kcjlx6nlobh1-n12_lbin,n12,"""引'号"",""逗号，测'试""","""引'號"",""逗號，測'試""","""quote"", ""comma, test"""
 ,2kcjlx6nlobh1-n13_lbin,n13,制表符\t测试,製表符\t測試,Tab\tTest
 ,2kcjlx6nlobh1-n14_lbin,n14,测试\n换行,測試\n換行,Test\nLineFeed
 ##,TestB/TestBPanel.xml,,,,

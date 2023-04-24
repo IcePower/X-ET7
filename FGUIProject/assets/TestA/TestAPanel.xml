@@ -21,7 +21,7 @@
     </component>
     <text id="n9_lbin" name="n9" xy="81,1170" size="312,144" fontSize="50" align="center" vAlign="middle" ubb="true" autoSize="none" text="测试&#xA;换行"/>
     <text id="n10_lbin" name="n10" xy="82,1366" size="312,144" fontSize="50" align="center" vAlign="middle" autoSize="none" autoClearText="true" text="发布时清除"/>
-    <text id="n12_lbin" name="n12" xy="80,972" size="312,144" fontSize="50" align="center" vAlign="middle" ubb="true" autoSize="none" text="&quot;引&apos;号&quot;,&quot;逗号，测&apos;试&quot;"/>
+    <text id="n12_lbin" name="n12" xy="81,943" size="313,131" fontSize="50" align="center" vAlign="middle" ubb="true" autoSize="height" text="&quot;引&apos;号&quot;,&quot;逗号，测&apos;试&quot;"/>
     <text id="n13_lbin" name="n13" xy="450,964" size="312,144" fontSize="50" align="center" vAlign="middle" ubb="true" autoSize="none" text="制表符&#x9;测试"/>
     <text id="n14_lbin" name="n14" xy="448,1180" size="312,144" fontSize="50" align="center" vAlign="middle" ubb="true" autoSize="none" text="测试\n换行"/>
   </displayList>
