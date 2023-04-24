@@ -124,7 +124,7 @@ namespace ET
 			GUILayout.Label("");
 			GUILayout.Label("Code Compile：");
 			
-			CodeMode codeMode = (CodeMode)EditorGUILayout.EnumPopup("CodeMode: ", this.globalConfig.CodeMode);
+			var codeMode = (CodeMode)EditorGUILayout.EnumPopup("CodeMode: ", this.globalConfig.CodeMode);
 			if (codeMode != this.globalConfig.CodeMode)
 			{
 				this.globalConfig.CodeMode = codeMode;
@@ -132,7 +132,7 @@ namespace ET
 				AssetDatabase.SaveAssets();
 			}
 			
-			EPlayMode playMode = (EPlayMode)EditorGUILayout.EnumPopup("PlayMode: ", this.globalConfig.PlayMode);
+			var playMode = (EPlayMode)EditorGUILayout.EnumPopup("PlayMode: ", this.globalConfig.PlayMode);
 			if (playMode != this.globalConfig.PlayMode)
 			{
 				this.globalConfig.PlayMode = playMode;

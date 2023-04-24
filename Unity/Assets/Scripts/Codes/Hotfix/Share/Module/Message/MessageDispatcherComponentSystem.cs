@@ -94,10 +94,10 @@ namespace ET
                 return;
             }
 
-            SceneType sceneType = session.DomainScene().SceneType;
+            SceneType sceneType = session.Domain.SceneType;
             foreach (MessageDispatcherInfo ev in actions)
             {
-                if (ev.SceneType != sceneType)
+                if (!ev.SceneType.HasSameFlag(sceneType))
                 {
                     continue;
                 }

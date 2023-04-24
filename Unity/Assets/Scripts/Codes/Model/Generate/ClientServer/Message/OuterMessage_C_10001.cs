@@ -42,7 +42,7 @@ namespace ET
 
 	[Message(OuterMessage.M2C_TestResponse)]
 	[ProtoContract]
-	public partial class M2C_TestResponse: ProtoObject, IActorLocationResponse
+	public partial class M2C_TestResponse: ProtoObject, IActorResponse
 	{
 		[ProtoMember(1)]
 		public int RpcId { get; set; }
@@ -191,7 +191,7 @@ namespace ET
 	[ProtoContract]
 	public partial class M2C_RemoveUnits: ProtoObject, IActorMessage
 	{
-		[ProtoMember(2)]
+		[ProtoMember(1)]
 		public List<long> Units { get; set; }
 
 	}
@@ -443,7 +443,7 @@ namespace ET
 
 	[Message(OuterMessage.M2C_TestRobotCase2)]
 	[ProtoContract]
-	public partial class M2C_TestRobotCase2: ProtoObject, IActorMessage
+	public partial class M2C_TestRobotCase2: ProtoObject, IActorLocationMessage
 	{
 		[ProtoMember(1)]
 		public int RpcId { get; set; }

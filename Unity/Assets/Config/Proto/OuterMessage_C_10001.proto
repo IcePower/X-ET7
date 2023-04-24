@@ -20,9 +20,9 @@ message C2M_TestRequest // IActorLocationRequest
 	string request = 2;
 }
 
-message M2C_TestResponse // IActorLocationResponse
+message M2C_TestResponse // IActorResponse
 {
-	int32 RpcId = 1;
+    int32 RpcId = 1;
 	int32 Error = 2;
 	string Message = 3;
 	string response = 4;
@@ -93,7 +93,7 @@ message M2C_StartSceneChange // IActorMessage
 
 message M2C_RemoveUnits // IActorMessage
 {
-	repeated int64 Units = 2;
+	repeated int64 Units = 1;
 }
 
 message C2M_PathfindingResult // IActorLocationMessage
@@ -216,7 +216,7 @@ message C2M_TestRobotCase2 // IActorLocationMessage
 	int32 N = 2;
 }
 
-message M2C_TestRobotCase2 // IActorMessage
+message M2C_TestRobotCase2 // IActorLocationMessage
 {
 	int32 RpcId = 1;
 	int32 N = 2;

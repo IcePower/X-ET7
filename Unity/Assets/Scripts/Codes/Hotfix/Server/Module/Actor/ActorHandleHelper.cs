@@ -8,8 +8,12 @@ namespace ET.Server
         {
             if (fromProcess == Options.Instance.Process) // 返回消息是同一个进程
             {
-                // NetInnerComponent.Instance.HandleMessage(realActorId, response); 等同于直接调用下面这句
-                ActorMessageSenderComponent.Instance.HandleIActorResponse(response);
+                async ETTask HandleMessageInNextFrame()
+                {
+                    await TimerComponent.Instance.WaitFrameAsync();
+                    NetInnerComponent.Instance.HandleMessage(0, response);
+                }
+                HandleMessageInNextFrame().Coroutine();
                 return;
             }
 
@@ -71,7 +75,6 @@ namespace ET.Server
                     await ActorMessageDispatcherComponent.Instance.Handle(entity, fromProcess, iActorRequest);
                     break;
                 }
-                case MailboxType.GateSession:
                 default:
                     throw new Exception($"no mailboxtype: {mailBoxComponent.MailboxType} {iActorRequest}");
             }
@@ -123,10 +126,9 @@ namespace ET.Server
                 }
                 case MailboxType.GateSession:
                 {
-                    if (entity is Session gateSession)
+                    if (entity is Player player)
                     {
-                        // 发送给客户端
-                        gateSession.Send(iActorMessage);
+                        player.GetComponent<PlayerSessionComponent>()?.Session?.Send(iActorMessage);
                     }
                     break;
                 }

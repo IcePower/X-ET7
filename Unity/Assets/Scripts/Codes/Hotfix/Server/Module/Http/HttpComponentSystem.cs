@@ -62,7 +62,7 @@ namespace ET.Server
 
             HashSet<Type> types = EventSystem.Instance.GetTypes(typeof (HttpHandlerAttribute));
 
-            SceneType sceneType = self.GetParent<Scene>().SceneType;
+            SceneType sceneType = (self.Parent as IScene).SceneType;
 
             foreach (Type type in types)
             {
@@ -117,7 +117,7 @@ namespace ET.Server
                 IHttpHandler handler;
                 if (self.dispatcher.TryGetValue(context.Request.Url.AbsolutePath, out handler))
                 {
-                    await handler.Handle(self.Domain, context);
+                    await handler.Handle(self.DomainScene(), context);
                 }
             }
             catch (Exception e)

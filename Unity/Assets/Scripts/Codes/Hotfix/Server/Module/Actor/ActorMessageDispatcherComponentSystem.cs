@@ -98,13 +98,13 @@ namespace ET.Server
             List<ActorMessageDispatcherInfo> list;
             if (!self.ActorMessageHandlers.TryGetValue(message.GetType(), out list))
             {
-                throw new Exception($"not found message handler: {message}");
+                throw new Exception($"not found message handler: {message} {entity.GetType().Name}");
             }
 
-            SceneType sceneType = entity.DomainScene().SceneType;
+            SceneType sceneType = entity.Domain.SceneType;
             foreach (ActorMessageDispatcherInfo actorMessageDispatcherInfo in list)
             {
-                if (actorMessageDispatcherInfo.SceneType != sceneType)
+                if (!actorMessageDispatcherInfo.SceneType.HasSameFlag(sceneType))
                 {
                     continue;
                 }

@@ -1,7 +1,7 @@
-﻿namespace ET.Client
+﻿namespace ET.Server
 {
-	[ComponentOf(typeof(Scene))]
-	public class SessionComponent: Entity, IAwake, IDestroy
+	[ComponentOf(typeof(Player))]
+	public class PlayerSessionComponent : Entity, IAwake
 	{
 		private long sessionInstanceId;
 
