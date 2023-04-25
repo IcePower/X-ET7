@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using HybridCLR.Editor;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.Compilation;
@@ -70,6 +71,17 @@ namespace ET
 
             string assemblyName = $"Model_{++globalConfig.ModelVersion}";
             EditorUtility.SetDirty(globalConfig);
+
+            // 修改 HybridCLR 设置里的热更程序集名
+            for (int index = 0; index < SettingsUtil.HybridCLRSettings.hotUpdateAssemblies.Length; index++)
+            {
+                string assembly = SettingsUtil.HybridCLRSettings.hotUpdateAssemblies[index];
+                if (assembly.StartsWith("Model"))
+                {
+                    SettingsUtil.HybridCLRSettings.hotUpdateAssemblies[index] = assemblyName;
+                }
+            }
+
             AssetDatabase.SaveAssets();
             
             BuildAssembliesHelper.BuildMuteAssembly(assemblyName, codes, Array.Empty<string>(), codeOptimization, globalConfig.CodeMode);
@@ -132,6 +144,17 @@ namespace ET
 
             string assemblyName = $"Hotfix_{++globalConfig.HotFixVersion}";
             EditorUtility.SetDirty(globalConfig);
+            
+            // 修改 HybridCLR 设置里的热更程序集名
+            for (int index = 0; index < SettingsUtil.HybridCLRSettings.hotUpdateAssemblies.Length; index++)
+            {
+                string assembly = SettingsUtil.HybridCLRSettings.hotUpdateAssemblies[index];
+                if (assembly.StartsWith("Hotfix"))
+                {
+                    SettingsUtil.HybridCLRSettings.hotUpdateAssemblies[index] = assemblyName;
+                }
+            }
+            
             AssetDatabase.SaveAssets();
 
             BuildAssembliesHelper.BuildMuteAssembly(assemblyName, codes, new[] { Path.Combine(CodeDir, $"Model_{globalConfig.ModelVersion}.dll.bytes") }, codeOptimization,
