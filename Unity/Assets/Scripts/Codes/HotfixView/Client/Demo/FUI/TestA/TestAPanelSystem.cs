@@ -48,21 +48,34 @@ namespace ET.Client
 				switch (self.FUITestAPanel.LanguageCombo.selectedIndex)
 				{
 					case 0:
-						self.ClientScene().GetComponent<LocalizeComponent>().SwitchLanguage(SystemLanguage.ChineseSimplified);
+						self.SwitchLanguage(SystemLanguage.ChineseSimplified);
 						PrintUnitsName();
 						break;
 					
 					case 1:
-						self.ClientScene().GetComponent<LocalizeComponent>().SwitchLanguage(SystemLanguage.ChineseTraditional);
+						self.SwitchLanguage(SystemLanguage.ChineseTraditional);
 						PrintUnitsName();
 						break;
 					
 					case 2:
-						self.ClientScene().GetComponent<LocalizeComponent>().SwitchLanguage(SystemLanguage.English);
+						self.SwitchLanguage(SystemLanguage.English);
 						PrintUnitsName();
 						break;
 				}
 			});
+		}
+		
+		private static void SwitchLanguage(this TestAPanel self, SystemLanguage language)
+		{
+			var localizeComponent = self.ClientScene().GetComponent<LocalizeComponent>();
+			if (!localizeComponent.SwitchLanguage(language))
+			{
+				return;
+			}
+
+			var (translateExcel, translateFUI) = localizeComponent.GetCurrentTranslator();
+			ConfigComponent.Instance.TranslateText(translateExcel);
+			self.ClientScene().GetComponent<FUIComponent>().TranslateText(language, translateFUI);
 		}
 
 		private static void PrintUnitsName()

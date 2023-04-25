@@ -15,18 +15,16 @@ namespace ET.Client
     [FriendOf(typeof(LocalizeComponent))]
     public static class LocalizeComponentSystem
     {
-        public static void SwitchLanguage(this LocalizeComponent self, SystemLanguage language)
+        public static bool SwitchLanguage(this LocalizeComponent self, SystemLanguage language)
         {
             if (self.CurrentLanguage == language)
             {
-                return;
+                return false;
             }
             
             self.CurrentLanguage = language;
 
-            var (translateExcel, translateFUI) = self.GetCurrentTranslator();
-            ConfigComponent.Instance.TranslateText(translateExcel);
-            self.ClientScene().GetComponent<FUIComponent>().TranslateText(self.CurrentLanguage, translateFUI);
+            return true;
         }
 
         public static (Func<string, string, string>, Func<string, string, string>) GetCurrentTranslator(this LocalizeComponent self)
