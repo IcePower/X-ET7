@@ -14,7 +14,7 @@ namespace FUIEditor
     public static class FUILocalizeHandler
     {
         // 本工具导出的 CSV 文件路径
-        private static readonly string CSVPath = $"{Application.dataPath}/Config/Excel/Datas/LocalizeConfig_FUI.csv";
+        private static readonly string CSVPath = $"{Application.dataPath}/Config/Excel/Datas/LocalizeConfig_UI.csv";
 
         // 增加语言的话，在这里 new LanguageConfig。
         private static readonly LanguageConfig[] LanguageConfigs = new[]

@@ -61,21 +61,21 @@ namespace ET.Client
         
         private static string Translate_FUI_CHS(this LocalizeComponent self, string key, string originText)
         {
-            string str = LocalizeConfig_FUI_CHSCategory.Instance.GetOrDefault(key)?.TextCHS ?? originText;
+            string str = LocalizeConfig_UI_CHSCategory.Instance.GetOrDefault(key)?.TextCHS ?? originText;
             str = DecodeString(str);
             return str;
         }
         
         private static string Translate_FUI_CHT(this LocalizeComponent self, string key, string originText)
         {
-            string str = LocalizeConfig_FUI_CHTCategory.Instance.GetOrDefault(key)?.TextCHT ?? originText;
+            string str = LocalizeConfig_UI_CHTCategory.Instance.GetOrDefault(key)?.TextCHT ?? originText;
             str = DecodeString(str);
             return str;
         }
         
         private static string Translate_FUI_EN(this LocalizeComponent self, string key, string originText)
         {
-            string str = LocalizeConfig_FUI_ENCategory.Instance.GetOrDefault(key)?.TextEN ?? originText;
+            string str = LocalizeConfig_UI_ENCategory.Instance.GetOrDefault(key)?.TextEN ?? originText;
             str = DecodeString(str);
             return str;
         }

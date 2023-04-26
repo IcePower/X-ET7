@@ -12,20 +12,20 @@ namespace ET
 {
    
 [Config]
-public partial class LocalizeConfig_FUI_CHSCategory: ConfigSingleton<LocalizeConfig_FUI_CHSCategory>
+public partial class LocalizeConfig_UI_CHTCategory: ConfigSingleton<LocalizeConfig_UI_CHTCategory>
 {
-    private readonly Dictionary<string, LocalizeConfig_CHS> _dataMap;
-    private readonly List<LocalizeConfig_CHS> _dataList;
+    private readonly Dictionary<string, LocalizeConfig_CHT> _dataMap;
+    private readonly List<LocalizeConfig_CHT> _dataList;
     
-    public LocalizeConfig_FUI_CHSCategory(ByteBuf _buf)
+    public LocalizeConfig_UI_CHTCategory(ByteBuf _buf)
     {
-        _dataMap = new Dictionary<string, LocalizeConfig_CHS>();
-        _dataList = new List<LocalizeConfig_CHS>();
+        _dataMap = new Dictionary<string, LocalizeConfig_CHT>();
+        _dataList = new List<LocalizeConfig_CHT>();
         
         for(int n = _buf.ReadSize() ; n > 0 ; --n)
         {
-            LocalizeConfig_CHS _v;
-            _v = LocalizeConfig_CHS.DeserializeLocalizeConfig_CHS(_buf);
+            LocalizeConfig_CHT _v;
+            _v = LocalizeConfig_CHT.DeserializeLocalizeConfig_CHT(_buf);
             _dataList.Add(_v);
             _dataMap.Add(_v.Key, _v);
         }
@@ -37,16 +37,16 @@ public partial class LocalizeConfig_FUI_CHSCategory: ConfigSingleton<LocalizeCon
         return _dataMap.ContainsKey(id);
     }
 
-    public Dictionary<string, LocalizeConfig_CHS> GetAll()
+    public Dictionary<string, LocalizeConfig_CHT> GetAll()
     {
         return _dataMap;
     }
     
-    public List<LocalizeConfig_CHS> DataList => _dataList;
+    public List<LocalizeConfig_CHT> DataList => _dataList;
 
-    public LocalizeConfig_CHS GetOrDefault(string key) => _dataMap.TryGetValue(key, out var v) ? v : null;
-    public LocalizeConfig_CHS Get(string key) => _dataMap[key];
-    public LocalizeConfig_CHS this[string key] => _dataMap[key];
+    public LocalizeConfig_CHT GetOrDefault(string key) => _dataMap.TryGetValue(key, out var v) ? v : null;
+    public LocalizeConfig_CHT Get(string key) => _dataMap[key];
+    public LocalizeConfig_CHT this[string key] => _dataMap[key];
 
     public override void Resolve(Dictionary<string, IConfigSingleton> _tables)
     {
@@ -74,7 +74,7 @@ public partial class LocalizeConfig_FUI_CHSCategory: ConfigSingleton<LocalizeCon
     
     public override string ConfigName()
     {
-        return typeof(LocalizeConfig_CHS).Name;
+        return typeof(LocalizeConfig_CHT).Name;
     }
     
     partial void PostInit();

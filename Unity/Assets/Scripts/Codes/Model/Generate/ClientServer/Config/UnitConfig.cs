@@ -61,7 +61,7 @@ public sealed partial class UnitConfig: Bright.Config.BeanBase
 
     public  void Resolve(Dictionary<string, IConfigSingleton> _tables)
     {
-        PostResolve(); 
+        PostResolve();
     }
 
     public  void TranslateText(System.Func<string, string, string> translator)

@@ -12,12 +12,12 @@ namespace ET
 {
    
 [Config]
-public partial class LocalizeConfig_FUI_ENCategory: ConfigSingleton<LocalizeConfig_FUI_ENCategory>
+public partial class LocalizeConfig_UI_ENCategory: ConfigSingleton<LocalizeConfig_UI_ENCategory>
 {
     private readonly Dictionary<string, LocalizeConfig_EN> _dataMap;
     private readonly List<LocalizeConfig_EN> _dataList;
     
-    public LocalizeConfig_FUI_ENCategory(ByteBuf _buf)
+    public LocalizeConfig_UI_ENCategory(ByteBuf _buf)
     {
         _dataMap = new Dictionary<string, LocalizeConfig_EN>();
         _dataList = new List<LocalizeConfig_EN>();
