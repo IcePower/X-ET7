@@ -100,6 +100,11 @@ namespace FUIEditor
             foreach (var packageDir in packageDirs)
             {
                 PackageInfo packageInfo = ParsePackage(packageDir);
+                if (packageInfo == null)
+                {
+                    continue;
+                }
+                
                 PackageInfos.Add(packageInfo.Id, packageInfo);
             }
         }
@@ -110,7 +115,14 @@ namespace FUIEditor
 
             packageInfo.Path = packageDir;
             packageInfo.Name = Path.GetFileName(packageDir);
-                
+
+            string packageXmlPath = $"{packageDir}/package.xml";
+            if (!File.Exists(packageXmlPath))
+            {
+                Log.Warning($"{packageXmlPath} 不存在！");
+                return null;
+            }
+            
             XML xml = new XML(File.ReadAllText(packageDir + "/package.xml"));
             packageInfo.Id = xml.GetAttribute("id");
 

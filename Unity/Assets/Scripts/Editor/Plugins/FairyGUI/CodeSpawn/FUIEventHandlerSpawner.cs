@@ -56,12 +56,6 @@ namespace FUIEditor
             sb.AppendFormat("\t\t\tfuiEntity.GetComponent<{0}>().RegisterUIEvent();", panelName);
             sb.AppendLine();
             sb.AppendLine("\t\t}");
-
-            sb.AppendLine();
-            sb.AppendLine("\t\tpublic void TranslateText(FUIEntity fuiEntity, SystemLanguage systemLanguage, Func<string, string, string> translator)");
-            sb.AppendLine("\t\t{");
-            sb.AppendLine($"\t\t\tfuiEntity.GetComponent<{panelName}>().TranslateText(systemLanguage, translator);");
-            sb.AppendLine("\t\t}");
             
             sb.AppendLine();
             sb.AppendFormat("\t\tpublic void OnShow(FUIEntity fuiEntity, Entity contextData = null)");

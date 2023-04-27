@@ -19,18 +19,6 @@ namespace ET.Client
 			
 			self.FUILobbyPanel.EnterMap.AddListnerAsync(self.EnterMap);
 		}
-		
-		public static void TranslateText(this LobbyPanel self, SystemLanguage systemLanguage, Func<string, string, string> translator)
-		{
-			//本函数自动生成，请勿手动修改
-			if (self.Language == systemLanguage)
-			{
-				return;
-			}
-
-			self.FUILobbyPanel.TestABtn.text = translator("ti3ka994t52l0-n2_lobh", self.FUILobbyPanel.TestABtn.text);
-			self.FUILobbyPanel.EnterMap.text = translator("ti3ka994t52l0-n3_lobh", self.FUILobbyPanel.EnterMap.text);
-		}
 
 		public static void OnShow(this LobbyPanel self, Entity contextData = null)
 		{

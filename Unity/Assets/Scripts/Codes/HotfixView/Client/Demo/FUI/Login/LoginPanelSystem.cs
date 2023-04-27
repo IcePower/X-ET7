@@ -14,17 +14,6 @@ namespace ET.Client
 		{
 			self.FUILoginPanel.LoginBtn.AddListnerAsync(self.Login);
 		}
-		
-		public static void TranslateText(this LoginPanel self, SystemLanguage systemLanguage, Func<string, string, string> translator)
-		{
-			//本函数自动生成，请勿手动修改
-			if (self.Language == systemLanguage)
-			{
-				return;
-			}
-
-			self.FUILoginPanel.LoginBtn.text = translator("rgfb0w498omm0-n27_lobh", self.FUILoginPanel.LoginBtn.text);
-		}
 
 		public static void OnShow(this LoginPanel self, Entity contextData = null)
 		{

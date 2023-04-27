@@ -10,18 +10,6 @@ namespace ET.Client
 
 		}
 
-		public static void TranslateText(this TestBPanel self, SystemLanguage systemLanguage, Func<string, string, string> translator)
-		{
-			//本函数自动生成，请勿手动修改
-			if (self.Language == systemLanguage)
-			{
-				return;
-			}
-
-			self.FUITestBPanel.n0.text = translator("296l7tjhlobh0-n0_lobh", self.FUITestBPanel.n0.text);
-			self.FUITestBPanel.CloseBtn.text = translator("296l7tjhlobh0-n1_lobh", self.FUITestBPanel.CloseBtn.text);
-		}
-
 		public static void RegisterUIEvent(this TestBPanel self)
 		{
 			self.FUITestBPanel.CloseBtn.AddListner(() =>

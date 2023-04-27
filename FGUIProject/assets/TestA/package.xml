@@ -2,6 +2,13 @@
 <packageDescription id="2kcjlx6n">
   <resources>
     <component id="lobh1" name="TestAPanel.xml" path="/" exported="true"/>
+    <component id="w6rg2" name="Button1.xml" path="/" exported="true"/>
+    <component id="w6rg3" name="Button2.xml" path="/" exported="true"/>
+    <component id="w6rg4" name="RadioButton.xml" path="/"/>
+    <image id="w6rg5" name="a1_png.png" path="/images/"/>
+    <image id="w6rg6" name="a2_png.png" path="/images/"/>
+    <image id="w6rg7" name="a3_png.png" path="/images/"/>
+    <image id="w6rg8" name="a4_png.png" path="/images/"/>
   </resources>
   <publish name="" path="../Unity/Assets/Bundles/FUI/TestA" packageCount="2"/>
 </packageDescription>

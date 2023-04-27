@@ -24,11 +24,6 @@ namespace ET.Client
 			fuiEntity.GetComponent<HotUpdatePanel>().RegisterUIEvent();
 		}
 
-		public void TranslateText(FUIEntity fuiEntity, SystemLanguage systemLanguage, Func<string, string, string> translator)
-		{
-			fuiEntity.GetComponent<HotUpdatePanel>().TranslateText(systemLanguage, translator);
-		}
-
 		public void OnShow(FUIEntity fuiEntity, Entity contextData = null)
 		{
 			fuiEntity.GetComponent<HotUpdatePanel>().OnShow(contextData);

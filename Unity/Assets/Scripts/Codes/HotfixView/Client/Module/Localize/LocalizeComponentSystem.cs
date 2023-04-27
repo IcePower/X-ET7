@@ -23,6 +23,8 @@ namespace ET.Client
             }
             
             self.CurrentLanguage = language;
+            
+            EventSystem.Instance.Publish(self.ClientScene(), new EventType.SwitchLanguage() {Language = language});
 
             return true;
         }

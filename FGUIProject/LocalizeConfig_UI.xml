@@ -7,17 +7,27 @@
   <string name="ti3ka994t52l0-n3_lobh" mz="EnterMap">进入地图</string>
   <!-- Login/LoginPanel.xml -->
   <string name="rgfb0w498omm0-n27_lobh" mz="LoginBtn">进入地图</string>
+  <!-- TestA/Button1.xml -->
+  <string name="2kcjlx6nw6rg2-n3_w6rg" mz="Text1">文字1</string>
+  <string name="2kcjlx6nw6rg2-n4_w6rg" mz="Text2">文字2</string>
+  <string name="2kcjlx6nw6rg2-n5_w6rg" mz="title">标题</string>
   <!-- TestA/TestAPanel.xml -->
   <string name="2kcjlx6nlobh1-n1_lobh" mz="n1">多语言测试</string>
   <string name="2kcjlx6nlobh1-n2_lobh" mz="HideBtn">隐藏测试A界面</string>
   <string name="2kcjlx6nlobh1-n0_lobh" mz="OpenTestBBtn">打开测试B界面</string>
-  <string name="2kcjlx6nlobh1-n6_lbin" mz="LanguageCombo">切换语言</string>
   <string name="2kcjlx6nlobh1-n7_lbin" mz="n7">标签</string>
   <string name="2kcjlx6nlobh1-n9_lbin" mz="n9">测试
 换行</string>
   <string name="2kcjlx6nlobh1-n12_lbin" mz="n12">"引'号","逗号，测'试"</string>
   <string name="2kcjlx6nlobh1-n13_lbin" mz="n13">制表符	测试</string>
   <string name="2kcjlx6nlobh1-n14_lbin" mz="n14">测试\n换行</string>
+  <string name="2kcjlx6nlobh1-n15_w6rg" mz="n15">按钮</string>
+  <string name="2kcjlx6nlobh1-n15_w6rg-0" mz="n15">选中标题</string>
+  <string name="2kcjlx6nlobh1-n19_w6rg" mz="n19">选项2</string>
+  <string name="2kcjlx6nlobh1-n19_w6rg-0" mz="n19">选中选项2</string>
+  <string name="2kcjlx6nlobh1-n18_w6rg" mz="n18">选项1</string>
+  <string name="2kcjlx6nlobh1-n18_w6rg-0" mz="n18">选中选项1</string>
+  <string name="2kcjlx6nlobh1-n23_w6rg" mz="n23">富文本</string>
   <!-- TestB/TestBPanel.xml -->
   <string name="296l7tjhlobh0-n0_lobh" mz="n0">测试B</string>
   <string name="296l7tjhlobh0-n1_lobh" mz="CloseBtn">关闭测试B界面</string>

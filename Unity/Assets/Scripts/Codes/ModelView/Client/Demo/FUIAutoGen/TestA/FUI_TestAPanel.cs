@@ -7,6 +7,7 @@ namespace ET.Client.TestA
 {
 	public partial class FUI_TestAPanel: GComponent
 	{
+		public Controller c1;
 		public GTextField n1;
 		public ET.Client.Common.FUI_CommonBtn HideBtn;
 		public ET.Client.Common.FUI_CommonBtn OpenTestBBtn;
@@ -18,6 +19,10 @@ namespace ET.Client.TestA
 		public GTextField n12;
 		public GTextField n13;
 		public GTextField n14;
+		public ET.Client.TestA.FUI_Button1 n15;
+		public GButton n19;
+		public GButton n18;
+		public GRichTextField n23;
 		public const string URL = "ui://2kcjlx6nlobh1";
 
 		public static FUI_TestAPanel CreateInstance()
@@ -29,6 +34,7 @@ namespace ET.Client.TestA
 		{
 			base.ConstructFromXML(xml);
 
+			c1 = GetControllerAt(0);
 			n1 = (GTextField)GetChildAt(0);
 			HideBtn = (ET.Client.Common.FUI_CommonBtn)GetChildAt(1);
 			OpenTestBBtn = (ET.Client.Common.FUI_CommonBtn)GetChildAt(2);
@@ -40,6 +46,10 @@ namespace ET.Client.TestA
 			n12 = (GTextField)GetChildAt(8);
 			n13 = (GTextField)GetChildAt(9);
 			n14 = (GTextField)GetChildAt(10);
+			n15 = (ET.Client.TestA.FUI_Button1)GetChildAt(11);
+			n19 = (GButton)GetChildAt(12);
+			n18 = (GButton)GetChildAt(13);
+			n23 = (GRichTextField)GetChildAt(14);
 		}
 	}
 }

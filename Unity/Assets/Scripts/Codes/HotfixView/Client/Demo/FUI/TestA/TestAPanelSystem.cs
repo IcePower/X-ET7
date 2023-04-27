@@ -1,4 +1,5 @@
 using System;
+using FairyGUI;
 using UnityEngine;
 
 namespace ET.Client
@@ -9,25 +10,6 @@ namespace ET.Client
 		public static void Awake(this TestAPanel self)
 		{
 
-		}
-		
-		public static void TranslateText(this TestAPanel self, SystemLanguage systemLanguage, Func<string, string, string> translator)
-		{
-			//本函数自动生成，请勿手动修改
-			if (self.Language == systemLanguage)
-			{
-				return;
-			}
-
-			self.FUITestAPanel.n1.text = translator("2kcjlx6nlobh1-n1_lobh", self.FUITestAPanel.n1.text);
-			self.FUITestAPanel.HideBtn.text = translator("2kcjlx6nlobh1-n2_lobh", self.FUITestAPanel.HideBtn.text);
-			self.FUITestAPanel.OpenTestBBtn.text = translator("2kcjlx6nlobh1-n0_lobh", self.FUITestAPanel.OpenTestBBtn.text);
-			self.FUITestAPanel.LanguageCombo.text = translator("2kcjlx6nlobh1-n6_lbin", self.FUITestAPanel.LanguageCombo.text);
-			self.FUITestAPanel.n7.text = translator("2kcjlx6nlobh1-n7_lbin", self.FUITestAPanel.n7.text);
-			self.FUITestAPanel.n9.text = translator("2kcjlx6nlobh1-n9_lbin", self.FUITestAPanel.n9.text);
-			self.FUITestAPanel.n12.text = translator("2kcjlx6nlobh1-n12_lbin", self.FUITestAPanel.n12.text);
-			self.FUITestAPanel.n13.text = translator("2kcjlx6nlobh1-n13_lbin", self.FUITestAPanel.n13.text);
-			self.FUITestAPanel.n14.text = translator("2kcjlx6nlobh1-n14_lbin", self.FUITestAPanel.n14.text);
 		}
 
 		public static void RegisterUIEvent(this TestAPanel self)
@@ -43,6 +25,7 @@ namespace ET.Client
 			});
 			
 			self.FUITestAPanel.LanguageCombo.items = new string[] {"简体中文", "繁體中文", "English"};
+			self.FUITestAPanel.LanguageCombo.selectedIndex = 0;
 			self.FUITestAPanel.LanguageCombo.onChanged.Add(() =>
 			{
 				switch (self.FUITestAPanel.LanguageCombo.selectedIndex)
@@ -67,15 +50,7 @@ namespace ET.Client
 		
 		private static void SwitchLanguage(this TestAPanel self, SystemLanguage language)
 		{
-			var localizeComponent = self.ClientScene().GetComponent<LocalizeComponent>();
-			if (!localizeComponent.SwitchLanguage(language))
-			{
-				return;
-			}
-
-			var (translateExcel, translateFUI) = localizeComponent.GetCurrentTranslator();
-			ConfigComponent.Instance.TranslateText(translateExcel);
-			self.ClientScene().GetComponent<FUIComponent>().TranslateText(language, translateFUI);
+			self.ClientScene().GetComponent<LocalizeComponent>().SwitchLanguage(language);
 		}
 
 		private static void PrintUnitsName()

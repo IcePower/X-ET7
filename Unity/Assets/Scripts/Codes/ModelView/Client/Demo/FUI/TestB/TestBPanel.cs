@@ -6,8 +6,6 @@ namespace ET.Client
 	[ComponentOf(typeof(FUIEntity))]
 	public class TestBPanel: Entity, IAwake
 	{
-		public SystemLanguage Language { get; set; }
-
 		private FUI_TestBPanel _fuiTestBPanel;
 
 		public FUI_TestBPanel FUITestBPanel

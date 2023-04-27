@@ -24,11 +24,6 @@ namespace ET.Client
 			fuiEntity.GetComponent<TestAPanel>().RegisterUIEvent();
 		}
 
-		public void TranslateText(FUIEntity fuiEntity, SystemLanguage systemLanguage, Func<string, string, string> translator)
-		{
-			fuiEntity.GetComponent<TestAPanel>().TranslateText(systemLanguage, translator);
-		}
-
 		public void OnShow(FUIEntity fuiEntity, Entity contextData = null)
 		{
 			fuiEntity.GetComponent<TestAPanel>().OnShow(contextData);

@@ -128,16 +128,6 @@ namespace FUIEditor
             {
                 VariableInfo variableInfo = this.VariableInfos[index];
                 (variableInfo.TypeName, variableInfo.RealTypeName) = GetTypeNameByDisplayXML(this.PackageId, variableInfo.displayXML);
-
-                // 自动清除的话不需要多语言
-                if (variableInfo.displayXML.GetAttribute("autoClearText") != "true")
-                {
-                    // 这些类型的元件有 title 对象，需要设置 LanguageKey。
-                    if (variableInfo.RealTypeName is "GTextField" or "GRichTextField" or "GButton" or "GComboBox" or "GLabel")
-                    {
-                        variableInfo.LanguageKey = $"{this.PackageId}{Id}-{variableInfo.displayXML.GetAttribute("id")}";
-                    }
-                }
             }
         }
         

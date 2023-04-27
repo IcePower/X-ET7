@@ -24,11 +24,6 @@ namespace ET.Client
 			fuiEntity.GetComponent<LoginPanel>().RegisterUIEvent();
 		}
 
-		public void TranslateText(FUIEntity fuiEntity, SystemLanguage systemLanguage, Func<string, string, string> translator)
-		{
-			fuiEntity.GetComponent<LoginPanel>().TranslateText(systemLanguage, translator);
-		}
-
 		public void OnShow(FUIEntity fuiEntity, Entity contextData = null)
 		{
 			fuiEntity.GetComponent<LoginPanel>().OnShow(contextData);

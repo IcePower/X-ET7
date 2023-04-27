@@ -33,17 +33,6 @@ namespace ET.Client
 
 		}
 
-		public static void TranslateText(this HotUpdatePanel self, SystemLanguage systemLanguage, Func<string, string, string> translator)
-		{
-			//本函数自动生成，请勿手动修改
-			if (self.Language == systemLanguage)
-			{
-				return;
-			}
-
-			self.FUIHotUpdatePanel.n0.text = translator("2f8jqefflobh0-n0_lobh", self.FUIHotUpdatePanel.n0.text);
-		}
-
 		public static void RegisterUIEvent(this HotUpdatePanel self)
 		{
 

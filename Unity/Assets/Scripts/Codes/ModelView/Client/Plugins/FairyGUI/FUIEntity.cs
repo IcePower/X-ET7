@@ -35,6 +35,8 @@ namespace ET.Client
 
         public Entity ContextData { get; set; }
 
+        public SystemLanguage Language { get; set; }
+
         public bool IsUsingStack;
     }
 }

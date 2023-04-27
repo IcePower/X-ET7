@@ -16,6 +16,18 @@
     "TextEN": "EnterMap"
   },
   {
+    "key": "2kcjlx6nw6rg2-n3_w6rg",
+    "TextEN": "Text1"
+  },
+  {
+    "key": "2kcjlx6nw6rg2-n4_w6rg",
+    "TextEN": "Text2"
+  },
+  {
+    "key": "2kcjlx6nw6rg2-n5_w6rg",
+    "TextEN": "Title"
+  },
+  {
     "key": "2kcjlx6nlobh1-n1_lobh",
     "TextEN": "TestA"
   },
@@ -26,10 +38,6 @@
   {
     "key": "2kcjlx6nlobh1-n0_lobh",
     "TextEN": "OpenTestB"
-  },
-  {
-    "key": "2kcjlx6nlobh1-n6_lbin",
-    "TextEN": "SwitchLanguage"
   },
   {
     "key": "2kcjlx6nlobh1-n7_lbin",
@@ -50,6 +58,34 @@
   {
     "key": "2kcjlx6nlobh1-n14_lbin",
     "TextEN": "Test\\nLineFeed"
+  },
+  {
+    "key": "2kcjlx6nlobh1-n15_w6rg",
+    "TextEN": "Button"
+  },
+  {
+    "key": "2kcjlx6nlobh1-n15_w6rg-0",
+    "TextEN": "Select Title"
+  },
+  {
+    "key": "2kcjlx6nlobh1-n19_w6rg",
+    "TextEN": "Option2"
+  },
+  {
+    "key": "2kcjlx6nlobh1-n19_w6rg-0",
+    "TextEN": "Select Option2"
+  },
+  {
+    "key": "2kcjlx6nlobh1-n18_w6rg",
+    "TextEN": "Option1"
+  },
+  {
+    "key": "2kcjlx6nlobh1-n18_w6rg-0",
+    "TextEN": "Select Option1"
+  },
+  {
+    "key": "2kcjlx6nlobh1-n23_w6rg",
+    "TextEN": "RichText"
   },
   {
     "key": "296l7tjhlobh0-n0_lobh",

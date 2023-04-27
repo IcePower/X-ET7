@@ -489,14 +489,17 @@ namespace ET.Client
             fuiEventHandler.OnRegisterUIEvent(fuiEntity);
             
             // 翻译打开的界面
-            var (_, translateFUI) = self.ClientScene().GetComponent<LocalizeComponent>().GetCurrentTranslator();
             SystemLanguage currentLanguage = self.ClientScene().GetComponent<LocalizeComponent>().CurrentLanguage;
-            fuiEventHandler.TranslateText(fuiEntity, currentLanguage, translateFUI);
-
+            if (fuiEntity.Language != currentLanguage)
+            {
+                var (_, translateFUI) = self.ClientScene().GetComponent<LocalizeComponent>().GetCurrentTranslator();
+                self.OnePanelTranslateText(currentLanguage, fuiEntity, translateFUI);
+            }
+           
             self.AllPanelsDic[(int)fuiEntity.PanelId] = fuiEntity;
         }
 
-        public static async ETTask<GComponent> CreateObjectAsync(this FUIComponent self, string packageName, string componentName)
+        private static async ETTask<GComponent> CreateObjectAsync(this FUIComponent self, string packageName, string componentName)
         {
             ETTask<GComponent> task = ETTask<GComponent>.Create(true);
             UIPackage.CreateObjectAsync(packageName, componentName, result =>
@@ -506,18 +509,67 @@ namespace ET.Client
             return await task;
         }
 
-        public static void TranslateText(this FUIComponent self, SystemLanguage currentLanguage, Func<string, string, string> translator)
+        public static void AllPanelTranslateText(this FUIComponent self, SystemLanguage currentLanguage, Func<string, string, string> translator)
         {
-            foreach (KeyValuePair<int, FUIEntity> panel in self.AllPanelsDic)
+            foreach (KeyValuePair<int, FUIEntity> kv in self.AllPanelsDic)
             {
-                FUIEntity fuiEntity = panel.Value;
+                self.OnePanelTranslateText(currentLanguage, kv.Value, translator);
+            }
+        }
+        
+        private static void OnePanelTranslateText(this FUIComponent self, SystemLanguage currentLanguage, FUIEntity fuiEntity, Func<string, string, string> translator)
+        {
                 if (fuiEntity == null || fuiEntity.IsDisposed)
                 {
-                    continue;
+                    return;
                 }
 
-                IFUIEventHandler fuiEventHandler = FUIEventComponent.Instance.GetUIEventHandler(fuiEntity.PanelId);
-                fuiEventHandler.TranslateText(fuiEntity, currentLanguage, translator);
+                self.TranslateTextField(fuiEntity.GComponent, translator);
+                self.TranslateComponent(fuiEntity.GComponent, translator);
+
+                fuiEntity.Language = currentLanguage;
+        }
+
+        private static void TranslateTextField(this FUIComponent self, GComponent component, Func<string, string, string> translator)
+        {
+            int n = component.numChildren;
+            for (int i = 0; i < n; i++)
+            {
+                GObject child = component.GetChildAt(i);
+                switch (child)
+                {
+                    case GTextField textField:
+                        string key = $"{textField.parent.resourceURL[5..]}-{textField.id}";
+                        textField.text = translator(key, textField.text);
+                        break;
+                    case GComponent subComponent:
+                        self.TranslateTextField(subComponent, translator);
+                        break;
+                }
+            }
+        }
+        
+        private static void TranslateComponent(this FUIComponent self, GComponent component, Func<string, string, string> translator)
+        {
+            int n = component.numChildren;
+            for (int i = 0; i < n; i++)
+            {
+                GObject child = component.GetChildAt(i);
+                switch (child)
+                {
+                    case GButton button:
+                        string key = $"{button.parent.resourceURL[5..]}-{button.id}";
+                        button.title = translator(key, button.title);
+                        button.selectedTitle = translator($"{key}-0", button.title);
+                        break;
+                    case GLabel label:
+                        string key1 = $"{label.parent.resourceURL[5..]}-{label.id}";
+                        label.title = translator(key1, label.title);
+                        break;
+                    case GComponent subComponent:
+                        self.TranslateComponent(subComponent, translator);
+                        break;
+                }
             }
         }
     }
