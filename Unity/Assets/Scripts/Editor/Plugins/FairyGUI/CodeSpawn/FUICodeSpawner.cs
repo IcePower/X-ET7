@@ -63,19 +63,20 @@ namespace FUIEditor
 
         private static readonly HashSet<string> ExtralExportURLs = new HashSet<string>();
 
-        public static void FUICodeSpawn(bool isExportFUIMultiLang, string xmlPath)
+        public static bool Localize(string xmlPath)
         {
-            if (isExportFUIMultiLang)
+            if (string.IsNullOrEmpty(xmlPath) || !File.Exists(xmlPath))
             {
-                if (string.IsNullOrEmpty(xmlPath) || !File.Exists(xmlPath))
-                {
-                    Log.Error("没有提供语言文件！可查看此文档来生成：https://www.fairygui.com/docs/editor/i18n");
-                    return;
-                }
-                
-                FUILocalizeHandler.Localize(xmlPath);
+                Log.Error("没有提供语言文件！可查看此文档来生成：https://www.fairygui.com/docs/editor/i18n");
+                return false;
             }
             
+            FUILocalizeHandler.Localize(xmlPath);
+            return true;
+        }
+        
+        public static void FUICodeSpawn()
+        {
             ParseAndSpawnCode();
 
             AssetDatabase.Refresh();
