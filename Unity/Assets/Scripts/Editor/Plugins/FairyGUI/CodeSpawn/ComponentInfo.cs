@@ -21,6 +21,8 @@ namespace FUIEditor
         public bool IsAppointName { get; set; }
 
         public string LanguageKey { get; set; }
+        
+        public bool IsExported { get; set; }
 
         public XML displayXML { get; set; }
     }
@@ -133,6 +135,11 @@ namespace FUIEditor
         
         private void GatherVariable()
         {
+            if (DisplayList == null)
+            {
+                return;
+            }
+            
             foreach (XML displayXML in DisplayList)
             {
                 string variableName = displayXML.GetAttribute("name");

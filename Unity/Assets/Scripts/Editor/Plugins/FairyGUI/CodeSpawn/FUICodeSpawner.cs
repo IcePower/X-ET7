@@ -245,6 +245,7 @@ namespace FUIEditor
             FUIPanelIdSpawner.SpawnPanelId();
             FUIBinderSpawner.SpawnFUIBinder();
 
+            HashSet<string> subPanelIds = new HashSet<string>();
             foreach (PackageInfo packageInfo in PackageInfos.Values)
             {
                 string panelName = "{0}Panel.xml".Fmt(packageInfo.Name);
@@ -253,15 +254,64 @@ namespace FUIEditor
                     string componentId = $"{packageInfo.Id}/{packageComponentInfo.Id}";
                     if (ComponentInfos.TryGetValue(componentId, out var componentInfo))
                     {
-                        FUIPanelSpawner.SpawnPanel(packageInfo.Name, componentInfo.NameSpace);
-                        FUIPanelSystemSpawner.SpawnPanelSystem(packageInfo.Name, componentInfo);
+                        SpawnSubPanelCode(componentInfo, packageInfo, subPanelIds);
+                        
+                        FUIPanelSpawner.SpawnPanel(packageInfo.Name, componentInfo);
+                        
+                        FUIPanelSystemSpawner.SpawnPanelSystem(packageInfo.Name, $"{packageInfo.Name}Panel", componentInfo);
+                        
                         FUIEventHandlerSpawner.SpawnEventHandler(packageInfo.Name);
                     }
                 }
             }
         }
 
+        private static void SpawnSubPanelCode(ComponentInfo componentInfo, PackageInfo packageInfo, HashSet<string> subPanelIds)
+        {
+            componentInfo.VariableInfos.ForEach(variableInfo =>
+            {
+                if (!variableInfo.IsExported)
+                {
+                    return;
+                }
 
+                if (variableInfo.RealTypeName != "GComponent")
+                {
+                    return;
+                }
+
+                string subPackageName = packageInfo.Name;
+                string packageId = variableInfo.displayXML.GetAttribute("pkg");
+                if (string.IsNullOrEmpty(packageId))
+                {
+                    packageId = packageInfo.Id;
+                }
+                else
+                {
+                    subPackageName = PackageInfos[packageId].Name;
+                }
+
+                string subPanelId = "{0}/{1}".Fmt(packageId, variableInfo.displayXML.GetAttribute("src"));
+
+                if (subPanelIds.Contains(subPanelId))
+                {
+                    return;
+                }
+
+                subPanelIds.Add(subPanelId);
+
+                ComponentInfo subComInfo = FUICodeSpawner.ComponentInfos[subPanelId];
+                if (subComInfo == null)
+                {
+                    return;
+                }
+
+                FUIPanelSpawner.SpawnSubPanel(subPackageName, subComInfo);
+                FUIPanelSystemSpawner.SpawnPanelSystem(subPackageName, subComInfo.NameWithoutExtension, subComInfo, true, variableInfo);
+                
+                SpawnSubPanelCode(subComInfo, PackageInfos[packageId], subPanelIds);
+            });
+        }
     }
 }
 

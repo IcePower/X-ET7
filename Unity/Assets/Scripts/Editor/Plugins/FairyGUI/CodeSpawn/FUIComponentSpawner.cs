@@ -128,20 +128,24 @@ namespace FUIEditor
         {
             if (FUICodeSpawner.IgnoreDefaultVariableName && variableInfo.IsDefaultName)
             {
+                variableInfo.IsExported = false;
                 return false;
             }
 
             if (variableInfo.IsAppointName)
             {
+                variableInfo.IsExported = false;
                 return false;
             }
 
             string typeName = variableInfo.TypeName;
             if (string.IsNullOrEmpty(typeName))
             {
+                variableInfo.IsExported = false;
                 return false;
             }
 
+            variableInfo.IsExported = true;
             return true;
         }
 
