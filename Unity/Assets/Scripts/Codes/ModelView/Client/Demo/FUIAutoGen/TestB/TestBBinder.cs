@@ -9,6 +9,7 @@ namespace ET.Client
 		public static void BindAll()
 		{
 			UIObjectFactory.SetPackageItemExtension(ET.Client.TestB.FUI_TestBPanel.URL, typeof(ET.Client.TestB.FUI_TestBPanel));
+			UIObjectFactory.SetPackageItemExtension(ET.Client.TestB.FUI_OneComponent.URL, typeof(ET.Client.TestB.FUI_OneComponent));
 		}
 	}
 }

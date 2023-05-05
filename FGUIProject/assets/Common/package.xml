@@ -16,6 +16,7 @@
     <component id="ab9en" name="ScrollBar1.xml" path="/Components/" exported="true"/>
     <component id="lobhq" name="CommonBtn.xml" path="/Components/" exported="true"/>
     <component id="lbinv" name="ProgressBar1.xml" path="/Components/" exported="true"/>
+    <component id="w6rg3" name="TwoComponent.xml" path="/Components/" exported="true"/>
   </resources>
   <publish name="" path="../Unity/Assets/Bundles/FUI/Common" packageCount="2"/>
 </packageDescription>

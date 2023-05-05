@@ -9,12 +9,11 @@ namespace ET.Client
 		public static void BindAll()
 		{
 			UIObjectFactory.SetPackageItemExtension(ET.Client.Common.FUI_InputField1.URL, typeof(ET.Client.Common.FUI_InputField1));
-			UIObjectFactory.SetPackageItemExtension(ET.Client.Common.FUI_Label1.URL, typeof(ET.Client.Common.FUI_Label1));
 			UIObjectFactory.SetPackageItemExtension(ET.Client.Common.FUI_ComboBox1_popup.URL, typeof(ET.Client.Common.FUI_ComboBox1_popup));
 			UIObjectFactory.SetPackageItemExtension(ET.Client.Common.FUI_ComboBox1.URL, typeof(ET.Client.Common.FUI_ComboBox1));
-			UIObjectFactory.SetPackageItemExtension(ET.Client.Common.FUI_ScrollBar1.URL, typeof(ET.Client.Common.FUI_ScrollBar1));
 			UIObjectFactory.SetPackageItemExtension(ET.Client.Common.FUI_CommonBtn.URL, typeof(ET.Client.Common.FUI_CommonBtn));
 			UIObjectFactory.SetPackageItemExtension(ET.Client.Common.FUI_ProgressBar1.URL, typeof(ET.Client.Common.FUI_ProgressBar1));
+			UIObjectFactory.SetPackageItemExtension(ET.Client.Common.FUI_TwoComponent.URL, typeof(ET.Client.Common.FUI_TwoComponent));
 		}
 	}
 }

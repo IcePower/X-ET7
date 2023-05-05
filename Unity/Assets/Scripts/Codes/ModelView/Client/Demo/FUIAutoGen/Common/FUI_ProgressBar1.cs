@@ -7,7 +7,6 @@ namespace ET.Client.Common
 {
 	public partial class FUI_ProgressBar1: GProgressBar
 	{
-		public GGraph n0;
 		public GTextField title;
 		public const string URL = "ui://f2boiu4ilbinv";
 
@@ -20,7 +19,6 @@ namespace ET.Client.Common
 		{
 			base.ConstructFromXML(xml);
 
-			n0 = (GGraph)GetChildAt(0);
 			title = (GTextField)GetChildAt(2);
 		}
 	}

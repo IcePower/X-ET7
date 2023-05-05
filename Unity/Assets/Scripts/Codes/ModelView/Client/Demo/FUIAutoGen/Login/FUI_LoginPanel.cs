@@ -15,7 +15,6 @@ namespace ET.Client.Login
 
 		public Controller c1;
 		public Controller c2;
-		public GImage n25;
 		public ET.Client.Common.FUI_InputField1 AccountInput;
 		public ET.Client.Common.FUI_InputField1 PasswordInput;
 		public ET.Client.Common.FUI_CommonBtn LoginBtn;
@@ -32,7 +31,6 @@ namespace ET.Client.Login
 
 			c1 = GetControllerAt(0);
 			c2 = GetControllerAt(1);
-			n25 = (GImage)GetChildAt(0);
 			AccountInput = (ET.Client.Common.FUI_InputField1)GetChildAt(1);
 			PasswordInput = (ET.Client.Common.FUI_InputField1)GetChildAt(2);
 			LoginBtn = (ET.Client.Common.FUI_CommonBtn)GetChildAt(3);

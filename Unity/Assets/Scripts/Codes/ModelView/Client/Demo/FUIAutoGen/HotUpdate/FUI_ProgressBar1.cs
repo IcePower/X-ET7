@@ -14,7 +14,6 @@ namespace ET.Client.HotUpdate
 		}
 
 		public Controller c1;
-		public GGraph n0;
 		public const string URL = "ui://2f8jqefflobh1";
 
 		public static FUI_ProgressBar1 CreateInstance()
@@ -27,7 +26,6 @@ namespace ET.Client.HotUpdate
 			base.ConstructFromXML(xml);
 
 			c1 = GetControllerAt(0);
-			n0 = (GGraph)GetChildAt(0);
 		}
 	}
 }

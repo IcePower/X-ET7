@@ -7,8 +7,9 @@ namespace ET.Client.TestB
 {
 	public partial class FUI_TestBPanel: GComponent
 	{
-		public GTextField n0;
 		public ET.Client.Common.FUI_CommonBtn CloseBtn;
+		public ET.Client.TestB.FUI_OneComponent Com1;
+		public ET.Client.Common.FUI_TwoComponent Com2;
 		public const string URL = "ui://296l7tjhlobh0";
 
 		public static FUI_TestBPanel CreateInstance()
@@ -20,8 +21,9 @@ namespace ET.Client.TestB
 		{
 			base.ConstructFromXML(xml);
 
-			n0 = (GTextField)GetChildAt(0);
 			CloseBtn = (ET.Client.Common.FUI_CommonBtn)GetChildAt(1);
+			Com1 = (ET.Client.TestB.FUI_OneComponent)GetChildAt(2);
+			Com2 = (ET.Client.Common.FUI_TwoComponent)GetChildAt(3);
 		}
 	}
 }

@@ -2,6 +2,8 @@
 <packageDescription id="296l7tjh">
   <resources>
     <component id="lobh0" name="TestBPanel.xml" path="/" exported="true"/>
+    <component id="w6rg1" name="OneComponent.xml" path="/Components/" exported="true"/>
+    <component id="w6rg2" name="Button1.xml" path="/Components/"/>
   </resources>
   <publish name="" path="../Unity/Assets/Bundles/FUI/TestB" packageCount="2"/>
 </packageDescription>
