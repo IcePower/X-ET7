@@ -82,6 +82,7 @@ namespace ET
                 }
             }
 
+            HybridCLRSettings.Save();
             AssetDatabase.SaveAssets();
             
             BuildAssembliesHelper.BuildMuteAssembly(assemblyName, codes, Array.Empty<string>(), codeOptimization, globalConfig.CodeMode);
@@ -154,7 +155,7 @@ namespace ET
                     SettingsUtil.HybridCLRSettings.hotUpdateAssemblies[index] = assemblyName;
                 }
             }
-            
+            HybridCLRSettings.Save();
             AssetDatabase.SaveAssets();
 
             BuildAssembliesHelper.BuildMuteAssembly(assemblyName, codes, new[] { Path.Combine(CodeDir, $"Model_{globalConfig.ModelVersion}.dll.bytes") }, codeOptimization,
