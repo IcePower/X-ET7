@@ -53,7 +53,7 @@ namespace FUIEditor
         public const string HotfixViewCodeDir = "../Unity/Assets/Scripts/Codes/HotfixView/Client/Demo/FUI";
 
         // 不生成使用默认名称的成员
-        public static readonly bool IgnoreDefaultVariableName = false;
+        public static readonly bool IgnoreDefaultVariableName = true;
         
         public static readonly Dictionary<string, PackageInfo> PackageInfos = new Dictionary<string, PackageInfo>();
 
