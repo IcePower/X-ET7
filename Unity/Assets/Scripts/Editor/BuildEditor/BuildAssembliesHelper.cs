@@ -18,7 +18,7 @@ namespace ET
         {
             if (Directory.Exists(Define.BuildOutputDir))
             {
-                string[] logicFiles = Directory.GetFiles(Define.BuildOutputDir, "Model_*");
+                string[] logicFiles = Directory.GetFiles(Define.BuildOutputDir, "Model*");
                 foreach (string file in logicFiles)
                 {
                     File.Delete(file);
@@ -27,7 +27,7 @@ namespace ET
 
             if (Directory.Exists(CodeDir))
             {
-                string[] logicFiles = Directory.GetFiles(CodeDir, "Model_*");
+                string[] logicFiles = Directory.GetFiles(CodeDir, "Model*");
                 foreach (string modelFile in logicFiles)
                 {
                     File.Delete(modelFile);
@@ -96,7 +96,7 @@ namespace ET
         {
             if (Directory.Exists(Define.BuildOutputDir))
             {
-                string[] logicFiles = Directory.GetFiles(Define.BuildOutputDir, "Hotfix_*");
+                string[] logicFiles = Directory.GetFiles(Define.BuildOutputDir, "Hotfix*");
                 foreach (string file in logicFiles)
                 {
                     File.Delete(file);
@@ -105,7 +105,7 @@ namespace ET
 
             if (Directory.Exists(CodeDir))
             {
-                string[] logicFiles = Directory.GetFiles(CodeDir, "Hotfix_*");
+                string[] logicFiles = Directory.GetFiles(CodeDir, "Hotfix*");
                 foreach (string modelFile in logicFiles)
                 {
                     File.Delete(modelFile);
