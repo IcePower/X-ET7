@@ -7,7 +7,7 @@ namespace FUIEditor
 {
     public static class FUIBinderSpawner
     {
-        public static void SpawnFUIBinder()
+        public static void SpawnFUIBinder(List<PackageInfo> exportedPackageInfos)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("/** This is an automatically generated class by FUICodeSpawner. Please do not modify it. **/");
@@ -24,7 +24,7 @@ namespace FUIEditor
             sb.AppendLine("\t\t\tUIObjectFactory.Clear();");
             sb.AppendLine("\t\t\t");
     
-            foreach (PackageInfo packageInfo in FUICodeSpawner.PackageInfos.Values)
+            foreach (PackageInfo packageInfo in exportedPackageInfos)
             {
                 sb.AppendLine($"\t\t\t{packageInfo.Name}Binder.BindAll();");
             }

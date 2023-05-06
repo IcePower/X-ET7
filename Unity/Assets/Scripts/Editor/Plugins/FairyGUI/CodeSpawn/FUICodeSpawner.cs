@@ -227,7 +227,7 @@ namespace FUIEditor
         
         private static void SpawnCode()
         {
-            if (Directory.Exists(FUIAutoGenDir))
+            if (Directory.Exists(FUIAutoGenDir)) 
             {
                 Directory.Delete(FUIAutoGenDir, true);
             }
@@ -237,13 +237,16 @@ namespace FUIEditor
                 FUIComponentSpawner.SpawnComponent(componentInfo);
             }
             
+            List<PackageInfo> ExportedPackageInfos = new List<PackageInfo>();
             foreach (var kv in ExportedComponentInfos)
             {
                 FUIBinderSpawner.SpawnCodeForPanelBinder(PackageInfos[kv.Key], kv.Value);
+                
+                ExportedPackageInfos.Add(PackageInfos[kv.Key]);
             }
 
             FUIPanelIdSpawner.SpawnPanelId();
-            FUIBinderSpawner.SpawnFUIBinder();
+            FUIBinderSpawner.SpawnFUIBinder(ExportedPackageInfos);
 
             HashSet<string> subPanelIds = new HashSet<string>();
             foreach (PackageInfo packageInfo in PackageInfos.Values)
