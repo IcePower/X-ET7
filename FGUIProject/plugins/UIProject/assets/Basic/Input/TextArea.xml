@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="156,81" extention="Label">
+  <controller name="showEditButton" exported="true" pages="0,,1," selected="0"/>
+  <displayList>
+    <image id="n0" name="n0" src="gcza1r" fileName="Input/input_bg.png" xy="0,0" size="156,81" aspect="true">
+      <relation target="" sidePair="width-width,height-height"/>
+    </image>
+    <text id="n1" name="title" xy="1,2" size="154,79" fontSize="12" color="#bdbdbd" autoSize="none" text="" input="true">
+      <relation target="" sidePair="width-width,height-height"/>
+    </text>
+    <component id="n2_olcx" name="textEdit" src="au3n4b" fileName="Button/IconButton.xml" xy="134,59" size="20,20">
+      <gearDisplay controller="showEditButton" pages="1"/>
+      <relation target="" sidePair="right-right,bottom-bottom"/>
+      <Button icon="ui://nk9ejx23olcx8n"/>
+    </component>
+  </displayList>
+</component>

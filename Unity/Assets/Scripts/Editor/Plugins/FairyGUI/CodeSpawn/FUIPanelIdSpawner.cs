@@ -18,14 +18,10 @@ namespace FUIEditor
             sb.AppendLine("\t{");
 
             sb.AppendLine("\t\tInvalid = 0,");
-            
-            foreach (PackageInfo packageInfo in FUICodeSpawner.PackageInfos.Values)
+
+            foreach (ComponentInfo componentInfo in FUICodeSpawner.MainPanelComponentInfos.Values)
             {
-                string panelName = "{0}Panel.xml".Fmt(packageInfo.Name);
-                if (packageInfo.PackageComponentInfos.ContainsKey(panelName))
-                {
-                    sb.AppendLine("\t\t{0}Panel,".Fmt(packageInfo.Name));
-                }
+                sb.AppendLine($"\t\t{componentInfo.NameWithoutExtension},");
             }
             
             sb.AppendLine("\t}"); 

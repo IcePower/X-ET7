@@ -59,6 +59,8 @@ namespace FUIEditor
 
         public static readonly Dictionary<string, ComponentInfo> ComponentInfos = new Dictionary<string, ComponentInfo>();
         
+        public static readonly Dictionary<string, ComponentInfo> MainPanelComponentInfos = new Dictionary<string, ComponentInfo>();
+        
         public static readonly MultiDictionary<string, string, ComponentInfo> ExportedComponentInfos = new MultiDictionary<string, string, ComponentInfo>();
 
         private static readonly HashSet<string> ExtralExportURLs = new HashSet<string>();
@@ -93,6 +95,7 @@ namespace FUIEditor
         {
             PackageInfos.Clear();
             ComponentInfos.Clear();
+            MainPanelComponentInfos.Clear();
             ExportedComponentInfos.Clear();
             ExtralExportURLs.Clear();
 
@@ -150,6 +153,15 @@ namespace FUIEditor
                 ComponentInfo componentInfo = ParseComponent(packageInfo, packageComponentInfo);
                 string key = "{0}/{1}".Fmt(componentInfo.PackageId, componentInfo.Id);
                 ComponentInfos.Add(key, componentInfo);
+
+                if (componentInfo.PanelType == PanelType.Main)
+                {
+                    if (MainPanelComponentInfos.ContainsKey(componentInfo.PackageId))
+                    {
+                        throw new Exception($"一个包里只能有一个主界面！{packageInfo.Name} 包里有 {MainPanelComponentInfos[componentInfo.PackageId].NameWithoutExtension} 和 {componentInfo.NameWithoutExtension}");
+                    }
+                    MainPanelComponentInfos.Add(componentInfo.PackageId, componentInfo);    
+                }
             }
 
             return packageInfo;
@@ -168,7 +180,7 @@ namespace FUIEditor
 
             XML xml = new XML(File.ReadAllText(packageComponentInfo.Path));
 
-            if (xml.attributes.TryGetValue("extention", out var typeName))
+            if (xml.attributes.TryGetValue("extention", out string typeName))
             {
                 ComponentType type = EnumHelper.FromString<ComponentType>(typeName);
                 if (type == ComponentType.None)
@@ -178,6 +190,13 @@ namespace FUIEditor
                 else
                 {
                     componentInfo.ComponentType = type;
+                }
+            }
+            else if (xml.attributes.TryGetValue("remark", out string remark))
+            {
+                if (Enum.TryParse(remark, out PanelType panelType))
+                {
+                    componentInfo.PanelType = panelType;
                 }
             }
 
@@ -249,70 +268,40 @@ namespace FUIEditor
             FUIBinderSpawner.SpawnFUIBinder(ExportedPackageInfos);
 
             HashSet<string> subPanelIds = new HashSet<string>();
-            foreach (PackageInfo packageInfo in PackageInfos.Values)
+
+            foreach (var kv in ComponentInfos)
             {
-                string panelName = "{0}Panel.xml".Fmt(packageInfo.Name);
-                if (packageInfo.PackageComponentInfos.TryGetValue(panelName, out var packageComponentInfo))
+                ComponentInfo componentInfo = kv.Value;
+                if (componentInfo.PanelType == PanelType.Main)
                 {
-                    string componentId = $"{packageInfo.Id}/{packageComponentInfo.Id}";
-                    if (ComponentInfos.TryGetValue(componentId, out var componentInfo))
-                    {
-                        SpawnSubPanelCode(componentInfo, packageInfo, subPanelIds);
+                    PackageInfo packageInfo = PackageInfos[componentInfo.PackageId];
+                    
+                    SpawnSubPanelCode(componentInfo);
+
+                    FUIPanelSpawner.SpawnPanel(packageInfo.Name, componentInfo);
                         
-                        FUIPanelSpawner.SpawnPanel(packageInfo.Name, componentInfo);
+                    FUIPanelSystemSpawner.SpawnPanelSystem(packageInfo.Name, $"{componentInfo.NameWithoutExtension}", componentInfo);
                         
-                        FUIPanelSystemSpawner.SpawnPanelSystem(packageInfo.Name, $"{packageInfo.Name}Panel", componentInfo);
-                        
-                        FUIEventHandlerSpawner.SpawnEventHandler(packageInfo.Name);
-                    }
+                    FUIEventHandlerSpawner.SpawnEventHandler(packageInfo.Name);
                 }
             }
         }
 
-        private static void SpawnSubPanelCode(ComponentInfo componentInfo, PackageInfo packageInfo, HashSet<string> subPanelIds)
+        private static void SpawnSubPanelCode(ComponentInfo componentInfo)
         {
             componentInfo.VariableInfos.ForEach(variableInfo =>
             {
-                if (!variableInfo.IsExported)
+                if (!variableInfo.IsExported || variableInfo.ComponentInfo == null)
                 {
                     return;
                 }
-
-                if (variableInfo.RealTypeName != "GComponent")
-                {
-                    return;
-                }
-
-                string subPackageName = packageInfo.Name;
-                string packageId = variableInfo.displayXML.GetAttribute("pkg");
-                if (string.IsNullOrEmpty(packageId))
-                {
-                    packageId = packageInfo.Id;
-                }
-                else
-                {
-                    subPackageName = PackageInfos[packageId].Name;
-                }
-
-                string subPanelId = "{0}/{1}".Fmt(packageId, variableInfo.displayXML.GetAttribute("src"));
-
-                if (subPanelIds.Contains(subPanelId))
-                {
-                    return;
-                }
-
-                subPanelIds.Add(subPanelId);
-
-                ComponentInfo subComInfo = FUICodeSpawner.ComponentInfos[subPanelId];
-                if (subComInfo == null)
-                {
-                    return;
-                }
-
-                FUIPanelSpawner.SpawnSubPanel(subPackageName, subComInfo);
-                FUIPanelSystemSpawner.SpawnPanelSystem(subPackageName, subComInfo.NameWithoutExtension, subComInfo, true, variableInfo);
                 
-                SpawnSubPanelCode(subComInfo, PackageInfos[packageId], subPanelIds);
+                string subPackageName = PackageInfos[variableInfo.PackageId].Name;
+
+                FUIPanelSpawner.SpawnSubPanel(subPackageName, variableInfo.ComponentInfo);
+                FUIPanelSystemSpawner.SpawnPanelSystem(subPackageName, variableInfo.ComponentInfo.NameWithoutExtension, variableInfo.ComponentInfo, true, variableInfo);
+                
+                SpawnSubPanelCode(variableInfo.ComponentInfo);
             });
         }
     }

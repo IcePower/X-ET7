@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="270,34" bgColorEnabled="true" bgColor="#383838">
+  <displayList>
+    <component id="n0_edka" name="panelType" src="gcza18" fileName="ComboBox/ComboBox.xml" pkg="nk9ejx23" xy="86,7" size="166,20">
+      <ComboBox title="None" visibleItemCount="10">
+        <item title="None"/>
+        <item title="主界面" value="Main"/>
+        <item title="公共界面" value="Common"/>
+      </ComboBox>
+    </component>
+    <text id="n1_edka" name="n1" xy="4,7" size="71,19" fontSize="12" color="#bdbdbd" align="center" autoSize="none" text="界面类型"/>
+  </displayList>
+</component>

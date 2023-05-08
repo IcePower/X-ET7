@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="12,200" extention="ScrollBar">
+  <displayList>
+    <graph id="n6_ty2q" name="n6" xy="0,0" size="12,200" type="rect" lineSize="0" fillColor="#ff3f3f3f">
+      <relation target="" sidePair="width-width,height-height"/>
+    </graph>
+    <graph id="n5" name="bar" xy="0,0" size="12,200">
+      <relation target="" sidePair="height-height"/>
+    </graph>
+    <component id="n4" name="grip" src="xual5" fileName="ScrollBar/GripButton_VT.xml" xy="1,33" restrictSize="0,0,30,0"/>
+  </displayList>
+  <ScrollBar/>
+</component>

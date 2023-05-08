@@ -1,0 +1,11 @@
+{
+	"name": "com.fairygui.plugin.panelinspector",
+	"displayName": "Panel Inspector",
+	"description": "选中一个组件后，可以设置它的界面类型。",
+	"version": "0.0.1",
+	"author": {
+		"name": "IcePower"
+	},
+	"icon": "icon.png",
+	"main": "main.lua"
+}

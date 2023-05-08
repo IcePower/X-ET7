@@ -68,7 +68,7 @@ namespace FUIEditor
                     return;
                 }
 
-                if (variableInfo.RealTypeName != "GComponent")
+                if (variableInfo.ComponentInfo?.PanelType != PanelType.Common)
                 {
                     return;
                 }

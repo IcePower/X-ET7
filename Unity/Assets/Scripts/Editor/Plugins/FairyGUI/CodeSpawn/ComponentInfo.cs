@@ -9,9 +9,11 @@ namespace FUIEditor
     public class VariableInfo
     {
         public string TypeName { get; set; }
-        
-        public string RealTypeName { get; set; }
 
+        public string PackageId { get; set; }
+
+        public ComponentInfo ComponentInfo { get; set; }
+        
         public string VariableName { get; set; }
         
         // 是否是默认的名称，比如 n0, n1
@@ -27,6 +29,13 @@ namespace FUIEditor
         public XML displayXML { get; set; }
     }
     
+    public enum PanelType
+    {
+        None,
+        Main,
+        Common
+    }
+    
     public class ComponentInfo
     {
         public string NameSpace { get; private set; } = "";
@@ -36,6 +45,8 @@ namespace FUIEditor
         public string Id { get; set; }
 
         public string Name { get; set; }
+        
+        public PanelType PanelType { get; set; }
         
         public string ComponentTypeName { get; private set; }
 
@@ -98,15 +109,22 @@ namespace FUIEditor
 
             GatherVariable();
 
-            if (VariableInfos.Count == 0)
+            if (this.PanelType != PanelType.None)
             {
-                needExportClass = false;
+                needExportClass = true;
             }
-
-            // 如果没有控制器，且忽略默认变量名，且没有自定义变量名，那么不需要导出类
-            if (ControllerList.Count == 0 && IgnoreDefaultVariableName && !HasCustomVariableName)
+            else
             {
-                needExportClass = false;
+                if (VariableInfos.Count == 0)
+                {
+                    needExportClass = false;
+                }
+
+                // 如果没有控制器，且忽略默认变量名，且没有自定义变量名，那么不需要导出类
+                if (ControllerList.Count == 0 && IgnoreDefaultVariableName && !HasCustomVariableName)
+                {
+                    needExportClass = false;
+                }
             }
 
             NeedExportClass = needExportClass;
@@ -129,7 +147,23 @@ namespace FUIEditor
             for (int index = 0; index < this.VariableInfos.Count; index++)
             {
                 VariableInfo variableInfo = this.VariableInfos[index];
-                (variableInfo.TypeName, variableInfo.RealTypeName) = GetTypeNameByDisplayXML(this.PackageId, variableInfo.displayXML);
+                variableInfo.TypeName = GetTypeNameByDisplayXML(this.PackageId, variableInfo.displayXML);
+
+                string packageId = variableInfo.displayXML.GetAttribute("pkg");
+                if (string.IsNullOrEmpty(packageId))
+                {
+                    packageId = this.PackageId;
+                }
+            
+                string key = "{0}/{1}".Fmt(packageId, variableInfo.displayXML.GetAttribute("src"));
+
+                if (FUICodeSpawner.ComponentInfos.TryGetValue(key, out ComponentInfo componentInfo))
+                {
+                    if (componentInfo.PanelType == PanelType.Common)
+                    {
+                        variableInfo.ComponentInfo = componentInfo;
+                    }
+                }
             }
         }
         
@@ -148,12 +182,19 @@ namespace FUIEditor
 
                 bool isDefaultName = displayXML.GetAttribute("id").StartsWith(variableName);
 
+                string packageId = displayXML.GetAttribute("pkg");
+                if (string.IsNullOrEmpty(packageId))
+                {
+                    packageId = PackageId;
+                }
+                
                 VariableInfos.Add(new VariableInfo()
                 {
                     VariableName = variableName,
                     IsDefaultName = isDefaultName,
                     IsAppointName = isAppointName,
-                    displayXML = displayXML
+                    displayXML = displayXML,
+                    PackageId = packageId,
                 });
 
                 if (!isDefaultName && !isAppointName)
@@ -207,10 +248,9 @@ namespace FUIEditor
             return false;
         }
         
-        private static (string, string) GetTypeNameByDisplayXML(string parentPackageId, XML displayXML)
+        private static string GetTypeNameByDisplayXML(string parentPackageId, XML displayXML)
         {
             string typeName = string.Empty;
-            string realTypeName = string.Empty;
 
             if (displayXML.name == "component")
             {
@@ -229,31 +269,27 @@ namespace FUIEditor
 
                 if (string.IsNullOrEmpty(displayComponentInfo.NameSpace))
                 {
-                    typeName = "{0}".Fmt(displayComponentInfo.ComponentTypeName);
+                    typeName = displayComponentInfo.ComponentTypeName;
                 }
                 else
                 {
                     typeName = "{0}.{1}".Fmt(displayComponentInfo.NameSpace, displayComponentInfo.ComponentTypeName);
                 }
-                
-                realTypeName = displayComponentInfo.ComponentClassName;
             }
             else if (displayXML.name == "text")
             {
                 ObjectType objectType = displayXML.GetAttribute("input") == "true" ? ObjectType.textinput : ObjectType.textfield;
                 typeName = ObjectTypeToClassType[objectType];
-                realTypeName = typeName;
             }
             else if (displayXML.name == "group") 
             {
                 if (displayXML.GetAttribute("advanced") != "true")
                 {
-                    return (typeName, realTypeName);
+                    return typeName;
                 }
 
                 ObjectType objectType = EnumHelper.FromString<ObjectType>(displayXML.name);
                 typeName = ObjectTypeToClassType[objectType];
-                realTypeName = typeName;
             }
             else
             {
@@ -262,7 +298,6 @@ namespace FUIEditor
                 try
                 {
                     typeName = ObjectTypeToClassType[objectType];
-                    realTypeName = typeName;
                 }
                 catch (Exception e)
                 {
@@ -271,7 +306,7 @@ namespace FUIEditor
                 }
             }
 
-            return (typeName, realTypeName);
+            return typeName;
         }
     }
 }

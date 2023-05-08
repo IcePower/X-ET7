@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<packageDescription id="1g71c9u1">
+  <resources>
+    <component id="u66t0" name="Component1.xml" path="/" exported="true"/>
+  </resources>
+  <publish name="" path="../CustomInspector" packageCount="2"/>
+</packageDescription>

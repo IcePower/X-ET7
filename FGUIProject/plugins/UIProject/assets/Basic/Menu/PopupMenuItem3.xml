@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="100,19" extention="Button">
+  <controller name="button" pages="0,up,1,down,2,over,3,selectedOver" selected="0"/>
+  <controller name="checked" pages="0,,1,,2," selected="0"/>
+  <displayList>
+    <image id="n2" name="n2" src="au3n4v" fileName="List/images/listitem_hover.png" xy="0,0" size="100,19">
+      <gearDisplay controller="button" pages="1,2,3"/>
+      <relation target="" sidePair="width-width,height-height"/>
+    </image>
+    <image id="n9_phl6" name="n9" src="t64x7iues" fileName="Button/images/checkbox_up.png" xy="3,3" size="14,14"/>
+    <image id="n8_bg8o" name="n8" src="kwng7e" fileName="Button/images/gou.png" xy="6,6">
+      <gearDisplay controller="checked" pages="2"/>
+    </image>
+    <text id="n1" name="title" xy="21,1" size="78,18" fontSize="12" color="#bdbdbd" vAlign="middle" autoSize="none" singleLine="true" text="">
+      <gearColor controller="button" pages="0,1,2,3" values="#bdbdbd,#000000|#ffffff,#000000|#ffffff,#000000|#ffffff,#000000"/>
+      <relation target="" sidePair="width-width,height-height"/>
+    </text>
+  </displayList>
+  <Button mode="Radio"/>
+</component>
