@@ -2,7 +2,7 @@
 <packageDescription id="2f8jqeff">
   <resources>
     <component id="lobh0" name="HotUpdatePanel.xml" path="/" exported="true"/>
-    <component id="lobh1" name="ProgressBar1.xml" path="/" exported="true"/>
+    <component id="lobh1" name="ProgressBar1.xml" path="/Components/" exported="true"/>
   </resources>
   <publish name="" path="../Unity/Assets/Bundles/FUI/HotUpdate" packageCount="2"/>
 </packageDescription>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<component size="1080,1920">
+<component size="1080,1920" remark="Main">
   <displayList>
     <text id="n0_lobh" name="n0" xy="311,188" size="458,150" fontSize="60" align="center" vAlign="middle" autoSize="none" text="热更新"/>
     <component id="n1_lobh" name="ProgressBar" src="lobh1" fileName="ProgressBar1.xml" xy="33,1049">

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<component size="1080,1920">
+<component size="1080,1920" remark="Main">
   <displayList>
     <component id="n2_lobh" name="TestABtn" src="lobhq" fileName="Components/CommonBtn.xml" pkg="f2boiu4i" xy="323,613" size="434,110">
       <Button title="打开测试A"/>

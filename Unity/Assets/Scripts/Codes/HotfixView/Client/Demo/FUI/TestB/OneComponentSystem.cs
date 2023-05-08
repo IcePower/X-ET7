@@ -14,18 +14,12 @@ namespace ET.Client
 		public static void Awake(this OneComponent self, ET.Client.TestB.FUI_OneComponent fuiOneComponent)
 		{
 			self.FUIOneComponent = fuiOneComponent;
-			self.TwoCom = self.AddChild<TwoComponent, ET.Client.Common.FUI_TwoComponent>(self.FUIOneComponent.TwoCom);
+			self.TwoCom = self.AddChild<TwoComponent, ET.Client.Common.FUI_TwoComponent>(self.FUIOneComponent.TwoCom, true);
 		}
 
 		public static void RegisterUIEvent(this OneComponent self)
 		{
 			self.TwoCom.RegisterUIEvent();
-			
-			self.FUIOneComponent.OneBtn.AddListner(() =>
-			{
-				Log.Info("OneComponentSystem OneBtn Click");
-				
-			});
 		}
 
 		public static void OnShow(this OneComponent self, Entity contextData = null)

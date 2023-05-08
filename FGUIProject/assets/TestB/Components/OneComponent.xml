@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<component size="800,600">
+<component size="800,600" remark="Common">
   <displayList>
     <graph id="n1_w6rg" name="n1" xy="-1,4" size="799,594" type="rect" fillColor="#ffcc9900"/>
     <text id="n0_w6rg" name="title" xy="285,32" size="230,79" fontSize="35" align="center" vAlign="middle" autoSize="none" text="一个组件"/>

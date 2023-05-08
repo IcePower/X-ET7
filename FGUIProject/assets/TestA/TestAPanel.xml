@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<component size="1080,1920">
+<component size="1080,1920" remark="Main">
   <controller name="c1" pages="0,,1," selected="0"/>
   <displayList>
     <text id="n1_lobh" name="n1" xy="362,50" size="356,112" fontSize="50" align="center" vAlign="middle" autoSize="none" text="多语言测试"/>

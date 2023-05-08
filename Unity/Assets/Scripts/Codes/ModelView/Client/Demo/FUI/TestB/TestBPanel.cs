@@ -6,6 +6,7 @@ namespace ET.Client
 	public class TestBPanel: Entity, IAwake
 	{
 		public OneComponent Com1 {get; set;}
+
 		public TwoComponent Com2 {get; set;}
 
 		private FUI_TestBPanel _fuiTestBPanel;
