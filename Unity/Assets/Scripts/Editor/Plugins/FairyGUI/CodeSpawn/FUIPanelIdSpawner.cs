@@ -19,7 +19,7 @@ namespace FUIEditor
 
             sb.AppendLine("\t\tInvalid = 0,");
 
-            foreach (ComponentInfo componentInfo in FUICodeSpawner.MainPanelComponentInfos.Values)
+            foreach (ComponentInfo componentInfo in FUICodeSpawner.MainPanelComponentInfos)
             {
                 sb.AppendLine($"\t\t{componentInfo.NameWithoutExtension},");
             }

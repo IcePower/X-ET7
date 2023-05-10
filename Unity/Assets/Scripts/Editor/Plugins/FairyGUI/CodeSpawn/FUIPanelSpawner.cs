@@ -65,7 +65,7 @@ namespace FUIEditor
         public static void SpawnPanel(string packageName, ComponentInfo componentInfo)
         {
             string nameSpace = componentInfo.NameSpace;
-            string panelName = "{0}Panel".Fmt(packageName);
+            string panelName = componentInfo.NameWithoutExtension;
             
             string fileDir = "{0}/{1}".Fmt(FUICodeSpawner.ModelViewCodeDir, packageName);
             if (!Directory.Exists(fileDir))

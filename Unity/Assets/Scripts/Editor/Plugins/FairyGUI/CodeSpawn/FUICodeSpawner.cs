@@ -59,7 +59,7 @@ namespace FUIEditor
 
         public static readonly Dictionary<string, ComponentInfo> ComponentInfos = new Dictionary<string, ComponentInfo>();
         
-        public static readonly Dictionary<string, ComponentInfo> MainPanelComponentInfos = new Dictionary<string, ComponentInfo>();
+        public static readonly List<ComponentInfo> MainPanelComponentInfos = new List<ComponentInfo>();
         
         public static readonly MultiDictionary<string, string, ComponentInfo> ExportedComponentInfos = new MultiDictionary<string, string, ComponentInfo>();
 
@@ -130,7 +130,7 @@ namespace FUIEditor
             XML xml = new XML(File.ReadAllText(packageDir + "/package.xml"));
             packageInfo.Id = xml.GetAttribute("id");
 
-            if (xml.elements[0].name != "resources" || xml.elements[1].name != "publish")
+            if (xml.elements[0].name != "resources")
             {
                 throw new Exception("package.xml 格式不对！");
             }
@@ -156,11 +156,7 @@ namespace FUIEditor
 
                 if (componentInfo.PanelType == PanelType.Main)
                 {
-                    if (MainPanelComponentInfos.ContainsKey(componentInfo.PackageId))
-                    {
-                        throw new Exception($"一个包里只能有一个主界面！{packageInfo.Name} 包里有 {MainPanelComponentInfos[componentInfo.PackageId].NameWithoutExtension} 和 {componentInfo.NameWithoutExtension}");
-                    }
-                    MainPanelComponentInfos.Add(componentInfo.PackageId, componentInfo);    
+                    MainPanelComponentInfos.Add(componentInfo);    
                 }
             }
 
@@ -280,9 +276,9 @@ namespace FUIEditor
 
                     FUIPanelSpawner.SpawnPanel(packageInfo.Name, componentInfo);
                         
-                    FUIPanelSystemSpawner.SpawnPanelSystem(packageInfo.Name, $"{componentInfo.NameWithoutExtension}", componentInfo);
+                    FUIPanelSystemSpawner.SpawnPanelSystem(packageInfo.Name, componentInfo);
                         
-                    FUIEventHandlerSpawner.SpawnEventHandler(packageInfo.Name);
+                    FUIEventHandlerSpawner.SpawnEventHandler(packageInfo.Name, componentInfo);
                 }
             }
         }
@@ -299,7 +295,7 @@ namespace FUIEditor
                 string subPackageName = PackageInfos[variableInfo.PackageId].Name;
 
                 FUIPanelSpawner.SpawnSubPanel(subPackageName, variableInfo.ComponentInfo);
-                FUIPanelSystemSpawner.SpawnPanelSystem(subPackageName, variableInfo.ComponentInfo.NameWithoutExtension, variableInfo.ComponentInfo, true, variableInfo);
+                FUIPanelSystemSpawner.SpawnPanelSystem(subPackageName, variableInfo.ComponentInfo, variableInfo);
                 
                 SpawnSubPanelCode(variableInfo.ComponentInfo);
             });

@@ -9,8 +9,9 @@ namespace FUIEditor
 {
     public static class FUIPanelSystemSpawner
     {
-        public static void SpawnPanelSystem(string packageName, string panelName, ComponentInfo componentInfo, bool isSubPanel = false, VariableInfo variableInfo = null)
+        public static void SpawnPanelSystem(string packageName, ComponentInfo componentInfo, VariableInfo variableInfo = null)
         {
+            string panelName = componentInfo.NameWithoutExtension;
             string fileDir = "{0}/{1}".Fmt(FUICodeSpawner.HotfixViewCodeDir, packageName);
             if (!Directory.Exists(fileDir))
             {
@@ -30,7 +31,7 @@ namespace FUIEditor
             sb.AppendLine();
             sb.AppendLine("{");
 
-            if (isSubPanel)
+            if (variableInfo != null)
             {
                 sb.AppendLine($"\tpublic class {panelName}AwakeSystem : AwakeSystem<{panelName}, {variableInfo.TypeName}>");
                 sb.AppendLine("\t{");
@@ -47,7 +48,7 @@ namespace FUIEditor
             sb.AppendLine();
             sb.AppendLine("\t{");
 
-            if (isSubPanel)
+            if (variableInfo != null)
             {
                 sb.AppendLine($"\t\tpublic static void Awake(this {panelName} self, {variableInfo.TypeName} fui{panelName})");
                 sb.AppendLine($"\t\t{{");

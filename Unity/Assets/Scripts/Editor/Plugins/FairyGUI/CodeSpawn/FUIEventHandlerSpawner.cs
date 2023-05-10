@@ -6,9 +6,9 @@ namespace FUIEditor
 {
     public static class FUIEventHandlerSpawner
     {
-        public static void SpawnEventHandler(string packageName)
+        public static void SpawnEventHandler(string packageName, ComponentInfo componentInfo)
         {
-            string panelName = "{0}Panel".Fmt(packageName);
+            string panelName = componentInfo.NameWithoutExtension;
             
             string fileDir = "{0}/{1}/Event".Fmt(FUICodeSpawner.HotfixViewCodeDir, packageName);
             if (!Directory.Exists(fileDir))
