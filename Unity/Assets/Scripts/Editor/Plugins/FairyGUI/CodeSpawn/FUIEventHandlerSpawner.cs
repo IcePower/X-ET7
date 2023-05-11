@@ -15,8 +15,15 @@ namespace FUIEditor
             {
                 Directory.CreateDirectory(fileDir);
             }
-            
-            string filePath = "{0}/{1}EventHandler.cs".Fmt(fileDir, packageName);
+          
+            // 删除原来的 handler 类。
+            string duplicateFilePath = "{0}/{1}EventHandler.cs".Fmt(fileDir, packageName);
+            if (File.Exists(duplicateFilePath))
+            {
+                File.Delete(duplicateFilePath);
+            }
+
+            string filePath = "{0}/{1}EventHandler.cs".Fmt(fileDir, panelName);
             // Debug.Log("Spawn EventHandler {0}".Fmt(filePath));
 
             StringBuilder sb = new StringBuilder();
@@ -30,7 +37,7 @@ namespace FUIEditor
             sb.AppendLine("\t[FriendOf(typeof(FUIEntity))]");
             sb.AppendFormat("\t[FUIEvent(PanelId.{0}, \"{1}\", \"{0}\")]", panelName, packageName);
             sb.AppendLine();
-            sb.AppendFormat("\tpublic class {0}EventHandler: IFUIEventHandler", packageName);
+            sb.AppendFormat("\tpublic class {0}EventHandler: IFUIEventHandler", panelName);
             sb.AppendLine();
             sb.AppendLine("\t{");
 

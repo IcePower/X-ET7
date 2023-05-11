@@ -263,8 +263,6 @@ namespace FUIEditor
             FUIPanelIdSpawner.SpawnPanelId();
             FUIBinderSpawner.SpawnFUIBinder(ExportedPackageInfos);
 
-            HashSet<string> subPanelIds = new HashSet<string>();
-
             foreach (var kv in ComponentInfos)
             {
                 ComponentInfo componentInfo = kv.Value;
