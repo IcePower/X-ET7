@@ -2,11 +2,15 @@
 <component size="1080,1920" remark="Main">
   <displayList>
     <text id="n0_lobh" name="n0" xy="362,107" size="356,112" fontSize="50" align="center" vAlign="middle" autoSize="none" text="测试B"/>
-    <component id="n1_lobh" name="CloseBtn" src="lobhq" fileName="Components/CommonBtn.xml" pkg="f2boiu4i" xy="323,613" size="434,110">
+    <component id="n1_lobh" name="CloseBtn" src="lobhq" fileName="Components/CommonBtn.xml" pkg="f2boiu4i" xy="323,442" size="434,110">
       <Button title="关闭测试B界面"/>
       <property target="image" propertyId="1" value="ui://f2boiu4iab9e4"/>
     </component>
     <component id="n2_w6rg" name="Com1" src="w6rg1" fileName="Components/OneComponent.xml" xy="141,795" size="798,589"/>
     <component id="n4_w6rg" name="Com2" src="w6rg3" fileName="Components/TwoComponent.xml" pkg="f2boiu4i" xy="340,1525"/>
+    <component id="n5_khvd" name="OpenTestCBtn" src="lobhq" fileName="Components/CommonBtn.xml" pkg="f2boiu4i" xy="323,604" size="434,110">
+      <Button title="打开测试C界面"/>
+      <property target="image" propertyId="1" value="ui://f2boiu4iab9e4"/>
+    </component>
   </displayList>
 </component>

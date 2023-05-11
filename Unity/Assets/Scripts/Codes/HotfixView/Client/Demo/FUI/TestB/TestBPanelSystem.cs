@@ -10,6 +10,11 @@ namespace ET.Client
 
 		public static void RegisterUIEvent(this TestBPanel self)
 		{
+			self.FUITestBPanel.OpenTestCBtn.AddListner(() =>
+			{
+				self.ClientScene().GetComponent<FUIComponent>().HideAndShowPanelStackAsync(PanelId.TestBPanel, PanelId.TestCPanel).Coroutine();
+			});
+			
 			self.FUITestBPanel.CloseBtn.AddListner(() =>
 			{
 				self.ClientScene().GetComponent<FUIComponent>().ClosePanel(PanelId.TestBPanel);

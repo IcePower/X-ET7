@@ -10,5 +10,6 @@ namespace ET.Client
 		LoginPanel,
 		TestAPanel,
 		TestBPanel,
+		TestCPanel,
 	}
 }

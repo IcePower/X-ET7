@@ -5,8 +5,8 @@ namespace ET.Client
 {
 	[FriendOf(typeof(PanelCoreData))]
 	[FriendOf(typeof(FUIEntity))]
-	[FUIEvent(PanelId.LobbyPanel, "Lobby", "LobbyPanel")]
-	public class LobbyEventHandler: IFUIEventHandler
+	[FUIEvent(PanelId.TestAPanel, "TestA", "TestAPanel")]
+	public class TestAPanelEventHandler: IFUIEventHandler
 	{
 		public void OnInitPanelCoreData(FUIEntity fuiEntity)
 		{
@@ -15,28 +15,28 @@ namespace ET.Client
 
 		public void OnInitComponent(FUIEntity fuiEntity)
 		{
-			LobbyPanel panel = fuiEntity.AddComponent<LobbyPanel>();
+			TestAPanel panel = fuiEntity.AddComponent<TestAPanel>();
 			panel.Awake();
 		}
 
 		public void OnRegisterUIEvent(FUIEntity fuiEntity)
 		{
-			fuiEntity.GetComponent<LobbyPanel>().RegisterUIEvent();
+			fuiEntity.GetComponent<TestAPanel>().RegisterUIEvent();
 		}
 
 		public void OnShow(FUIEntity fuiEntity, Entity contextData = null)
 		{
-			fuiEntity.GetComponent<LobbyPanel>().OnShow(contextData);
+			fuiEntity.GetComponent<TestAPanel>().OnShow(contextData);
 		}
 
 		public void OnHide(FUIEntity fuiEntity)
 		{
-			fuiEntity.GetComponent<LobbyPanel>().OnHide();
+			fuiEntity.GetComponent<TestAPanel>().OnHide();
 		}
 
 		public void BeforeUnload(FUIEntity fuiEntity)
 		{
-			fuiEntity.GetComponent<LobbyPanel>().BeforeUnload();
+			fuiEntity.GetComponent<TestAPanel>().BeforeUnload();
 		}
 	}
 }
