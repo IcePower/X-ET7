@@ -7,6 +7,8 @@ namespace FairyGUI.Dynamic
     /// </summary>
     public sealed class DelegateUIAssetLoader : IUIAssetLoader
     {
+        public delegate byte[] LoadUIPackageSyncHandler(string packageName);
+        
         public delegate void LoadUIPackageAsyncHandler(string packageName, LoadUIPackageCallback callback);
 
         public delegate void LoadTextureAsyncHandler(string packageName, string assetName, string extension, LoadTextureCallback callback);
@@ -17,13 +19,19 @@ namespace FairyGUI.Dynamic
 
         public delegate void ReleaseAudioClipHandler(AudioClip audioClip);
 
-        public DelegateUIAssetLoader(LoadUIPackageAsyncHandler mLoadUIPackageAsyncHandler, LoadTextureAsyncHandler mLoadTextureAsyncHandler, ReleaseTextureHandler mReleaseTextureHandler, LoadAudioClipAsyncHandler mLoadAudioClipAsyncHandler, ReleaseAudioClipHandler mReleaseAudioClipHandler)
+        public DelegateUIAssetLoader(LoadUIPackageSyncHandler  mLoadUIPackageSyncHandler, LoadUIPackageAsyncHandler mLoadUIPackageAsyncHandler, LoadTextureAsyncHandler mLoadTextureAsyncHandler, ReleaseTextureHandler mReleaseTextureHandler, LoadAudioClipAsyncHandler mLoadAudioClipAsyncHandler, ReleaseAudioClipHandler mReleaseAudioClipHandler)
         {
+            m_LoadUIPackageSyncHandler = mLoadUIPackageSyncHandler;
             m_LoadUIPackageAsyncHandler = mLoadUIPackageAsyncHandler;
             m_LoadTextureAsyncHandler = mLoadTextureAsyncHandler;
             m_ReleaseTextureHandler = mReleaseTextureHandler;
             m_LoadAudioClipAsyncHandler = mLoadAudioClipAsyncHandler;
             m_ReleaseAudioClipHandler = mReleaseAudioClipHandler;
+        }
+
+        public byte[] LoadUIPackageSync(string packageName)
+        {
+            return m_LoadUIPackageSyncHandler.Invoke(packageName);
         }
 
         public void LoadUIPackageAsync(string packageName, LoadUIPackageCallback callback)
@@ -51,6 +59,7 @@ namespace FairyGUI.Dynamic
             m_ReleaseAudioClipHandler.Invoke(audioClip);
         }
 
+        private readonly LoadUIPackageSyncHandler m_LoadUIPackageSyncHandler;
         private readonly LoadUIPackageAsyncHandler m_LoadUIPackageAsyncHandler;
         private readonly LoadTextureAsyncHandler m_LoadTextureAsyncHandler;
         private readonly ReleaseTextureHandler m_ReleaseTextureHandler;

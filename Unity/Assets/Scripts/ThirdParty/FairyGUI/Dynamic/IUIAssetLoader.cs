@@ -14,6 +14,11 @@ namespace FairyGUI.Dynamic
     public interface IUIAssetLoader
     {
         /// <summary>
+        /// 同步加载UIPackage文化的二进制数据
+        /// </summary>
+        byte[] LoadUIPackageSync(string packageName);
+        
+        /// <summary>
         /// 异步加载UIPackage文化的二进制数据
         /// </summary>
         void LoadUIPackageAsync(string packageName, LoadUIPackageCallback callback);

@@ -307,6 +307,17 @@ namespace ET.Client
 
             return handle.AssetObject;
         }
+        
+        public static byte[] LoadRawFileDataSync(this ResComponent self, string location)
+        {
+            if (!self.RawFileOperationHandles.TryGetValue(location, out RawFileOperationHandle handle))
+            {
+                handle = YooAssets.LoadRawFileSync(location);
+                self.RawFileOperationHandles[location] = handle;
+            }
+            
+            return handle.GetRawFileData();
+        }
 
         #endregion
 

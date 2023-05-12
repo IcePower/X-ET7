@@ -9,7 +9,7 @@ namespace FairyGUI.Dynamic
         /// <summary>
         /// 是否立即卸载引用计数为0的UIPackage
         /// </summary>
-        public bool UnloadUnusedUIPackageImmediately { get; set; } = true;
+        public bool UnloadUnusedUIPackageImmediately { get; set; } = false;
         
         private readonly IUIAssetLoader m_AssetLoader;
         private readonly IUIPackageHelper m_UIPackageHelper;
@@ -23,6 +23,8 @@ namespace FairyGUI.Dynamic
             NAudioClip.CustomDestroyMethod = DestroyAudioClip;
             UIPackage.OnPackageAcquire += OnUIPackageAcquire;
             UIPackage.OnPackageRelease += OnUIPackageRelease;
+            UIPackage.GetPackageByNameFunc = LoadUIPackageSync;
+            UIPackage.GetPackageByIdFunc = LoadUIPackageSyncById;
             UIPanel.GetPackageFunc = GetPackageFunc;
 
 #if UNITY_EDITOR
@@ -68,6 +70,14 @@ namespace FairyGUI.Dynamic
         /// <summary>
         /// 加载指定的UIPackage 不会增加引用计数
         /// </summary>
+        public UIPackage LoadUIPackageSync(string packageName)
+        {
+            return FindOrCreateUIPackageInfoSync(packageName).UIPackage;
+        }
+
+        /// <summary>
+        /// 加载指定的UIPackage 不会增加引用计数
+        /// </summary>
         public void LoadUIPackageAsync(string packageName, Action<UIPackage> callback = null)
         {
             var info = FindOrCreateUIPackageInfo(packageName);
@@ -90,6 +100,15 @@ namespace FairyGUI.Dynamic
                 return;
             
             info.AddCallback(callback);
+        }
+        
+        /// <summary>
+        /// 加载指定的UIPackage 不会增加引用计数
+        /// </summary>
+        public UIPackage LoadUIPackageSyncById(string id)
+        {
+            var packageName = m_UIPackageHelper.GetPackageNameById(id);
+            return LoadUIPackageSync(packageName);
         }
 
         /// <summary>

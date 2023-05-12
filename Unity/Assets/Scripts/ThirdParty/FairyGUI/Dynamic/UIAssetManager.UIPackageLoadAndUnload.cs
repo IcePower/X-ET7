@@ -7,11 +7,39 @@ namespace FairyGUI.Dynamic
     public partial class UIAssetManager
     {
         /// <summary>
-        /// 查找指定包名的UIPackageInfo 若不存在，则创建新的实例并安徽
+        /// 查找指定包名的UIPackageInfo 若不存在，则创建新的实例并安装
+        /// </summary>
+        private UIPackageInfo FindOrCreateUIPackageInfoSync(string packageName)
+        {
+            return m_DictUIPackageInfos.TryGetValue(packageName, out var info) ? info : CreateUIPackageInfoSync(packageName);
+        }
+        
+        /// <summary>
+        /// 查找指定包名的UIPackageInfo 若不存在，则创建新的实例并安装
         /// </summary>
         private UIPackageInfo FindOrCreateUIPackageInfo(string packageName)
         {
             return m_DictUIPackageInfos.TryGetValue(packageName, out var info) ? info : CreateUIPackageInfo(packageName);
+        }
+        
+        /// <summary>
+        /// 创建新的UIPackageInfo实例 这将触发对应UIPackage的加载
+        /// </summary>
+        private UIPackageInfo CreateUIPackageInfoSync(string packageName)
+        {
+            var info = GetPackageInfoFromPool(packageName);
+            m_DictUIPackageInfos.Add(packageName, info);
+
+            if (m_AssetLoader == null)
+                throw new Exception("请设置AssetLoader");
+
+            var version = info.Version;
+
+            byte[] bytes = m_AssetLoader.LoadUIPackageSync(packageName);
+            
+            OnUIPackageDataLoadFinished(packageName, version, bytes, packageName);
+
+            return info;
         }
         
         /// <summary>

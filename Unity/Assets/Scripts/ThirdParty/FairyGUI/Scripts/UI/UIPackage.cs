@@ -554,7 +554,7 @@ namespace FairyGUI
 
             return URL_PREFIX + pkg.id + pi.id;
         }
-
+        
         public static PackageItem GetItemByURL(string url)
         {
             if (url == null)
@@ -590,6 +590,83 @@ namespace FairyGUI
             }
 
             return null;
+        }
+        
+        public delegate UIPackage GetPackageByNameHandler(string packageName);
+        public static GetPackageByNameHandler GetPackageByNameFunc = null;
+        
+        public delegate UIPackage GetPackageByIdHandler(string packageId);
+        public static GetPackageByIdHandler GetPackageByIdFunc = null;
+        
+        public static PackageItem GetItemByURLForGLoader(string url)
+        {
+            if (url == null)
+                return null;
+
+            int pos1 = url.IndexOf("//");
+            if (pos1 == -1)
+                return null;
+
+            int pos2 = url.IndexOf('/', pos1 + 2);
+            if (pos2 == -1)
+            {
+                if (url.Length <= 13)
+                {
+                    return null;
+                }
+              
+                string pkgId = url.Substring(5, 8);
+                string srcId = url.Substring(13);
+                return GetItemById(pkgId, srcId);
+            }
+           
+            string pkgName = url.Substring(pos1 + 2, pos2 - pos1 - 2);
+            string srcName = url.Substring(pos2 + 1);
+            return GetItemByName(pkgName, srcName);
+        }
+        
+        private static PackageItem GetItemById(string pkgId, string srcId)
+        {
+            UIPackage pkg = GetById(pkgId);
+            if (pkg != null)
+            {
+                return pkg.GetItem(srcId);
+            }
+            
+            if (GetPackageByIdFunc == null)
+            {
+                return null;
+            }
+
+            UIPackage p = GetPackageByIdFunc(pkgId);
+            if (p == null)
+            {
+                return null;
+            }
+
+            return p.GetItem(srcId);
+        }
+
+        private static PackageItem GetItemByName(string pkgName, string srcName)
+        {
+            UIPackage pkg = GetByName(pkgName);
+            if (pkg != null)
+            {
+                return pkg.GetItemByName(srcName);
+            }
+            
+            if (GetPackageByNameFunc == null)
+            {
+                return null;
+            }
+            
+            UIPackage p = GetPackageByNameFunc(pkgName);
+            if (p == null)
+            {
+                return null;
+            }
+
+            return p.GetItemByName(srcName);
         }
 
         /// <summary>

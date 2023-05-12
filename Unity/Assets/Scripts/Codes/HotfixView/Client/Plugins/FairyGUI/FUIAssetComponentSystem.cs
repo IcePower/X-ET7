@@ -28,6 +28,11 @@ namespace ET.Client
     {
         public static void Awake(this FUIAssetComponent self)
         {
+            byte[] LoadUIPackageSyncHandler(string packageName)
+            {
+                return self.LoadUIPackageSyncInner(packageName);
+            }
+            
             void LoadUIPackageAsyncHandler(string packageName, LoadUIPackageCallback callback)
             {
                 self.LoadUIPackageAsyncInner(packageName, callback).Coroutine();
@@ -54,8 +59,13 @@ namespace ET.Client
             }
 
             self.Locations = new Dictionary<int, string>();
-            self.UIAssetLoader = new DelegateUIAssetLoader(LoadUIPackageAsyncHandler, LoadTextureAsyncHandler, ReleaseTextureHandler, LoadAudioClipAsyncHandler, ReleaseAudioClipHandler);
-            self.UIAssetManager = new UIAssetManager(self.UIAssetLoader, null);
+            self.UIAssetLoader = new DelegateUIAssetLoader(LoadUIPackageSyncHandler, LoadUIPackageAsyncHandler, LoadTextureAsyncHandler, ReleaseTextureHandler, LoadAudioClipAsyncHandler, ReleaseAudioClipHandler);
+            self.UIAssetManager = new UIAssetManager(self.UIAssetLoader, new UIPackageHelper());
+        }
+        
+        public static void UnloadUnusedUIPackages(this FUIAssetComponent self)
+        {
+            self.UIAssetManager.UnloadUnusedUIPackages();
         }
 
         public static void Destroy(this FUIAssetComponent self)
@@ -81,6 +91,13 @@ namespace ET.Client
             self.UIAssetManager.LoadUIPackageAsync(packageName, package => { task.SetResult(package); });
 
             return task;
+        }
+        
+        private static byte[] LoadUIPackageSyncInner(this FUIAssetComponent self, string packageName)
+        {
+            string location = "{0}{1}".Fmt(packageName, "_fui");
+            byte[] descData = ResComponent.Instance.LoadRawFileDataSync(location);
+            return descData;
         }
 
         private static async ETTask LoadUIPackageAsyncInner(this FUIAssetComponent self, string packageName, LoadUIPackageCallback callback)

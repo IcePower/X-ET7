@@ -11,6 +11,19 @@ namespace FairyGUI.Dynamic
             m_PrefixAssetPath = mPrefixAssetPath ?? string.Empty;
         }
 
+        public byte[] LoadUIPackageSync(string packageName)
+        {
+            var assetPath = packageName;
+            if (!string.IsNullOrEmpty(m_PrefixAssetPath))
+                assetPath = m_PrefixAssetPath + "/" + assetPath;
+
+            var asset = Resources.Load<TextAsset>(assetPath + "_fui");
+            if (asset == null)
+                return null;
+            
+            return asset.bytes; 
+        }
+
         public void LoadUIPackageAsync(string packageName, LoadUIPackageCallback callback)
         {
             var assetPath = packageName;
