@@ -5,6 +5,8 @@ namespace ET.Client
 	{
 		public static void Awake(this TestCPanel self)
 		{
+			self.FUITestCPanel.Loader1.url = "ui://Icon1/Icon1";
+			self.FUITestCPanel.Loader2.url = "ui://96tfczmnnt9r1";
 		}
 
 		public static void RegisterUIEvent(this TestCPanel self)

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<packageDescription id="9gkqq49y">
+  <resources>
+    <image id="nt9r0" name="Icon2.png" path="/" exported="true"/>
+    <image id="nt9r1" name="Icon1.png" path="/" exported="true"/>
+  </resources>
+  <publish name="" path="../Unity/Assets/Bundles/FUI/Icon" packageCount="2"/>
+</packageDescription>
