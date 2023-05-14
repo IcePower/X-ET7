@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<packageDescription id="9bg9r3vf">
+  <resources>
+    <image id="jko30" name="1.png" path="/" exported="true"/>
+  </resources>
+  <publish name="" path="../Unity/Assets/Bundles/FUI/Icon4" packageCount="2"/>
+</packageDescription>

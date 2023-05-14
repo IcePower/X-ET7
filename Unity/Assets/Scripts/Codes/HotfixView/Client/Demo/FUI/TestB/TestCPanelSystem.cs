@@ -7,6 +7,7 @@ namespace ET.Client
 		{
 			self.FUITestCPanel.Loader1.url = "ui://Icon1/Icon1";
 			self.FUITestCPanel.Loader2.url = "ui://96tfczmnnt9r1";
+			self.FUITestCPanel.Loader3.url = "ui://Icon3/IconCom";
 		}
 
 		public static void RegisterUIEvent(this TestCPanel self)

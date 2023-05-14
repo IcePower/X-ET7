@@ -6,8 +6,10 @@
       <Button title="关闭测试C界面"/>
       <property target="image" propertyId="1" value="ui://f2boiu4iab9e4"/>
     </component>
-    <loader id="n2_nt9r" name="Loader1" xy="318,713" size="128,128" fill="scale" shrinkOnly="true"/>
-    <loader id="n4_nt9r" name="Loader2" xy="595,713" size="128,128" fill="scale"/>
+    <loader id="n2_nt9r" name="Loader1" xy="404,712" size="128,128" fill="scale"/>
+    <loader id="n4_nt9r" name="Loader2" xy="595,712" size="128,128" fill="scale"/>
     <text id="n5_nt9r" name="n5" xy="213,450" size="654,164" fontSize="35" autoSize="none" text="代码里设置Loader.url时，如果没有加载UIPackage，则调用同步接口加载。"/>
+    <loader id="n6_jko3" name="Loader3" xy="407,874" size="128,128" fill="scale"/>
+    <text id="n7_jko3" name="n7" xy="322,1012" size="301,65" fontSize="20" autoSize="none" text="引用了Icon3包里的组件，&#xA;该组件引用了Icon4包里的图片。"/>
   </displayList>
 </component>
