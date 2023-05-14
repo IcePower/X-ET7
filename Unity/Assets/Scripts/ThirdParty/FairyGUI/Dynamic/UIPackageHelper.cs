@@ -12,6 +12,8 @@ namespace FairyGUI.Dynamic
 			["2f8jqeff"] = "HotUpdate",
 			["9gkqq49y"] = "Icon1",
 			["96tfczmn"] = "Icon2",
+			["9cdyueiu"] = "Icon3",
+			["9bg9r3vf"] = "Icon4",
 			["ti3ka994"] = "Lobby",
 			["rgfb0w49"] = "Login",
 			["2kcjlx6n"] = "TestA",

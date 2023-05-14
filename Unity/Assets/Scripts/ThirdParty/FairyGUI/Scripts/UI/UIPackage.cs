@@ -641,6 +641,7 @@ namespace FairyGUI
             UIPackage p = GetPackageByIdFunc(pkgId);
             if (p == null)
             {
+                Debug.LogError($"FairyGUI: package not found - {pkgId}");
                 return null;
             }
 
@@ -663,6 +664,7 @@ namespace FairyGUI
             UIPackage p = GetPackageByNameFunc(pkgName);
             if (p == null)
             {
+                Debug.LogError($"FairyGUI: package not found - {pkgName}");
                 return null;
             }
 

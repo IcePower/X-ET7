@@ -37,7 +37,7 @@ namespace FairyGUI.Dynamic
 
             byte[] bytes = m_AssetLoader.LoadUIPackageSync(packageName);
             
-            OnUIPackageDataLoadFinished(packageName, version, bytes, packageName);
+            OnUIPackageDataLoadFinished(packageName, version, bytes, packageName, true);
 
             return info;
         }
@@ -94,6 +94,8 @@ namespace FairyGUI.Dynamic
 
             m_DictUIPackageInfos.Remove(packageName);
             
+            info.DependencePackageNames.Clear();
+
             // 已经确认要卸载该包体，则可以提前清理其他包对该包的依赖关系
             foreach (var refInfo in info.BeDependentPackageRefInfos)
                 ReturnPackageRefInfoToPool(refInfo);
@@ -124,7 +126,7 @@ namespace FairyGUI.Dynamic
         }
 
         /// <summary>
-        /// 接触被他人依赖的关联关系
+        /// 解除被他人依赖的关联关系
         /// </summary>
         private void RemoveBeDependentRelation(UIPackageInfo info, string packageName, uint version)
         {
@@ -144,7 +146,7 @@ namespace FairyGUI.Dynamic
         /// <summary>
         /// UIPackage数据加载完成回调
         /// </summary>
-        private void OnUIPackageDataLoadFinished(string packageName, uint version, byte[] bytes, string assetNamePrefix)
+        private void OnUIPackageDataLoadFinished(string packageName, uint version, byte[] bytes, string assetNamePrefix, bool isSync = false)
         {
             var info = FindUIPackageInfo(packageName, version);
 
@@ -160,7 +162,7 @@ namespace FairyGUI.Dynamic
             }
 
             // 加载成功 解析依赖的包
-            m_StrHashSetBuffer.Clear();
+            info.DependencePackageNames.Clear();
             foreach (var dependency in package.dependencies)
             {
                 if (!dependency.TryGetValue("name", out var dependencePackageName))
@@ -172,10 +174,10 @@ namespace FairyGUI.Dynamic
                 if (string.Equals(dependencePackageName, packageName))
                     continue;
 
-                m_StrHashSetBuffer.Add(dependencePackageName);
+                info.DependencePackageNames.Add(dependencePackageName);
             }
 
-            var remainCount = m_StrHashSetBuffer.Count;
+            var remainCount = info.DependencePackageNames.Count;
             
             if (remainCount == 0)
             {
@@ -186,44 +188,55 @@ namespace FairyGUI.Dynamic
                 return;
             }
             
-            foreach (var dependencePackageName in m_StrHashSetBuffer)
+            foreach (var dependencePackageName in info.DependencePackageNames)
             {
                 // 加载依赖的包
-                var dependencePackageInfo = FindOrCreateUIPackageInfo(dependencePackageName);
+                var dependencePackageInfo = isSync ? FindOrCreateUIPackageInfoSync(dependencePackageName) : FindOrCreateUIPackageInfo(dependencePackageName);
                 var dependenceVersion = dependencePackageInfo.Version;
                 
                 // 建立二者的关联关系
                 info.DependencePackageRefInfos.Add(GetPackageRefInfoFromPool(dependencePackageName, dependenceVersion));
                 dependencePackageInfo.BeDependentPackageRefInfos.Add(GetPackageRefInfoFromPool(packageName, version));
-                
-                dependencePackageInfo.AddCallback(_ =>
-                {
-                    // 做一轮基础数据校验
-                    var dependencePackageInfoNew = FindUIPackageInfo(dependencePackageName, dependenceVersion);
-                    if (dependencePackageInfoNew == null)
-                        return;
 
-                    var beDependentPackageInfo = FindUIPackageInfo(packageName, version);
-                    if (beDependentPackageInfo == null)
+                if (isSync)
+                {
+                    onLoadFinish(dependencePackageName, dependenceVersion);
+                }
+                else
+                {
+                    dependencePackageInfo.AddCallback(_ =>
                     {
-                        // 依赖自己的Package已经被卸载了 解除关联
-                        RemoveBeDependentRelation(dependencePackageInfoNew, packageName, version);
-                        return;
-                    }
+                        onLoadFinish(dependencePackageName, dependenceVersion);
+                    });
+                }
+            }
+            
+            void onLoadFinish(string dependencePackageName, uint dependenceVersion)
+            {
+                // 做一轮基础数据校验
+                var dependencePackageInfoNew = FindUIPackageInfo(dependencePackageName, dependenceVersion);
+                if (dependencePackageInfoNew == null)
+                    return;
+
+                var beDependentPackageInfo = FindUIPackageInfo(packageName, version);
+                if (beDependentPackageInfo == null)
+                {
+                    // 依赖自己的Package已经被卸载了 解除关联
+                    RemoveBeDependentRelation(dependencePackageInfoNew, packageName, version);
+                    return;
+                }
                     
-                    --remainCount;
-                    if (remainCount != 0) 
-                        return;
+                --remainCount;
+                if (remainCount != 0) 
+                    return;
                     
-                    // 依赖的包都加载完成 设置结果
-                    info.SetUIPackage(package);
-                    // 并触发回调
-                    info.InvokeCallbacks(package);
-                });
+                // 依赖的包都加载完成 设置结果
+                info.SetUIPackage(package);
+                // 并触发回调
+                info.InvokeCallbacks(package);
             }
         }
 
-        private readonly HashSet<string> m_StrHashSetBuffer = new HashSet<string>();
         private readonly Dictionary<string, UIPackageInfo> m_DictUIPackageInfos = new Dictionary<string, UIPackageInfo>();
     }
 }

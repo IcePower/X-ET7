@@ -47,7 +47,6 @@ namespace FairyGUI.Dynamic
             m_NTextureAssetRefInfos.Clear();
             m_NAudioClipAssetRefInfos.Clear();
             
-            m_StrHashSetBuffer.Clear();
             m_DictUIPackageInfos.Clear();
             
             m_Version = 0;

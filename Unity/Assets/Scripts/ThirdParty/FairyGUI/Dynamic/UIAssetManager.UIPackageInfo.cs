@@ -47,6 +47,8 @@ namespace FairyGUI.Dynamic
             /// </summary>
             public List<UIPackageRefInfo> BeDependentPackageRefInfos { get; } = new List<UIPackageRefInfo>();
 
+            public readonly HashSet<string> DependencePackageNames = new HashSet<string>();
+
             /// <summary>
             /// 添加引用计数
             /// </summary>
@@ -102,6 +104,7 @@ namespace FairyGUI.Dynamic
                 ReferenceCount = 0;
                 DependencePackageRefInfos.Clear();
                 BeDependentPackageRefInfos.Clear();
+                this.DependencePackageNames.Clear();
                 m_QueueCallbacks.Clear();
             }
 
