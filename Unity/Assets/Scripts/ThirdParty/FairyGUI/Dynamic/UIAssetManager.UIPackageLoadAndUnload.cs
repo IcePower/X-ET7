@@ -11,7 +11,22 @@ namespace FairyGUI.Dynamic
         /// </summary>
         private UIPackageInfo FindOrCreateUIPackageInfoSync(string packageName)
         {
-            return m_DictUIPackageInfos.TryGetValue(packageName, out var info) ? info : CreateUIPackageInfoSync(packageName);
+            if (!this.m_DictUIPackageInfos.TryGetValue(packageName, out var info))
+            {
+                return this.CreateUIPackageInfoSync(packageName);
+            }
+
+            if (info.UIPackage != null)
+            {
+                return info;
+            }
+
+            // 可能之前的异步加载还没有完成又触发了同步加载，这里修改version放弃掉之前的异步加载，然后重新同步加载UIPacakge。
+            info.Version = ++m_Version;
+            byte[] bytes = m_AssetLoader.LoadUIPackageSync(packageName);
+            this.OnUIPackageDataLoadFinished(packageName, info.Version, bytes, packageName, true);
+
+            return info;
         }
         
         /// <summary>
