@@ -63,7 +63,7 @@
 
 ---
 # Reference
-1. ET: 更新至[597866c](https://github.com/egametang/ET/commit/597866cb53b487186d216f08fc8bf3e9f353c0c7)
+1. ET: 更新至[3442e0d](https://github.com/egametang/ET/commit/3442e0dbbd781e07d952fd90d98e7d6c3d910edd)
 2. YooAsset: 更新至[1.4.12](https://github.com/tuyoogame/YooAsset/commit/e2788839586876da483729377580aa5cb8d06408)
 3. Luban: 更新至[8e68ab0](https://github.com/focus-creative-games/luban)
 4. ET-EUI: https://github.com/zzjfengqing/ET-EUI
