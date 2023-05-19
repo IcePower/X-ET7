@@ -63,6 +63,8 @@ namespace FUIEditor
 
         public XMLList ControllerList  { get; set; } = new XMLList();
         
+        public XMLList TransitionList  { get; set; } = new XMLList();
+
         public XMLList DisplayList { get; set; }
 
         // 最终是否需要导出类

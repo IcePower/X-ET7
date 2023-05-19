@@ -206,6 +206,10 @@ namespace FUIEditor
                 {
                     componentInfo.ControllerList.Add(element);
                 }
+                else if (element.name == "transition")
+                {
+                    componentInfo.TransitionList.Add(element);
+                }
                 else if (element.name == "relation")
                 { 
                     

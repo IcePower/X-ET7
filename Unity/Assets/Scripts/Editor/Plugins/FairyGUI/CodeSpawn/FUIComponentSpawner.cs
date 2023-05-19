@@ -9,6 +9,7 @@ namespace FUIEditor
     public static class FUIComponentSpawner
     {
         private static readonly List<string> ControllerNames = new List<string>();
+        private static readonly List<string> TransitionNames = new List<string>();
         private static readonly Dictionary<string, List<string>> ControllerPageNames = new Dictionary<string, List<string>>();
         public static void SpawnComponent(ComponentInfo componentInfo)
         {
@@ -18,6 +19,7 @@ namespace FUIEditor
             }
                 
             GatherController(componentInfo);
+            GatherTransition(componentInfo);
 
             FUICodeSpawner.ExportedComponentInfos.Add(componentInfo.PackageId, componentInfo.Id, componentInfo);
             
@@ -51,6 +53,12 @@ namespace FUIEditor
             for (int i = 0; i < ControllerNames.Count; i++)
             {
                 sb.AppendFormat("\t\tpublic Controller {0};", ControllerNames[i]);
+                sb.AppendLine();
+            }
+            
+            for (int i = 0; i < TransitionNames.Count; i++)
+            {
+                sb.AppendFormat("\t\tpublic Transition {0};", TransitionNames[i]);
                 sb.AppendLine();
             }
             
@@ -95,6 +103,12 @@ namespace FUIEditor
             for (int i = 0; i < ControllerNames.Count; i++)
             {
                 sb.AppendFormat("\t\t\t{0} = GetControllerAt({1});", ControllerNames[i], i);
+                sb.AppendLine();
+            }
+            
+            for (int i = 0; i < TransitionNames.Count; i++)
+            {
+                sb.AppendFormat("\t\t\t{0} = GetTransitionAt({1});", TransitionNames[i], i);
                 sb.AppendLine();
             }
             
@@ -149,6 +163,22 @@ namespace FUIEditor
             return true;
         }
 
+        private static void GatherTransition(ComponentInfo componentInfo)
+        {
+            TransitionNames.Clear();
+
+            foreach (XML transitionXML in componentInfo.TransitionList)
+            {
+                string transitionName = transitionXML.GetAttribute("name");
+                if (string.IsNullOrEmpty(transitionName))
+                {
+                    continue;
+                }
+
+                TransitionNames.Add(transitionName);
+            }
+        }
+        
         private static void GatherController(ComponentInfo componentInfo)
         {
             ControllerNames.Clear();
