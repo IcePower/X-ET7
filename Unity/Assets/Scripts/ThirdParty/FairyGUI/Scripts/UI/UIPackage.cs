@@ -555,50 +555,13 @@ namespace FairyGUI
             return URL_PREFIX + pkg.id + pi.id;
         }
         
-        public static PackageItem GetItemByURL(string url)
-        {
-            if (url == null)
-                return null;
-
-            int pos1 = url.IndexOf("//");
-            if (pos1 == -1)
-                return null;
-
-            int pos2 = url.IndexOf('/', pos1 + 2);
-            if (pos2 == -1)
-            {
-                if (url.Length > 13)
-                {
-                    string pkgId = url.Substring(5, 8);
-                    UIPackage pkg = GetById(pkgId);
-                    if (pkg != null)
-                    {
-                        string srcId = url.Substring(13);
-                        return pkg.GetItem(srcId);
-                    }
-                }
-            }
-            else
-            {
-                string pkgName = url.Substring(pos1 + 2, pos2 - pos1 - 2);
-                UIPackage pkg = GetByName(pkgName);
-                if (pkg != null)
-                {
-                    string srcName = url.Substring(pos2 + 1);
-                    return pkg.GetItemByName(srcName);
-                }
-            }
-
-            return null;
-        }
-        
         public delegate UIPackage GetPackageByNameHandler(string packageName);
         public static GetPackageByNameHandler GetPackageByNameFunc = null;
         
         public delegate UIPackage GetPackageByIdHandler(string packageId);
         public static GetPackageByIdHandler GetPackageByIdFunc = null;
         
-        public static PackageItem GetItemByURLForGLoader(string url)
+        public static PackageItem GetItemByURL(string url)
         {
             if (url == null)
                 return null;

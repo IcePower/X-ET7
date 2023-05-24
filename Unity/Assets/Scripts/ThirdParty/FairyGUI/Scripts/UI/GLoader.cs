@@ -390,7 +390,7 @@ namespace FairyGUI
 
         protected void LoadFromPackage(string itemURL)
         {
-            _contentItem = UIPackage.GetItemByURLForGLoader(itemURL);
+            _contentItem = UIPackage.GetItemByURL(itemURL);
 
             if (_contentItem != null)
             {
