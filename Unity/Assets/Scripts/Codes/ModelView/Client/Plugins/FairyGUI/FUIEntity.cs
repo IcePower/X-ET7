@@ -33,7 +33,7 @@ namespace ET.Client
 
         public PanelCoreData PanelCoreData { get; set; }
 
-        public Entity ContextData { get; set; }
+        public EntityRef<Entity> ContextData { get; set; }
 
         public SystemLanguage Language { get; set; }
 

@@ -108,7 +108,7 @@ namespace ET.Client
                 return;
             }
 
-            self.ShowPanelAsync(id, fuiEntity.ContextData).Coroutine();
+            self.ShowPanelAsync(id, (Entity)fuiEntity.ContextData).Coroutine();
         }
         
         /// <summary>
@@ -138,26 +138,32 @@ namespace ET.Client
             try
             {
                 FUIEntity fuiEntity = await self.ShowFUIEntityAsync(id);
-                if (fuiEntity != null)
+                if (fuiEntity == null)
                 {
-                    if (contextData != null)
-                    {
-                        fuiEntity.AddChild(contextData);
-                        fuiEntity.ContextData = contextData;
-                    }                  
-                    self.RealShowPanel(fuiEntity, id, contextData);
+                    return;
                 }
+
+                if (contextData == null && (Entity)fuiEntity.ContextData != null)
+                {
+                    contextData = (T)fuiEntity.ContextData;
+                }
+                else if (contextData != null && (Entity)fuiEntity.ContextData == null)
+                {
+                    fuiEntity.AddChild(contextData);
+                    fuiEntity.ContextData = contextData;
+                }
+                else if (contextData != null && (Entity)fuiEntity.ContextData != null)
+                {
+                    ((Entity)fuiEntity.ContextData).Dispose();
+                    fuiEntity.AddChild(contextData);
+                    fuiEntity.ContextData = contextData;
+                }
+                
+                self.RealShowPanel(fuiEntity, id, contextData);
             }
             catch (Exception e)
             {
                 Log.Error(e);
-            }
-            finally
-            {
-                if (contextData != null)
-                {
-                    contextData.Dispose();
-                }
             }
         }
 
