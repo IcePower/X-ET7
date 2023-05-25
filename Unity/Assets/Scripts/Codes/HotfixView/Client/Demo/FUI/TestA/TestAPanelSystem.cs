@@ -14,14 +14,17 @@ namespace ET.Client
 
 		public static void RegisterUIEvent(this TestAPanel self)
 		{
+			var fuiCom = self.ClientScene().GetComponent<FUIComponent>();
 			self.FUITestAPanel.OpenTestBBtn.AddListner(() =>
 			{
-				self.ClientScene().GetComponent<FUIComponent>().HideAndShowPanelStackAsync(PanelId.TestAPanel, PanelId.TestBPanel).Coroutine();
+				var context = fuiCom.AddChild<TestBPanel_ContextData>();
+				context.Data = "TestBPanel_ContextData";
+				fuiCom.HideAndShowPanelStackAsync(PanelId.TestAPanel, PanelId.TestBPanel, context).Coroutine();
 			});
 			
 			self.FUITestAPanel.HideBtn.AddListner(() =>
 			{
-				self.ClientScene().GetComponent<FUIComponent>().HidePanel(PanelId.TestAPanel);
+				fuiCom.HidePanel(PanelId.TestAPanel);
 			});
 			
 			self.FUITestAPanel.LanguageCombo.items = new string[] {"简体中文", "繁體中文", "English"};

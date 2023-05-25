@@ -17,7 +17,7 @@ namespace ET.Client
 			
 			self.FUITestBPanel.CloseBtn.AddListner(() =>
 			{
-				self.ClientScene().GetComponent<FUIComponent>().ClosePanel(PanelId.TestBPanel);
+				self.ClientScene().GetComponent<FUIComponent>().HidePanel(PanelId.TestBPanel);
 			});
 			
 			self.Com1.RegisterUIEvent();
