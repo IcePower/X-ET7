@@ -12,7 +12,13 @@ namespace ET.Client
 		{
 			self.FUITestBPanel.OpenTestCBtn.AddListner(() =>
 			{
-				self.ClientScene().GetComponent<FUIComponent>().HideAndShowPanelStackAsync(PanelId.TestBPanel, PanelId.TestCPanel).Coroutine();
+				var fuiCom = self.ClientScene().GetComponent<FUIComponent>();
+				
+				TestCPanel_ContextData testCPanelContextData = fuiCom.AddChild<TestCPanel_ContextData>();
+				TestBPanel_ContextData testBPanelContextData = (TestBPanel_ContextData)self.GetParent<FUIEntity>().ContextData;
+				testCPanelContextData.Data = testBPanelContextData.Data;
+				
+				fuiCom.HideAndShowPanelStackAsync(PanelId.TestBPanel, PanelId.TestCPanel, testCPanelContextData).Coroutine();
 			});
 			
 			self.FUITestBPanel.CloseBtn.AddListner(() =>
@@ -26,6 +32,16 @@ namespace ET.Client
 
 		public static void OnShow(this TestBPanel self, Entity contextData = null)
 		{
+			if (contextData != null)
+			{
+				TestBPanel_ContextData data = contextData as TestBPanel_ContextData;
+				Log.Info(data.Data);
+			}
+			else
+			{
+				Log.Info("contextData is null");
+			}
+			
 			self.Com1.OnShow();
 			self.Com2.OnShow();
 		}

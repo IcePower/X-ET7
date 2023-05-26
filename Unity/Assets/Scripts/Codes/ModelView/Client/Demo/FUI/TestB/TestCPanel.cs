@@ -12,4 +12,13 @@ namespace ET.Client
 			get => _fuiTestCPanel ??= (FUI_TestCPanel)this.GetParent<FUIEntity>().GComponent;
 		}
 	}
+	
+	[ChildOf]
+	public class TestCPanel_ContextData: Entity, IAwake
+	{
+		/// <summary>
+		/// 测试数据
+		/// </summary>
+		public string Data { get; set; }
+	}
 }

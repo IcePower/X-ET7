@@ -14,12 +14,20 @@ namespace ET.Client
 		{
 			self.FUITestCPanel.CloseBtn.AddListner(() =>
 			{
-				self.ClientScene().GetComponent<FUIComponent>().ClosePanel(PanelId.TestCPanel);
+				var fuiCom = self.ClientScene().GetComponent<FUIComponent>();
+
+				var testCPanelcontextData = (TestCPanel_ContextData)self.GetParent<FUIEntity>().ContextData;
+				var contextData = fuiCom.AddChild<TestBPanel_ContextData>(true);
+				contextData.Data = testCPanelcontextData.Data;
+				
+				fuiCom.ClosePanel(PanelId.TestCPanel, contextData);
 			});
 		}
 
 		public static void OnShow(this TestCPanel self, Entity contextData = null)
 		{
+			TestCPanel_ContextData data = contextData as TestCPanel_ContextData;
+			Log.Info(data.Data);
 		}
 
 		public static void OnHide(this TestCPanel self)
