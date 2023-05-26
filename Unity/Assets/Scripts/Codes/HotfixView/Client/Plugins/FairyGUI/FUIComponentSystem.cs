@@ -100,7 +100,7 @@ namespace ET.Client
             self.ClosePanel(PanelId);
         }
 
-        private static async ETTask ShowPanelStackAsync(this FUIComponent self, PanelId id)
+        private static async ETTask ShowPanelStackAsync(this FUIComponent self, PanelId id, Entity contextData = null)
         {
             FUIEntity fuiEntity = await self.ShowFUIEntityAsync(id);
             if (fuiEntity == null)
@@ -108,7 +108,7 @@ namespace ET.Client
                 return;
             }
 
-            self.ShowPanelAsync(id, (Entity)fuiEntity.ContextData).Coroutine();
+            self.ShowPanelAsync(id, contextData).Coroutine();
         }
         
         /// <summary>
@@ -143,18 +143,13 @@ namespace ET.Client
                     return;
                 }
 
-                if (contextData == null && (Entity)fuiEntity.ContextData != null)
-                {
-                    contextData = (T)fuiEntity.ContextData;
-                }
-                else if (contextData != null && (Entity)fuiEntity.ContextData == null)
-                {
-                    fuiEntity.AddChild(contextData);
-                    fuiEntity.ContextData = contextData;
-                }
-                else if (contextData != null && (Entity)fuiEntity.ContextData != null)
+                if ((Entity)fuiEntity.ContextData != null)
                 {
                     ((Entity)fuiEntity.ContextData).Dispose();
+                }
+
+                if (contextData != null)
+                {
                     fuiEntity.AddChild(contextData);
                     fuiEntity.ContextData = contextData;
                 }
@@ -204,7 +199,7 @@ namespace ET.Client
         /// 隐藏ID指定的UI窗口。如果之前使用 HideAndShowPanelStackAsync() 显示，则调用 HideAndPopPanelStack()，否则调用 CheckDirectlyHide()。
         /// </summary>
         /// <OtherParam name="id"></OtherParam>
-        public static void HidePanel(this FUIComponent self, PanelId id)
+        public static void HidePanel(this FUIComponent self, PanelId id, Entity contextData = null)
         {
             if (!self.VisiblePanelsDic.TryGetValue((int)id, out FUIEntity fuiEntity))
             {
@@ -213,7 +208,7 @@ namespace ET.Client
 
             if (fuiEntity.IsUsingStack)
             {
-                self.HideAndPopPanelStack(id);
+                self.HideAndPopPanelStack(id, contextData);
             }
             else
             {
@@ -221,7 +216,7 @@ namespace ET.Client
             }
         }
         
-        private static void HideAndPopPanelStack(this FUIComponent self, PanelId id)
+        private static void HideAndPopPanelStack(this FUIComponent self, PanelId id, Entity contextData = null)
         {
             if (!self.CheckDirectlyHide(id))
             {
@@ -235,7 +230,7 @@ namespace ET.Client
             }
         
             PanelId prePanelId = self.HidePanelsStack.Pop();
-            self.ShowPanelStackAsync(prePanelId).Coroutine();
+            self.ShowPanelStackAsync(prePanelId, contextData).Coroutine();
         }
 
         /// <summary>
@@ -356,14 +351,14 @@ namespace ET.Client
         /// </summary>
         /// <param name="self"></param>
         /// <param name="PanelId"></param>
-        public static void ClosePanel(this FUIComponent self, PanelId PanelId)
+        public static void ClosePanel(this FUIComponent self, PanelId PanelId, Entity contextData = null)
         {
             if (!self.VisiblePanelsDic.ContainsKey((int)PanelId))
             {
                 return;
             }
 
-            self.HidePanel(PanelId);
+            self.HidePanel(PanelId, contextData);
             self.UnLoadPanel(PanelId);
             Log.Info("<color=magenta>## close panel without Pop ##</color>");
         }
