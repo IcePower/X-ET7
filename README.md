@@ -11,7 +11,15 @@
    这种模式下，改了代码后需要点击 BuildModelAndHotfix，然后在菜单里选择 YooAsset - AssetBundle Builder 构建资源。改了资源后也需要构建资源。
    这种模式下可以在编辑器里和真机上运行。
 
-## 出补丁包的方法
+## 打包流程
+1.  ET.BuildEditor 里 BuildModelAndHotfix
+2.  HybridCLR - Generate - All
+3.  第一次打包，生成AOTDlls
+4.  HybridCLR - CopyAOTDlls
+5.  YooAsset 构建资源
+6.  第二次打包
+
+## 构建资源的方法
 1. 首次构建资源包。
    菜单里选择 YooAsset - AssetBundle Builder 打开资源包构建工具。
    第一次构建资源时 Copy Buildin File Option 里选择 Clear And Copy All，构建完成后会生成一个带日期的目录，比如2023-04-10-1408，将这个目录改名为v1.0,
