@@ -18,7 +18,7 @@ namespace FairyGUI
         FitHeightAndSetCenter
     }
 
-    public delegate void GetPackageHandler(string packagePath, string packageName, Action<UIPackage> onComplete);
+    public delegate void GetPackageHandler(string packagePath, string packageName, UIPackage.GetUIPackageAsyncCallback onComplete);
 
     /// <summary>
     /// 
@@ -29,7 +29,7 @@ namespace FairyGUI
     {
         public static GetPackageHandler GetPackageFunc = GetPackageSync;
 
-        public static void GetPackageSync(string packagePath, string packageName, Action<UIPackage> onComplete)
+        public static void GetPackageSync(string packagePath, string packageName, UIPackage.GetUIPackageAsyncCallback onComplete)
         {
             var package = UIPackage.GetByName(packageName);
 

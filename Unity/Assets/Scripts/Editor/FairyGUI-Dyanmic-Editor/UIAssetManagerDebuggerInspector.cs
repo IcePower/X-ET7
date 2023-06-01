@@ -1,6 +1,6 @@
-using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEngine;
 
 namespace FairyGUI.Dynamic.Editor
 {
@@ -8,7 +8,7 @@ namespace FairyGUI.Dynamic.Editor
     public class UIAssetManagerDebuggerInspector : UnityEditor.Editor
     {
         private UIAssetManager.Debugger m_Debugger;
-    
+
         private void OnEnable()
         {
             m_Debugger = (UIAssetManager.Debugger)target;
@@ -16,32 +16,30 @@ namespace FairyGUI.Dynamic.Editor
 
         public override void OnInspectorGUI()
         {
-            var dict = m_Debugger.GetUIPackageInfoDict();
-            
-            m_List.Clear();
-            m_List.AddRange(dict.Values);
-            m_List.Sort(SortByName);
+            var dict = m_Debugger.GetUIPackageRefCounts();
 
-            foreach (var info in m_List)
+            m_UIPackageNames.Clear();
+            m_UIPackageNames.AddRange(dict.Keys);
+            m_UIPackageNames.Sort();
+
+            foreach (var packageName in m_UIPackageNames)
             {
                 EditorGUILayout.BeginVertical("box");
-                
-                EditorGUILayout.LabelField("packageName", info.PackageName);
-                EditorGUILayout.LabelField("referenceCount", info.ReferenceCount.ToString());
-                EditorGUILayout.LabelField("referenceCountByOtherPackage", info.BeDependentPackageRefInfos.Count.ToString());
-                EditorGUILayout.LabelField("isLoadDone", info.IsLoadDone.ToString());
-                
+
+                EditorGUILayout.LabelField("packageName", packageName);
+                EditorGUILayout.LabelField("referenceCount", dict[packageName].ToString());
                 EditorGUILayout.EndVertical();
             }
-            
+
+            if (GUILayout.Button("Unload Unused UI Packages"))
+                m_Debugger.UnloadUnusedUIPackages();
+
+            if (GUILayout.Button("Unload All UI Packages"))
+                m_Debugger.UnloadAllUIPackages();
+
             EditorUtility.SetDirty(target);
         }
 
-        private int SortByName(UIAssetManager.UIPackageInfo x, UIAssetManager.UIPackageInfo y)
-        {
-            return string.Compare(x.PackageName, y.PackageName, StringComparison.Ordinal);
-        }
-
-        private readonly List<UIAssetManager.UIPackageInfo> m_List = new List<UIAssetManager.UIPackageInfo>();
+        private readonly List<string> m_UIPackageNames = new List<string>();
     }
 }

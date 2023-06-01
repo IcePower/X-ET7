@@ -469,15 +469,6 @@ namespace ET.Client
             
             IFUIEventHandler fuiEventHandler = FUIEventComponent.Instance.GetUIEventHandler(fuiEntity.PanelId);
             
-            // 添加Package
-            UIPackage package = await self.ClientScene().GetComponent<FUIAssetComponent>().LoadUIPackageAsync(panelInfo.PackageName);
-
-            if (package == null)
-            {
-                Log.Error($"UIPackage {panelInfo.PackageName} load failed!");
-                return;
-            }
-            
             // 创建组件
             fuiEntity.GComponent = await self.CreateObjectAsync(panelInfo.PackageName, panelInfo.ComponentName);
 
@@ -502,12 +493,7 @@ namespace ET.Client
 
         private static async ETTask<GComponent> CreateObjectAsync(this FUIComponent self, string packageName, string componentName)
         {
-            ETTask<GComponent> task = ETTask<GComponent>.Create(true);
-            UIPackage.CreateObjectAsync(packageName, componentName, result =>
-            {
-                task.SetResult(result.asCom);
-            });
-            return await task;
+            return (await self.ClientScene().GetComponent<FUIAssetComponent>().CreateObjectAsync(packageName, componentName)).asCom;
         }
 
         public static void AllPanelTranslateText(this FUIComponent self, SystemLanguage currentLanguage, Func<string, string, string> translator)

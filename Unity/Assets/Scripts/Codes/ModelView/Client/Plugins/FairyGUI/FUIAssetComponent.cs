@@ -4,12 +4,16 @@ using FairyGUI.Dynamic;
 namespace ET.Client
 {
     [ComponentOf(typeof(Scene))]
-    public class FUIAssetComponent : Entity, IAwake, IDestroy
+    public class FUIAssetComponent : Entity, IAwake<bool>, IDestroy, IUIAssetManagerConfiguration
     {
         public UIAssetManager UIAssetManager;
 
-        public IUIAssetLoader UIAssetLoader;
-
         public Dictionary<int, string> Locations;
+        
+        public IUIPackageHelper PackageHelper { get; set; }
+        
+        public IUIAssetLoader AssetLoader { get;  set;}
+        
+        public bool UnloadUnusedUIPackageImmediately { get; set; }
     }
 }

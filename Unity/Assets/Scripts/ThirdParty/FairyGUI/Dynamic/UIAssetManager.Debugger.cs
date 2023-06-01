@@ -6,10 +6,23 @@ namespace FairyGUI.Dynamic
     public partial class UIAssetManager
     {
 #if UNITY_EDITOR
+
+        /// <summary>
+        /// 获取UIPackage引用计数 仅供调试使用
+        /// </summary>
+        private void GetUIPackageRefCounts(Dictionary<string, int> buffer)
+        {
+            buffer.Clear();
+
+            foreach (var pair in m_UIPackageRefs)
+                buffer.Add(pair.Key, pair.Value.RefCount);
+        }
+
         [AddComponentMenu("")]
         public sealed class Debugger : MonoBehaviour
         {
             private static Debugger m_Debugger;
+
             public static Debugger CreateDebugger(UIAssetManager manager)
             {
                 if (m_Debugger == null)
@@ -31,12 +44,24 @@ namespace FairyGUI.Dynamic
                 GameObject.Destroy(m_Debugger.gameObject);
             }
 
-            public Dictionary<string, UIPackageInfo> GetUIPackageInfoDict()
+            public Dictionary<string, int> GetUIPackageRefCounts()
             {
-                return m_Manager?.m_DictUIPackageInfos;
+                m_Manager.GetUIPackageRefCounts(m_UIPackageRefCounts);
+                return m_UIPackageRefCounts;
+            }
+            
+            public void UnloadAllUIPackages()
+            {
+                m_Manager.UnloadAllUIPackages();
+            }
+            
+            public void UnloadUnusedUIPackages()
+            {
+                m_Manager.UnloadUnusedUIPackages();
             }
 
             private UIAssetManager m_Manager;
+            private readonly Dictionary<string, int> m_UIPackageRefCounts = new Dictionary<string, int>();
         }
 #endif
     }

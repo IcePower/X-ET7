@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Bright.Serialization;
 using FairyGUI;
 using FairyGUI.Dynamic;
 using UnityEngine;
@@ -6,11 +7,11 @@ using UnityEngine;
 namespace ET.Client
 {
     [ObjectSystem]
-    public class FUIAssetComponentAwakeSystem: AwakeSystem<FUIAssetComponent>
+    public class FUIAssetComponentAwakeSystem: AwakeSystem<FUIAssetComponent, bool>
     {
-        protected override void Awake(FUIAssetComponent self)
+        protected override void Awake(FUIAssetComponent self, bool unloadUnusedUIPackageImmediately)
         {
-            self.Awake();
+            self.Awake(unloadUnusedUIPackageImmediately);
         }
     }
 
@@ -26,14 +27,11 @@ namespace ET.Client
     [FriendOf(typeof (FUIAssetComponent))]
     public static class FUIAssetComponentSystem
     {
-        public static void Awake(this FUIAssetComponent self)
+        public static void Awake(this FUIAssetComponent self, bool unloadUnusedUIPackageImmediately)
         {
-            byte[] LoadUIPackageSyncHandler(string packageName)
-            {
-                return self.LoadUIPackageSyncInner(packageName);
-            }
+            self.UnloadUnusedUIPackageImmediately = unloadUnusedUIPackageImmediately;
             
-            void LoadUIPackageAsyncHandler(string packageName, LoadUIPackageCallback callback)
+            void LoadUIPackageAsyncHandler(string packageName, LoadUIPackageBytesCallback callback)
             {
                 self.LoadUIPackageAsyncInner(packageName, callback).Coroutine();
             }
@@ -43,36 +41,64 @@ namespace ET.Client
                 self.LoadTextureAsyncInner(assetName, callback).Coroutine();
             }
 
-            void ReleaseTextureHandler(Texture texture)
-            {
-                self.ReleaseAssetInner(texture);
-            }
-
             void LoadAudioClipAsyncHandler(string packageName, string assetName, string extension, LoadAudioClipCallback callback)
             {
                 self.LoadAudioClipAsyncInner(assetName, callback).Coroutine();
             }
 
-            void ReleaseAudioClipHandler(AudioClip audioClip)
-            {
-                self.ReleaseAssetInner(audioClip);
-            }
-
             self.Locations = new Dictionary<int, string>();
-            self.UIAssetLoader = new DelegateUIAssetLoader(LoadUIPackageSyncHandler, LoadUIPackageAsyncHandler, LoadTextureAsyncHandler, ReleaseTextureHandler, LoadAudioClipAsyncHandler, ReleaseAudioClipHandler);
-            self.UIAssetManager = new UIAssetManager(self.UIAssetLoader, new UIPackageHelper());
+            var assetLoader = new DelegateUIAssetLoader();
+            assetLoader.LoadUIPackageBytesAsyncHandlerImpl = LoadUIPackageAsyncHandler;
+            assetLoader.LoadUIPackageBytesHandlerImpl = self.LoadUIPackageSyncInner;
+            assetLoader.LoadTextureAsyncHandlerImpl = LoadTextureAsyncHandler;
+            assetLoader.UnloadTextureHandlerImpl = self.UnloadAssetInner;
+            assetLoader.LoadAudioClipAsyncHandlerImpl = LoadAudioClipAsyncHandler;
+            assetLoader.UnloadAudioClipHandlerImpl = self.UnloadAssetInner;
+
+            self.AssetLoader = assetLoader;
+
+            byte[] mappingData = ResComponent.Instance.LoadRawFileDataSync("UIPackageMapping");
+            self.PackageHelper = new UIPackageMapping(mappingData);
+
+            self.UIAssetManager = new UIAssetManager();
+            self.UIAssetManager.Initialize(self);
+        }
+        
+        public static ETTask<GObject> CreateObjectFromURLAsync(this FUIAssetComponent self, string url)
+        {
+            ETTask<GObject> task = ETTask<GObject>.Create(true);
+            UIPackage.CreateObjectFromURLAsync(url, result =>
+            {
+                task.SetResult(result);
+            });
+            return task;
+        }
+
+        public static ETTask<GObject> CreateObjectAsync(this FUIAssetComponent self, string pkgName, string resName)
+        {
+            ETTask<GObject> task = ETTask<GObject>.Create(true);
+            UIPackage.CreateObjectAsync(pkgName, resName, result =>
+            {
+                task.SetResult(result);
+            });
+            return task;
+        }
+        
+        public static GObject CreateObject(this FUIAssetComponent self, string pkgName, string resName)
+        {
+            return UIPackage.CreateObject(pkgName, resName);
         }
         
         public static void UnloadUnusedUIPackages(this FUIAssetComponent self)
         {
-            self.UIAssetManager.UnloadUnusedUIPackages();
+            UIPackage.RemoveUnusedPackages();
         }
 
         public static void Destroy(this FUIAssetComponent self)
         {
             self.UIAssetManager.Dispose();
             self.UIAssetManager = null;
-            self.UIAssetLoader = null;
+            self.AssetLoader = null;
 
             if (ResComponent.Instance != null && !ResComponent.Instance.IsDisposed)
             {
@@ -85,25 +111,22 @@ namespace ET.Client
             self.Locations.Clear();
         }
 
-        public static ETTask<UIPackage> LoadUIPackageAsync(this FUIAssetComponent self, string packageName)
-        {
-            ETTask<UIPackage> task = ETTask<UIPackage>.Create(true);
-            self.UIAssetManager.LoadUIPackageAsync(packageName, package => { task.SetResult(package); });
-
-            return task;
-        }
-        
-        private static byte[] LoadUIPackageSyncInner(this FUIAssetComponent self, string packageName)
+        private static void LoadUIPackageSyncInner(this FUIAssetComponent self, string packageName, out byte[] bytes, out string assetNamePrefix)
         {
             string location = "{0}{1}".Fmt(packageName, "_fui");
             byte[] descData = ResComponent.Instance.LoadRawFileDataSync(location);
-            return descData;
+            ResComponent.Instance.UnloadAsset(location);
+            
+            bytes = descData;
+            assetNamePrefix = packageName;
         }
 
-        private static async ETTask LoadUIPackageAsyncInner(this FUIAssetComponent self, string packageName, LoadUIPackageCallback callback)
+        private static async ETTask LoadUIPackageAsyncInner(this FUIAssetComponent self, string packageName, LoadUIPackageBytesCallback callback)
         {
             string location = "{0}{1}".Fmt(packageName, "_fui");
             byte[] descData = await ResComponent.Instance.LoadRawFileDataAsync(location);
+            ResComponent.Instance.UnloadAsset(location);
+                
             callback(descData, packageName);
         }
 
@@ -127,12 +150,12 @@ namespace ET.Client
             callback(res);
         }
 
-        private static void ReleaseAssetInner(this FUIAssetComponent self, UnityEngine.Object texture)
+        private static void UnloadAssetInner(this FUIAssetComponent self, UnityEngine.Object obj)
         {
-            if (texture == null)
+            if (obj == null)
                 return;
 
-            int instanceId = texture.GetInstanceID();
+            int instanceId = obj.GetInstanceID();
             if (!self.Locations.TryGetValue(instanceId, out string location))
                 return;
 

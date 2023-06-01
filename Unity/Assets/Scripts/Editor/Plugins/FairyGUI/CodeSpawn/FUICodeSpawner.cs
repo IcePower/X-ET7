@@ -264,7 +264,7 @@ namespace FUIEditor
                 ExportedPackageInfos.Add(PackageInfos[kv.Key]);
             }
 
-            FUIPackageHelperSpawner.SpawnUIPackageHelper();
+            FUIPackageHelperSpawner.GenerateMappingFile();
             FUIPanelIdSpawner.SpawnPanelId();
             FUIBinderSpawner.SpawnFUIBinder(ExportedPackageInfos);
 

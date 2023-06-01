@@ -1,30 +1,31 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace FairyGUI.Dynamic
 {
-    public sealed partial class UIAssetManager : IDisposable
+    public sealed partial class UIAssetManager : IUIAssetManager
     {
-        /// <summary>
-        /// 是否立即卸载引用计数为0的UIPackage
-        /// </summary>
-        public bool UnloadUnusedUIPackageImmediately { get; set; } = false;
-        
-        private readonly IUIAssetLoader m_AssetLoader;
-        private readonly IUIPackageHelper m_UIPackageHelper;
-
-        public UIAssetManager(IUIAssetLoader assetLoader, IUIPackageHelper uiPackageHelper)
+        public void Initialize(IUIAssetManagerConfiguration configuration)
         {
-            m_AssetLoader = assetLoader;
-            m_UIPackageHelper = uiPackageHelper;
-            
-            NTexture.CustomDestroyMethod = DestroyTexture;
+            if (m_Initialized)
+                throw new Exception("UIAssetManager has been initialized!");
+
+            m_Initialized = true;
+            m_PackageHelper = configuration.PackageHelper;
+            m_AssetLoader = configuration.AssetLoader;
+            m_UnloadUnusedUIPackageImmediately = configuration.UnloadUnusedUIPackageImmediately;
+
+            NTexture.CustomDestroyMethod += DestroyTexture;
             NAudioClip.CustomDestroyMethod = DestroyAudioClip;
             UIPackage.OnPackageAcquire += OnUIPackageAcquire;
             UIPackage.OnPackageRelease += OnUIPackageRelease;
-            UIPackage.GetPackageByNameFunc = LoadUIPackageSync;
-            UIPackage.GetPackageByIdFunc = LoadUIPackageSyncById;
+            UIPackage.GetUIPackageByIdFunc = GetUIPackageByIdFunc;
+            UIPackage.GetUIPackageByNameFunc = GetUIPackageByNameFunc;
+            UIPackage.GetUIPackageAsyncByIdHandler = GetUIPackageAsyncById;
+            UIPackage.GetUIPackageAsyncByNameHandler = GetUIPackageAsyncByName;
+            UIPackage.RemoveAllPackagesHandler = UnloadAllUIPackages;
+            UIPackage.RemoveUnusedPackagesHandler = UnloadUnusedUIPackages;
             UIPanel.GetPackageFunc = GetPackageFunc;
 
 #if UNITY_EDITOR
@@ -34,198 +35,166 @@ namespace FairyGUI.Dynamic
 
         public void Dispose()
         {
-            UnloadAllUIPackages();
-            
-            foreach (var texture in m_LoadedTextures)
-                m_AssetLoader.ReleaseTexture(texture);
-            m_LoadedTextures.Clear();
-            
-            foreach (var audioClip in m_LoadedAudioClips)
-                m_AssetLoader.ReleaseAudioClip(audioClip);
-            m_LoadedAudioClips.Clear();
-            
-            m_NTextureAssetRefInfos.Clear();
-            m_NAudioClipAssetRefInfos.Clear();
-            
-            m_DictUIPackageInfos.Clear();
-            
-            m_Version = 0;
-            m_PoolUIPackageInfos.Clear();
-            m_PoolUIPackageRefInfos.Clear();
-            
-            m_Buffer.Clear();
+            if (!m_Initialized)
+                throw new Exception("UIAssetManager has not been initialized!");
+
+            m_Initialized = false;
             
 #if UNITY_EDITOR
             Debugger.DestroyDebugger();
 #endif
-            
+
+            UnloadAllUIPackages();
+
+            foreach (var texture in m_LoadedTextures)
+                m_AssetLoader.UnloadTexture(texture);
+            m_LoadedTextures.Clear();
+
+            foreach (var audioClip in m_LoadedAudioClips)
+                m_AssetLoader.UnloadAudioClip(audioClip);
+            m_LoadedAudioClips.Clear();
+
+            m_NTextureAssetRefInfos.Clear();
+            m_NAudioClipAssetRefInfos.Clear();
+
             NTexture.CustomDestroyMethod -= DestroyTexture;
             NAudioClip.CustomDestroyMethod -= DestroyAudioClip;
             UIPackage.OnPackageAcquire -= OnUIPackageAcquire;
             UIPackage.OnPackageRelease -= OnUIPackageRelease;
+            UIPackage.GetUIPackageByIdFunc -= GetUIPackageByIdFunc;
+            UIPackage.GetUIPackageByNameFunc -= GetUIPackageByNameFunc;
+            UIPackage.RemoveAllPackagesHandler -= UnloadAllUIPackages;
+            UIPackage.RemoveUnusedPackagesHandler -= UnloadUnusedUIPackages;
             UIPanel.GetPackageFunc -= GetPackageFunc;
         }
 
-        /// <summary>
-        /// 加载指定的UIPackage 不会增加引用计数
-        /// </summary>
-        public UIPackage LoadUIPackageSync(string packageName)
+        private UIPackage GetUIPackageByNameFunc(string name)
         {
-            return FindOrCreateUIPackageInfoSync(packageName).UIPackage;
+            return FindOrCreateUIPackage(name);
         }
 
-        /// <summary>
-        /// 加载指定的UIPackage 不会增加引用计数
-        /// </summary>
-        public void LoadUIPackageAsync(string packageName, Action<UIPackage> callback = null)
+        private UIPackage GetUIPackageByIdFunc(string id)
         {
-            var info = FindOrCreateUIPackageInfo(packageName);
-            if (callback == null)
-                return;
-            
-            info.AddCallback(callback);
-        }
+            if (m_PackageHelper == null)
+                throw new Exception("请设置PackageHelper");
 
-        /// <summary>
-        /// 加载指定的UIPackage 并让引用计数+1
-        /// </summary>
-        public void LoadUIPackageAsyncAndAddRef(string packageName, Action<UIPackage> callback = null)
-        {
-            var info = FindOrCreateUIPackageInfo(packageName);
-            
-            info.AddRef();
-            
-            if (callback == null)
-                return;
-            
-            info.AddCallback(callback);
-        }
-        
-        /// <summary>
-        /// 加载指定的UIPackage 不会增加引用计数
-        /// </summary>
-        public UIPackage LoadUIPackageSyncById(string id)
-        {
-            var packageName = m_UIPackageHelper.GetPackageNameById(id);
-            return LoadUIPackageSync(packageName);
-        }
-
-        /// <summary>
-        /// 通过id加载指定的UIPackage 不会增加引用计数
-        /// </summary>
-        public void LoadUIPackageAsyncById(string id, Action<UIPackage> callback = null)
-        {
-            var packageName = m_UIPackageHelper.GetPackageNameById(id);
+            var packageName = m_PackageHelper.GetPackageNameById(id);
             if (string.IsNullOrEmpty(packageName))
             {
-                callback?.Invoke(null);
-                return;
+                // 获取packageName失败
+                Debug.Log($"获取packageName失败: {packageName}");
+                return null;
             }
-
-            LoadUIPackageAsync(packageName, callback);
+            
+            return FindOrCreateUIPackage(packageName);
         }
 
-        /// <summary>
-        /// 通过id加载指定的UIPackage 并让引用计数+1
-        /// </summary>
-        public void LoadUIPackageAsyncAndAddRefById(string id, Action<UIPackage> callback = null)
+        private void GetUIPackageAsyncByName(string arg1, UIPackage.GetUIPackageAsyncCallback arg2)
         {
-            var packageName = m_UIPackageHelper.GetPackageNameById(id);
+            FindOrCreateUIPackageAsync(arg1, arg2);
+        }
+
+        private void GetUIPackageAsyncById(string id, UIPackage.GetUIPackageAsyncCallback callback)
+        {
+            if (m_PackageHelper == null)
+                throw new Exception("请设置PackageHelper");
+            
+            var packageName = m_PackageHelper.GetPackageNameById(id);
             if (string.IsNullOrEmpty(packageName))
             {
-                callback?.Invoke(null);
+                // 获取packageName失败
+                Debug.Log($"获取packageName失败: {packageName}");
+                callback(null);
                 return;
             }
             
-            LoadUIPackageAsyncAndAddRef(packageName, callback);
+            FindOrCreateUIPackageAsync(packageName, callback);
         }
 
-        /// <summary>
-        /// 令指定的UIPackage 引用次数减一
-        /// </summary>
-        public void ReleaseUIPackage(string packageName)
+        private void UnloadAllUIPackages()
         {
-            var info = FindUIPackageInfo(packageName);
-            if (info == null)
-                return;
-            
-            info.RemoveRef();
-            CheckIfNeedDestroy(info);
+            foreach (var packageRef in m_UIPackageRefs.Values)
+                UIPackage.RemovePackage(packageRef.Name);
+
+            m_UIPackageRefs.Clear();
         }
 
-        /// <summary>
-        /// 通过id令指定的UIPackage 引用次数减一
-        /// </summary>
-        public void ReleaseUIPackageById(string id)
+        private void UnloadUnusedUIPackages()
         {
-            var packageName = m_UIPackageHelper.GetPackageNameById(id);
-            if (string.IsNullOrEmpty(packageName))
-                return;
+            m_RemoveBuffer.Clear();
 
-            ReleaseUIPackage(packageName);
-        }
-        
-        /// <summary>
-        /// 卸载引用计数为0的UIPackage
-        /// </summary>
-        public void UnloadUnusedUIPackages()
-        {
-            // 一直遍历到无包可卸载为止
-            while (true)
+            foreach (var packageRef in m_UIPackageRefs.Values)
             {
-                foreach (var (key, info) in m_DictUIPackageInfos)
+                if (packageRef.RefCount > 0)
+                    continue;
+
+                m_RemoveBuffer.Add(packageRef.Name);
+                UIPackage.RemovePackage(packageRef.Name);
+            }
+
+            foreach (var packageName in m_RemoveBuffer)
+                m_UIPackageRefs.Remove(packageName);
+        }
+
+        private void GetPackageFunc(string packagePath, string packageName, UIPackage.GetUIPackageAsyncCallback onComplete)
+        {
+            FindOrCreateUIPackageAsync(packageName, onComplete);
+        }
+
+        private UIPackage FindOrCreateUIPackage(string packageName)
+        {
+            var packageRef = FindUIPackageRef(packageName);
+            if (packageRef != null)
+                return packageRef.UIPackage;
+
+            if (m_AssetLoader == null)
+                throw new Exception("请设置AssetLoader");
+
+            m_AssetLoader.LoadUIPackageBytes(packageName, out var bytes, out var assetNamePrefix);
+            if (bytes == null)
+            {
+                Debug.LogError($"加载UIPackage失败: {packageName}");
+                return null;
+            }
+            
+            return AddUIPackage(packageName, bytes, assetNamePrefix);
+        }
+
+        private void FindOrCreateUIPackageAsync(string packageName, UIPackage.GetUIPackageAsyncCallback onComplete)
+        {
+            var packageRef = FindUIPackageRef(packageName);
+            if (packageRef != null)
+            {
+                onComplete?.Invoke(packageRef.UIPackage);
+                return;
+            }
+
+            if (m_AssetLoader == null)
+                throw new Exception("请设置AssetLoader");
+
+            m_AssetLoader.LoadUIPackageBytesAsync(packageName, (bytes, assetNamePrefix) =>
+            {
+                if (bytes == null)
                 {
-                    if (info.IsAnyReference)
-                        continue;
-                
-                    m_Buffer.Enqueue(key);
+                    Debug.LogError($"加载UIPackage失败: {packageName}");
+                    onComplete?.Invoke(null);
+                    return;
                 }
                 
-                if (m_Buffer.Count == 0)
-                    break;
-
-                while (m_Buffer.Count > 0)
-                    DestroyUIPackageInfo(m_Buffer.Dequeue());
-            }
-        }
-        
-        /// <summary>
-        /// 强制卸载指定的UI包 无视引用次数
-        /// </summary>
-        public void UnloadUIPackageForce(string packageName)
-        {
-            DestroyUIPackageInfo(packageName);
-        }
-        
-        /// <summary>
-        /// 通过id强制卸载指定的UI包 无视引用次数
-        /// </summary>
-        public void UnloadUIPackageForceById(string id)
-        {
-            var packageName = m_UIPackageHelper.GetPackageNameById(id);
-            if (string.IsNullOrEmpty(packageName))
-                return;
-
-            UnloadUIPackageForce(packageName);
-        }
-        
-        /// <summary>
-        /// 强制卸载所有UI包 无视引用次数
-        /// </summary>
-        public void UnloadAllUIPackages()
-        {
-            foreach (var info in m_DictUIPackageInfos.Keys)
-                m_Buffer.Enqueue(info);
-            
-            while (m_Buffer.Count > 0)
-                DestroyUIPackageInfo(m_Buffer.Dequeue());
+                var uiPackage = AddUIPackage(packageName, bytes, assetNamePrefix);
+                onComplete?.Invoke(uiPackage);
+            });
         }
 
-        private void GetPackageFunc(string packagePath, string packageName, Action<UIPackage> onComplete)
-        {
-            LoadUIPackageAsync(packageName, onComplete);
-        }
-        
-        private readonly Queue<string> m_Buffer = new Queue<string>();
+
+        private bool m_Initialized;
+        private IUIPackageHelper m_PackageHelper;
+        private IUIAssetLoader m_AssetLoader;
+        private bool m_UnloadUnusedUIPackageImmediately;
+
+        private readonly List<Texture> m_LoadedTextures = new List<Texture>();
+        private readonly List<AudioClip> m_LoadedAudioClips = new List<AudioClip>();
+
+        private readonly HashSet<string> m_RemoveBuffer = new HashSet<string>();
     }
 }
