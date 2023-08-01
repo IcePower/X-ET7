@@ -9,12 +9,14 @@ namespace ET.Client
     {
         protected override void Awake(LocalizeComponent self)
         {
-            self.CurrentLanguage = SystemLanguage.ChineseSimplified;
+            self.CurrentLanguage = LocalizeComponentSystem.DefaultLanguage;
         }
     }
     [FriendOf(typeof(LocalizeComponent))]
     public static class LocalizeComponentSystem
     {
+        public const SystemLanguage DefaultLanguage = SystemLanguage.ChineseSimplified;
+        
         public static bool SwitchLanguage(this LocalizeComponent self, SystemLanguage language)
         {
             if (self.CurrentLanguage == language)

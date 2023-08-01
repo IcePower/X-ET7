@@ -1,4 +1,5 @@
 using FairyGUI;
+using UnityEngine;
 
 namespace ET.Client
 {
@@ -8,6 +9,7 @@ namespace ET.Client
         protected override void Awake(FUIEntity self)
         {
             self.PanelCoreData = self.AddChild<PanelCoreData>();
+            self.Language = LocalizeComponentSystem.DefaultLanguage;
         }
     }
     
@@ -23,6 +25,8 @@ namespace ET.Client
                 self.GComponent.Dispose();
                 self.GComponent = null;
             }
+
+            self.Language = LocalizeComponentSystem.DefaultLanguage;
         }
     }
 

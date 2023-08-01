@@ -554,7 +554,10 @@ namespace ET.Client
                         label.title = translator(key1, label.title);
                         break;
                     case GComponent subComponent:
-                        self.TranslateComponent(subComponent, translator);
+                        if (subComponent.resourceURL != null)
+                        {
+                            self.TranslateComponent(subComponent, translator);
+                        }
                         break;
                 }
             }
