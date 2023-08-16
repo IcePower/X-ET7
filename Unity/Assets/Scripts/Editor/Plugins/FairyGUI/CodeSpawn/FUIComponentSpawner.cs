@@ -52,6 +52,7 @@ namespace FUIEditor
             
             for (int i = 0; i < ControllerNames.Count; i++)
             {
+                if (string.IsNullOrEmpty(ControllerNames[i])) continue;
                 sb.AppendFormat("\t\tpublic Controller {0};", ControllerNames[i]);
                 sb.AppendLine();
             }
@@ -102,6 +103,7 @@ namespace FUIEditor
 
             for (int i = 0; i < ControllerNames.Count; i++)
             {
+                if (string.IsNullOrEmpty(ControllerNames[i])) continue;
                 sb.AppendFormat("\t\t\t{0} = GetControllerAt({1});", ControllerNames[i], i);
                 sb.AppendLine();
             }
@@ -188,6 +190,7 @@ namespace FUIEditor
                 string controllerName = controllerXML.GetAttribute("name");
                 if (!CheckControllerName(controllerName, componentInfo.ComponentType))
                 {
+                    ControllerNames.Add("");
                     continue;
                 }
 
