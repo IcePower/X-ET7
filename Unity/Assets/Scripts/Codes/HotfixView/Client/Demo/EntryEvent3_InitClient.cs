@@ -67,7 +67,7 @@ namespace ET.Client
         {
             // 下载资源
             Log.Info("Count: {0}, Bytes: {1}".Fmt(ResComponent.Instance.Downloader.TotalDownloadCount, ResComponent.Instance.Downloader.TotalDownloadBytes));
-            int errorCode = await ResComponent.Instance.DonwloadWebFilesAsync(
+            int errorCode = await ResComponent.Instance.DownloadWebFilesAsync(
                 // 开始下载回调
                 null,
                 

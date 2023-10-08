@@ -47,7 +47,6 @@ namespace ET.Client
             
             self.AssetsOperationHandles.Clear();
             self.SubAssetsOperationHandles.Clear();
-            self.SceneOperationHandles.Clear();
             self.RawFileOperationHandles.Clear();
             self.HandleProgresses.Clear();
             self.DoneHandleQueue.Clear();
@@ -135,7 +134,7 @@ namespace ET.Client
             return ErrorCode.ERR_Success;
         }
 
-        public static async ETTask<int> DonwloadWebFilesAsync(this ResComponent self, 
+        public static async ETTask<int> DownloadWebFilesAsync(this ResComponent self, 
         DownloaderOperation.OnStartDownloadFile onStartDownloadFileCallback = null, 
         DownloaderOperation.OnDownloadProgress onDownloadProgress = null,
         DownloaderOperation.OnDownloadError onDownloadError = null,
@@ -236,12 +235,8 @@ namespace ET.Client
 
         public static async ETTask<UnityEngine.SceneManagement.Scene> LoadSceneAsync(this ResComponent self, string location, Action<float> progressCallback = null, LoadSceneMode loadSceneMode = LoadSceneMode.Single, bool activateOnLoad = true, int priority = 100)
         {
-            if (!self.SceneOperationHandles.TryGetValue(location, out SceneOperationHandle handle))
-            {
-                handle = YooAssets.LoadSceneAsync(location, loadSceneMode, activateOnLoad, priority);
-                self.SceneOperationHandles[location] = handle;
-            }
-
+            SceneOperationHandle handle = YooAssets.LoadSceneAsync(location, loadSceneMode, activateOnLoad, priority);
+            
             if (progressCallback != null)
             {
                 self.HandleProgresses.Add(handle, progressCallback);

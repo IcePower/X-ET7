@@ -18,8 +18,6 @@ namespace ET.Client
         
         public Dictionary<string, SubAssetsOperationHandle> SubAssetsOperationHandles = new Dictionary<string, SubAssetsOperationHandle>();
         
-        public Dictionary<string, SceneOperationHandle> SceneOperationHandles = new Dictionary<string, SceneOperationHandle>();
-        
         public Dictionary<string, RawFileOperationHandle> RawFileOperationHandles = new Dictionary<string, RawFileOperationHandle>(100);
 
         public Dictionary<OperationHandleBase, Action<float>> HandleProgresses = new Dictionary<OperationHandleBase, Action<float>>();
