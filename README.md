@@ -76,3 +76,8 @@
 4. ET-EUI: https://github.com/zzjfengqing/ET-EUI
 5. FairyGUI: https://www.fairygui.com/
 6. FairyGUI-Dynamic: https://github.com/SunHowe/FairyGUI-Dynamic
+
+---
+# 推荐项目
+1. https://github.com/FlameskyDexive/Legends-Of-Heroes
+2. https://gitee.com/lijoujou99_admin/Lys-ET
