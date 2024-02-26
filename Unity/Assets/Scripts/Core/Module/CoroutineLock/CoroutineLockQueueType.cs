@@ -48,12 +48,12 @@ namespace ET
                 return;
             }
             
-            if (queue.Count == 0)
+            if (!queue.Notify(level))
             {
                 this.Remove(key);
             }
 
-            queue.Notify(level);
+
         }
     }
 }
